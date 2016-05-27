@@ -28,9 +28,8 @@
   };
 
   CKEDITOR.plugins.add('CKEditorSegments', {
-
     lang: 'en',
-    icons: 'icon',
+    icons: 'showsegments',
     hidpi: true,
     onLoad: function () {
       var tags = ['tmgmt-segment'],
@@ -116,3 +115,12 @@
     }
   });
 })();
+
+/**
+ * If we want to automatically enable the showsegments command when the editor loads.
+ *
+ *		config.startupOutlineBlocks = true;
+ *
+ * @cfg {Boolean} [startupOutlineBlocks=false]
+ * @member CKEDITOR.config
+ */

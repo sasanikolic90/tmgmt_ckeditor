@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains ckeditorsegments.module..
+ * Contains ckeditorsegments.module.
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
