@@ -84,6 +84,7 @@
       }
 
       editor.ui.addButton && editor.ui.addButton('CKEditorSegments', {
+        icon: 'showsegments',
         label: editor.lang.CKEditorSegments.buttonTitle,
         command: 'showsegments',
         toolbar: 'tools,20'
