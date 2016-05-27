@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains ckeditorsegments.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function ckeditorsegments_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the ckeditorsegments module.
+    case 'help.page.ckeditorsegments':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('TMGT segments plugin for CKEditor') . '</p>';
+      return $output;
+
+    default:
+  }
+}

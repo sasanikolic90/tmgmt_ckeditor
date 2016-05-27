@@ -1,0 +1,6 @@
+name: CKEditorSegments
+type: module
+description: Displays TMGMT segments in CKEditor
+core: 8.x
+package: CKEditor
+version: VERSION
