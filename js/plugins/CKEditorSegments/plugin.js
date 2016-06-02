@@ -6,6 +6,8 @@
 (function () {
   'use strict';
 
+  var tag = 'tmgmt-segment';
+
   var commandDefinition = {
     readOnly: 1,
     preserveState: true,
@@ -14,15 +16,33 @@
     exec: function (editor) {
       this.toggleState();
       this.refresh(editor);
+      this.displayContext(editor);
     },
 
-    refresh: function(editor) {
+    refresh: function (editor) {
       if (editor.document) {
         // showSegments turns inactive after editor loses focus when in inline.
-        var showSegments = (this.state === CKEDITOR.TRISTATE_ON && (editor.elementMode !== CKEDITOR.ELEMENT_MODE_INLINE || editor.focusManager.hasFocus));
+        var showSegments = (this.state === CKEDITOR.TRISTATE_ON &&
+        (editor.elementMode !== CKEDITOR.ELEMENT_MODE_INLINE || editor.focusManager.hasFocus));
 
         var funcName = showSegments ? 'attachClass' : 'removeClass';
         editor.editable()[funcName]('cke_show_segments');
+      }
+    },
+    displayContext: function (editor) {
+      if (document.getElementsByClassName('tmgmt-ui-review').length > 0) {
+        var data = editor.getData();
+        var texts = data.match(/<tmgmt-segment>(.*?)<\/tmgmt-segment>/g).map(function (val) {
+          return val.replace(/<\/?tmgmt-segment>/g,'');
+        });
+
+        var translation_div = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
+        var segments_div = document.createElement('div');
+        segments_div.id = 'segments-div';
+        segments_div.className = 'segments-div';
+        var newContent = document.createTextNode(texts.join(', '));
+        segments_div.appendChild(newContent);
+        translation_div.appendChild(segments_div);
       }
     }
   };
@@ -32,45 +52,23 @@
     icons: 'showsegments',
     hidpi: true,
     onLoad: function () {
-      var tags = ['tmgmt-segment'],
-        cssStd, cssImgLeft, cssImgRight,
-        path = CKEDITOR.getUrl(this.path),
-      // Don't apply the styles to non-editable elements and chosen ones.
-      // IE8 does not support :not() pseudoclass, so we need to reset showsegments rather
-      // than 'prevent' its application. We do that by additional rules.
-        supportsNotPseudoclass = !(CKEDITOR.env.ie && CKEDITOR.env.version < 9),
-        notDisabled = supportsNotPseudoclass ? ':not([contenteditable=false]):not(.cke_show_segments_off)' : '',
-        tag, trailing;
+      var cssStd, cssImgLeft, cssImgRight,
+        path = CKEDITOR.getUrl(this.path);
 
       cssStd = cssImgLeft = cssImgRight = '';
 
-      while ((tag = tags.pop())) {
-        trailing = tags.length ? ',' : '';
-
-        cssStd += '.cke_show_segments ' + tag + notDisabled + trailing + '{' +
-          '}';
-        cssImgLeft += '.cke_show_segments ' + tag + notDisabled + '::before{' +
-          'content:url(' + CKEDITOR.getUrl(path + 'images/arrow-right-20.png') + ')' +
-          '}';
-        cssImgRight += '.cke_show_segments ' + tag + notDisabled + '::after{' +
-          'content:url(' + CKEDITOR.getUrl(path + 'images/arrow-left-20.png') + ')' +
-          '}';
-      }
+      cssStd += '.cke_show_segments ' + tag + '{' +
+        '}';
+      cssImgLeft += '.cke_show_segments ' + tag + '::before{' +
+        'content:url(' + CKEDITOR.getUrl(path + 'images/arrow-right-20.png') + ')' +
+        '}';
+      cssImgRight += '.cke_show_segments ' + tag + '::after{' +
+        'content:url(' + CKEDITOR.getUrl(path + 'images/arrow-left-20.png') + ')' +
+        '}';
 
       CKEDITOR.addCss(cssStd.concat(cssImgLeft, cssImgRight));
-
-      // [IE8] Reset the styles for non-editables and chosen elements, because
-      // it could not be done using :not() pseudoclass.
-      if (!supportsNotPseudoclass) {
-        CKEDITOR.addCss(
-          '.cke_show_segments [contenteditable=false],.cke_show_segments .cke_show_segments_off{' +
-          'border:none;' +
-          'padding-top:0;' +
-          'background-image:none' +
-          '}'
-        );
-      }
     },
+
     init: function (editor) {
       if (editor.blockless) {
         return;
@@ -104,7 +102,7 @@
       }
 
       // Refresh the command on setData.
-      editor.on('contentDom', function() {
+      editor.on('contentDom', function () {
         if (command.state !== CKEDITOR.TRISTATE_DISABLED) {
           command.refresh(editor);
         }
