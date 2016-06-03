@@ -15,8 +15,8 @@
 
     exec: function (editor) {
       this.toggleState();
-      this.refresh(editor);
       this.displayContext(editor);
+      this.refresh(editor);
     },
 
     refresh: function (editor) {
@@ -30,19 +30,37 @@
       }
     },
     displayContext: function (editor) {
+      // Do this only when we are on translation page.
       if (document.getElementsByClassName('tmgmt-ui-review').length > 0) {
         var data = editor.getData();
         var texts = data.match(/<tmgmt-segment>(.*?)<\/tmgmt-segment>/g).map(function (val) {
           return val.replace(/<\/?tmgmt-segment>/g,'');
         });
 
-        var translation_div = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-        var segments_div = document.createElement('div');
-        segments_div.id = 'segments-div';
-        segments_div.className = 'segments-div';
-        var newContent = document.createTextNode(texts.join(', '));
-        segments_div.appendChild(newContent);
-        translation_div.appendChild(segments_div);
+        // Do this only when we click on the 'Show segments' icon.
+        if (this.state === 1) {
+          // Display the segments' context below the translate editor.
+          var translation_div = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
+          var segments_div = document.createElement('div');
+          segments_div.id = 'segments-div';
+
+          // Create paragraphs for each segment context.
+          var para = [];
+          var content;
+          for (var i = 0; i < texts.length; i++) {
+            para[i] = document.createElement("P");
+            content = document.createTextNode(texts[i]);
+            para[i].appendChild(content);
+            segments_div.appendChild(para[i]);
+          }
+          // var newContent = document.createTextNode(texts.join(", "));
+          // segments_div.appendChild(newContent);
+          translation_div.appendChild(segments_div);
+        }
+        // Remove the segments div when disabling the 'Show segments'.
+        else {
+          document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
+        }
       }
     }
   };
