@@ -27,39 +27,46 @@
 
         var funcName = showSegments ? 'attachClass' : 'removeClass';
         editor.editable()[funcName]('cke_show_segments');
+
+        if (editor.name !== 'edit-body0value-source-value') {
+          CKEDITOR.instances['edit-body0value-source-value'].editable()[funcName]('cke_show_segments');
+        }
       }
     },
     displayContext: function (editor) {
       // Do this only when we are on translation page.
       if (document.getElementsByClassName('tmgmt-ui-review').length > 0) {
         var data = editor.getData();
-        var texts = data.match(/<tmgmt-segment id=["'](.*?)["']>(.*?)<\/tmgmt-segment>/g).map(function (val) {
-          return val.replace(/(<([^>]+)>)/ig,'');
-        });
+        var segmented_data = data.match(/<tmgmt-segment id=["'](.*?)["']>(.*?)<\/tmgmt-segment>/g);
+        if (segmented_data) {
+          var texts = segmented_data.map(function (val) {
+            return val.replace(/(<([^>]+)>)/ig,'');
+          });
 
-        // Do this only when we click on the 'Show segments' icon.
-        if (this.state === 1) {
-          // Display the segments' context below the translate editor.
-          var translation_div = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-          var segments_div = document.createElement('div');
-          segments_div.id = 'segments-div';
+          // Do this only when we click on the 'Show segments' icon.
+          if (this.state === 1) {
+            // Display the segments' context below the translate editor.
+            var translation_div = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
+            var segments_div = document.createElement('div');
+            segments_div.id = 'segments-div';
 
-          // Create paragraphs for each segment context.
-          var para = [];
-          var content;
-          for (var i = 0; i < texts.length; i++) {
-            para[i] = document.createElement("P");
-            content = document.createTextNode(texts[i]);
-            para[i].appendChild(content);
-            segments_div.appendChild(para[i]);
+            // Create paragraphs for each segment context.
+            var para = [];
+            var content;
+            for (var i = 0; i < texts.length; i++) {
+              para[i] = document.createElement("P");
+              content = document.createTextNode(texts[i]);
+              para[i].appendChild(content);
+              segments_div.appendChild(para[i]);
+            }
+            // var newContent = document.createTextNode(texts.join(", "));
+            // segments_div.appendChild(newContent);
+            translation_div.appendChild(segments_div);
           }
-          // var newContent = document.createTextNode(texts.join(", "));
-          // segments_div.appendChild(newContent);
-          translation_div.appendChild(segments_div);
-        }
-        // Remove the segments div when disabling the 'Show segments'.
-        else {
-          document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
+          // Remove the segments div when disabling the 'Show segments'.
+          else {
+            document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
+          }
         }
       }
     }
