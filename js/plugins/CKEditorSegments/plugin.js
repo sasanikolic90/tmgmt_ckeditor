@@ -33,8 +33,8 @@
       // Do this only when we are on translation page.
       if (document.getElementsByClassName('tmgmt-ui-review').length > 0) {
         var data = editor.getData();
-        var texts = data.match(/<tmgmt-segment>(.*?)<\/tmgmt-segment>/g).map(function (val) {
-          return val.replace(/<\/?tmgmt-segment>/g,'');
+        var texts = data.match(/<tmgmt-segment id=["'](.*?)["']>(.*?)<\/tmgmt-segment>/g).map(function (val) {
+          return val.replace(/(<([^>]+)>)/ig,'');
         });
 
         // Do this only when we click on the 'Show segments' icon.
