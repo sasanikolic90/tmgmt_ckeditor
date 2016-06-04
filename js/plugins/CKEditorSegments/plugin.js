@@ -28,6 +28,7 @@
         var funcName = showSegments ? 'attachClass' : 'removeClass';
         editor.editable()[funcName]('cke_show_segments');
 
+        // Display segments also in the source editor.
         if (editor.name !== 'edit-body0value-source-value') {
           CKEDITOR.instances['edit-body0value-source-value'].editable()[funcName]('cke_show_segments');
         }
@@ -45,23 +46,7 @@
 
           // Do this only when we click on the 'Show segments' icon.
           if (this.state === 1) {
-            // Display the segments' context below the translate editor.
-            var translation_div = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-            var segments_div = document.createElement('div');
-            segments_div.id = 'segments-div';
-
-            // Create paragraphs for each segment context.
-            var para = [];
-            var content;
-            for (var i = 0; i < texts.length; i++) {
-              para[i] = document.createElement("P");
-              content = document.createTextNode(texts[i]);
-              para[i].appendChild(content);
-              segments_div.appendChild(para[i]);
-            }
-            // var newContent = document.createTextNode(texts.join(", "));
-            // segments_div.appendChild(newContent);
-            translation_div.appendChild(segments_div);
+            createParagraphs(texts);
           }
           // Remove the segments div when disabling the 'Show segments'.
           else {
@@ -124,8 +109,8 @@
         var editable = editor.editable();
 
         editable.attachListener(editable, 'click', function() {
-          var selectedWord = getCurrentWord();
-          console.log(selectedWord);
+          var selectedWord = [getCurrentWord()];
+          createParagraphs(selectedWord);
         });
       });
 
@@ -148,19 +133,23 @@
 
       // Gets the clicked word.
       function getCurrentWord() {
-        var range = editor.getSelection().getRanges()[ 0 ],
-          startNode = range.startContainer;
-        if ( startNode.type == CKEDITOR.NODE_TEXT && range.startOffset ) {
+        var range = editor.getSelection().getRanges()[0];
+        var startNode = range.startContainer;
+        if (startNode.type == CKEDITOR.NODE_TEXT && range.startOffset) {
           var indexPrevSpace = startNode.getText().lastIndexOf(' ', range.startOffset) + 1;
           var indexNextSpace = startNode.getText().indexOf(' ', range.startOffset);
           if(indexPrevSpace == -1) {
-            indexPrevSpace=0;
+            indexPrevSpace = 0;
           }
           if(indexNextSpace == -1) {
             indexNextSpace = startNode.getText().length;
           }
 
           var filteredWord = startNode.getText().substring(indexPrevSpace,indexNextSpace);
+
+          //var closestTags = getClosestTags(filteredWord, 'tmgmt-segment');
+
+          startNode.$.parentElement.style.color = 'red';
 
           // Range at the non-zero position of a text node.
 
@@ -171,6 +160,26 @@
       }
     }
   });
+
+  function createParagraphs(data) {
+    // Display the segments' context below the translate editor.
+    var translation_div = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
+    var segments_div = document.createElement('div');
+    segments_div.id = 'segments-div';
+
+    // Create paragraphs for each segment context.
+    var para = [];
+    var content;
+    for (var i = 0; i < data.length; i++) {
+      para[i] = document.createElement("P");
+      content = document.createTextNode(data[i]);
+      para[i].appendChild(content);
+      segments_div.appendChild(para[i]);
+    }
+    // var newContent = document.createTextNode(texts.join(", "));
+    // segments_div.appendChild(newContent);
+    translation_div.appendChild(segments_div);
+  }
 })();
 
 /**
