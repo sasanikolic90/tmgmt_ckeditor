@@ -120,6 +120,15 @@
         }
       });
 
+      editor.on('contentDom', function () {
+        var editable = editor.editable();
+
+        editable.attachListener(editable, 'click', function() {
+          var selectedWord = getCurrentWord();
+          console.log(selectedWord);
+        });
+      });
+
       // Refresh the command on focus/blur in inline.
       if (editor.elementMode === CKEDITOR.ELEMENT_MODE_INLINE) {
         editor.on('focus', onFocusBlur);
@@ -135,6 +144,30 @@
 
       function onFocusBlur() {
         command.refresh(editor);
+      }
+
+      // Gets the clicked word.
+      function getCurrentWord() {
+        var range = editor.getSelection().getRanges()[ 0 ],
+          startNode = range.startContainer;
+        if ( startNode.type == CKEDITOR.NODE_TEXT && range.startOffset ) {
+          var indexPrevSpace = startNode.getText().lastIndexOf(' ', range.startOffset) + 1;
+          var indexNextSpace = startNode.getText().indexOf(' ', range.startOffset);
+          if(indexPrevSpace == -1) {
+            indexPrevSpace=0;
+          }
+          if(indexNextSpace == -1) {
+            indexNextSpace = startNode.getText().length;
+          }
+
+          var filteredWord = startNode.getText().substring(indexPrevSpace,indexNextSpace);
+
+          // Range at the non-zero position of a text node.
+
+          return startNode.getText().substring(indexPrevSpace,indexNextSpace);
+        }
+        // Selection starts at the 0 index of the text node and/or there's no previous text node in contents.
+        return null;
       }
     }
   });
