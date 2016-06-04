@@ -38,14 +38,15 @@
       // Do this only when we are on translation page.
       if (document.getElementsByClassName('tmgmt-ui-review').length > 0) {
         var data = editor.getData();
-        var segmented_data = data.match(/<tmgmt-segment id=["'](.*?)["']>(.*?)<\/tmgmt-segment>/g);
-        if (segmented_data) {
-          var texts = segmented_data.map(function (val) {
+        var segmentedData = data.match(/<tmgmt-segment id=["'](.*?)["']>(.*?)<\/tmgmt-segment>/g);
+        if (segmentedData) {
+          var texts = segmentedData.map(function (val) {
             return val.replace(/(<([^>]+)>)/ig,'');
           });
 
           // Do this only when we click on the 'Show segments' icon.
           if (this.state === 1) {
+            // Put the segments into <p> tags.
             createParagraphs(texts);
           }
           // Remove the segments div when disabling the 'Show segments'.
@@ -135,21 +136,25 @@
       function getCurrentWord() {
         var range = editor.getSelection().getRanges()[0];
         var startNode = range.startContainer;
-        if (startNode.type == CKEDITOR.NODE_TEXT && range.startOffset) {
+        if (startNode.type === CKEDITOR.NODE_TEXT && range.startOffset) {
           var indexPrevSpace = startNode.getText().lastIndexOf(' ', range.startOffset) + 1;
           var indexNextSpace = startNode.getText().indexOf(' ', range.startOffset);
-          if(indexPrevSpace == -1) {
+          if(indexPrevSpace === -1) {
             indexPrevSpace = 0;
           }
-          if(indexNextSpace == -1) {
+          if(indexNextSpace === -1) {
             indexNextSpace = startNode.getText().length;
           }
 
-          var filteredWord = startNode.getText().substring(indexPrevSpace,indexNextSpace);
-
-          //var closestTags = getClosestTags(filteredWord, 'tmgmt-segment');
+          // var filteredWord = startNode.getText().substring(indexPrevSpace,indexNextSpace);
 
           startNode.$.parentElement.style.color = 'red';
+
+          // Get clicked segment id.
+          var segmentID = startNode.$.parentElement.getAttribute('id');
+
+          // Search for it in the source editor and make it red.
+          CKEDITOR.instances['edit-body0value-source-value'].document.$.getElementById(segmentID).style.color = 'red';
 
           // Range at the non-zero position of a text node.
 
@@ -163,9 +168,9 @@
 
   function createParagraphs(data) {
     // Display the segments' context below the translate editor.
-    var translation_div = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-    var segments_div = document.createElement('div');
-    segments_div.id = 'segments-div';
+    var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
+    var segmentsDiv = document.createElement('div');
+    segmentsDiv.id = 'segments-div';
 
     // Create paragraphs for each segment context.
     var para = [];
@@ -174,11 +179,11 @@
       para[i] = document.createElement("P");
       content = document.createTextNode(data[i]);
       para[i].appendChild(content);
-      segments_div.appendChild(para[i]);
+      segmentsDiv.appendChild(para[i]);
     }
     // var newContent = document.createTextNode(texts.join(", "));
-    // segments_div.appendChild(newContent);
-    translation_div.appendChild(segments_div);
+    // segmentsDiv.appendChild(newContent);
+    translationDiv.appendChild(segmentsDiv);
   }
 })();
 
