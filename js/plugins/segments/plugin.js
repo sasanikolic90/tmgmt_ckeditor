@@ -35,24 +35,21 @@
       }
     },
     displayContext: function (editor) {
-      // Do this only when we are on translation page.
-      if (document.getElementsByClassName('tmgmt-ui-review').length > 0) {
-        var data = editor.getData();
-        var segmentedData = data.match(/<tmgmt-segment id=["'](.*?)["']>(.*?)<\/tmgmt-segment>/g);
-        if (segmentedData) {
-          var texts = segmentedData.map(function (val) {
-            return val.replace(/(<([^>]+)>)/ig,'');
-          });
+      var data = editor.getData();
+      var segmentedData = data.match(/<tmgmt-segment id=["'](.*?)["']>(.*?)<\/tmgmt-segment>/g);
+      if (segmentedData) {
+        var texts = segmentedData.map(function (val) {
+          return val.replace(/(<([^>]+)>)/ig,'');
+        });
 
-          // Do this only when we click on the 'Show segments' icon.
-          if (this.state === 1) {
-            // Put the segments into <p> tags.
-            createParagraphs(texts);
-          }
-          // Remove the segments div when disabling the 'Show segments'.
-          else {
-            document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
-          }
+        // Do this only when we click on the 'Show segments' icon.
+        if (this.state === 1) {
+          // Put the segments into <p> tags.
+          createParagraphs(texts);
+        }
+        // Remove the segments div when disabling the 'Show segments'.
+        else {
+          document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
         }
       }
     }
@@ -82,6 +79,12 @@
 
     init: function (editor) {
       if (editor.blockless) {
+        return;
+      }
+
+      // Load the plugin only on translate/review pages.
+      // This is a really bad solution! CHANGE THIS!
+      if (document.getElementsByClassName('tmgmt-ui-review').length === 0) {
         return;
       }
 
@@ -148,13 +151,15 @@
 
           // var filteredWord = startNode.getText().substring(indexPrevSpace,indexNextSpace);
 
-          startNode.$.parentElement.style.color = 'red';
-
           // Get clicked segment id.
           var segmentID = startNode.$.parentElement.getAttribute('id');
 
-          // Search for it in the source editor and make it red.
-          CKEDITOR.instances['edit-body0value-source-value'].document.$.getElementById(segmentID).style.color = 'red';
+          // If the segment with the same ID exists in the source, Search for it
+          // and make it red.
+          if (CKEDITOR.instances['edit-body0value-source-value'].document.$.getElementById(segmentID)) {
+            startNode.$.parentElement.style.color = 'red';
+            CKEDITOR.instances['edit-body0value-source-value'].document.$.getElementById(segmentID).style.color = 'red';
+          }
 
           // Range at the non-zero position of a text node.
 
