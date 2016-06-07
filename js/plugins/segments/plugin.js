@@ -44,7 +44,12 @@
 
         // Do this only when we click on the 'Show segments' icon.
         if (this.state === 1) {
+          // Display the segments' context below the translate editor.
+          var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
           // Put the segments into <p> tags.
+          var segmentsDiv = document.createElement('div');
+          segmentsDiv.id = 'segments-div';
+          translationDiv.appendChild(segmentsDiv);
           createParagraphs(texts);
         }
         // Remove the segments div when disabling the 'Show segments'.
@@ -113,8 +118,14 @@
         var editable = editor.editable();
 
         editable.attachListener(editable, 'click', function() {
-          var selectedWord = [getCurrentWord()];
-          createParagraphs(selectedWord);
+          // We only display the clicked texts when the plugin is enabled/clicked -
+          // the segments-div exists.
+          var segmentsDiv = document.getElementById('segments-div');
+
+          if (segmentsDiv) {
+            var selectedWord = [getCurrentWord()];
+            createParagraphs(selectedWord);
+          }
         });
       });
 
@@ -163,7 +174,8 @@
 
           // Range at the non-zero position of a text node.
 
-          return startNode.getText().substring(indexPrevSpace,indexNextSpace);
+          var word = startNode.getText().substring(indexPrevSpace,indexNextSpace);
+          return word.replace(/[.,:;]$/,'');
         }
         // Selection starts at the 0 index of the text node and/or there's no previous text node in contents.
         return null;
@@ -172,10 +184,8 @@
   });
 
   function createParagraphs(data) {
-    // Display the segments' context below the translate editor.
     var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-    var segmentsDiv = document.createElement('div');
-    segmentsDiv.id = 'segments-div';
+    var segmentsDiv = document.getElementById('segments-div');
 
     // Create paragraphs for each segment context.
     var para = [];
