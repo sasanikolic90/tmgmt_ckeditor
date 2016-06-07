@@ -1,0 +1,6 @@
+name: TMGMT CKEditor
+type: module
+description: CKEditor plugins for the translation UI
+core: 8.x
+package: CKEditor
+version: VERSION

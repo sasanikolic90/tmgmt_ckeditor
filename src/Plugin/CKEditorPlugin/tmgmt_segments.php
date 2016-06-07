@@ -1,23 +1,23 @@
 <?php
 
-namespace Drupal\ckeditorsegments\Plugin\CKEditorPlugin;
+namespace Drupal\tmgmt_ckeditor\Plugin\CKEditorPlugin;
 
 use Drupal\ckeditor\CKEditorPluginBase;
 use Drupal\editor\Entity\Editor;
 
 /**
- * Defines the "CKEditorSegments" plugin.
+ * Defines the "tmgmt_segments" plugin.
  *
  * NOTE: The plugin ID ('id' key) corresponds to the CKEditor plugin name.
  * It is the first argument of the CKEDITOR.plugins.add() function in the
  * plugin.js file.
  *
  * @CKEditorPlugin(
- *   id = "CKEditorSegments",
+ *   id = "tmgmt_segments",
  *   label = @Translation("CKEditor segments")
  * )
  */
-class CKEditorSegments extends CKEditorPluginBase {
+class tmgmt_segments extends CKEditorPluginBase {
 
 
   /**
@@ -30,9 +30,9 @@ class CKEditorSegments extends CKEditorPluginBase {
   public function getButtons() {
     // Make sure that the path to the image matches the file structure of
     // the CKEditor plugin you are implementing.
-    $path = drupal_get_path('module', 'ckeditorsegments') . '/js/plugins/CKEditorSegments';
+    $path = drupal_get_path('module', 'tmgmt_ckeditor') . '/js/plugins/segments';
     return array(
-      'CKEditorSegments' => array(
+      'tmgmt_segments' => array(
         'label' => t('CKEditor segments'),
         'image' => $path . '/icons/showsegments.png',
       ),
@@ -45,7 +45,7 @@ class CKEditorSegments extends CKEditorPluginBase {
   public function getFile() {
     // Make sure that the path to the plugin.js matches the file structure of
     // the CKEditor plugin you are implementing.
-    return drupal_get_path('module', 'ckeditorsegments') . '/js/plugins/CKEditorSegments/plugin.js';
+    return drupal_get_path('module', 'tmgmt_ckeditor') . '/js/plugins/segments/plugin.js';
   }
 
   /**

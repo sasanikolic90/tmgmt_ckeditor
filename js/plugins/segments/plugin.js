@@ -58,7 +58,7 @@
     }
   };
 
-  CKEDITOR.plugins.add('CKEditorSegments', {
+  CKEDITOR.plugins.add('tmgmt_segments', {
     lang: 'en',
     icons: 'showsegments',
     hidpi: true,
@@ -92,15 +92,15 @@
         command.setState(CKEDITOR.TRISTATE_ON);
       }
 
-      editor.ui.addButton && editor.ui.addButton('CKEditorSegments', {
+      editor.ui.addButton && editor.ui.addButton('tmgmt_segments', {
         icon: 'showsegments',
-        label: editor.lang.CKEditorSegments.buttonTitle,
+        label: editor.lang.tmgmt_segments.buttonTitle,
         command: 'showsegments',
         toolbar: 'tools,20'
       });
 
       // Refresh the command on setData.
-      editor.on('mode', function() {
+      editor.on('mode', function () {
         if (command.state !== CKEDITOR.TRISTATE_DISABLED) {
           command.refresh(editor);
         }

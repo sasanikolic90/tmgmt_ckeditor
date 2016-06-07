@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains ckeditorsegments.module.
+ * Contains tmgmt_ckeditor.module.
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -10,10 +10,10 @@ use Drupal\Core\Routing\RouteMatchInterface;
 /**
  * Implements hook_help().
  */
-function ckeditorsegments_help($route_name, RouteMatchInterface $route_match) {
+function tmgmt_ckeditor_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
-    // Main module help for the ckeditorsegments module.
-    case 'help.page.ckeditorsegments':
+    // Main module help for the tmgmt_ckeditor module.
+    case 'help.page.tmgmt_ckeditor':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('TMGT segments plugin for CKEditor') . '</p>';
