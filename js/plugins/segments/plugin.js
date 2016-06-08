@@ -48,8 +48,6 @@
           if (document.getElementById('segments-div')) {
             document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
           }
-
-          // @to-do CLEAR STYLING
         }
       }
     }
@@ -137,13 +135,16 @@
 
       editor.on('contentDom', function () {
         var editable = editor.editable();
-        editable.attachListener(editable, 'click', function () {
+        editable.attachListener(editable, 'click', function (evt) {
           // We only display the clicked texts when the plugin is enabled/clicked -
           // the segments-div exists (depends on the state).
           var segmentsDiv = document.getElementById('segments-div');
 
           if (segmentsDiv) {
+            resetActiveSegment();
             var selectedWord = [getCurrentContent()];
+            // Display the segment as active.
+            // evt.data.getTarget().setAttribute('class', 'active-segment');
             displayContent(selectedWord);
           }
         });
@@ -180,22 +181,12 @@
             indexNextSpace = startNode.getText().length;
           }
 
-          // var filteredWord = startNode.getText().substring(indexPrevSpace,indexNextSpace);
-
           // Get clicked segment id.
           var segmentID = startNode.$.parentElement.getAttribute('id');
-
-          // If the segment with the same ID exists in the source, Search for it
-          // and make it red.
-          if (CKEDITOR.instances['edit-body0value-source-value'].document.$.getElementById(segmentID)) {
-            startNode.$.parentElement.setAttribute('class', 'active-segment');
-            // startNode.$.parentElement.style.color = 'red';
-            CKEDITOR.instances['edit-body0value-source-value'].document.$.getElementById(segmentID).setAttribute('class', 'active-segment');
-          }
-
-          // Range at the non-zero position of a text node.
           var word = startNode.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
           var segment = startNode.getText();
+          
+          markActiveSegments(segmentID);
 
           // Return the word without extra characters.
           return segment + '; ' + word;
@@ -211,7 +202,7 @@
     var segmentsDiv = document.getElementById('segments-div');
 
     // Remove the previous segment, if it exists.
-    var activeSegment = document.getElementsByClassName('segment-text');
+    var activeSegment = document.getElementsByClassName('active-segment-text');
     if (activeSegment) {
       segmentsDiv.remove('active-segment-text');
     }
@@ -227,7 +218,28 @@
     translationDiv.appendChild(segmentsDiv);
   }
 
+  // Resets the active segments in the editor, so that there is only 1 active.
+  function resetActiveSegment() {
+    for (var i in CKEDITOR.instances) {
+      var activeSegments = [].slice.apply(CKEDITOR.instances[i].document.$.getElementsByClassName('active-segment'));
+      for (var j = 0; j < activeSegments.length; j++) {
+        activeSegments[j].className = activeSegments[j].className.replace(/ *\bactive-segment\b/g, "inactive-segment");
+      }
+    }
+    /*for (var i in CKEDITOR.instances) {
+      var activeSegments = CKEDITOR.instances[i].document.$.getElementsByClassName('active-segment');
+      for (var j = 0; j < activeSegments.length; j++) {
+        activeSegments[j].className = 'inactive-segment';
+      }
+    }*/
+  }
 
+  function markActiveSegments(segmentID) {
+    for (var i in CKEDITOR.instances) {
+      var sameSegment = CKEDITOR.instances[i].document.$.getElementById(segmentID);
+      sameSegment.className = 'active-segment';
+    }
+  }
 
 })(jQuery, Drupal, CKEDITOR);
 

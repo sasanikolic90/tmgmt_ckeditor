@@ -1,3 +1,7 @@
 .active-segment:before, .active-segment:after {
   color: orange;
 }
+
+.inactive-segment:before, .inactive-segment:after {
+  color: black;
+}
