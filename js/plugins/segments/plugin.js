@@ -185,8 +185,8 @@
           var segmentID = startNode.$.parentElement.getAttribute('id');
           var word = startNode.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
           var segment = startNode.getText();
-          
-          markActiveSegments(segmentID);
+
+          markActiveSegment(segmentID);
 
           // Return the word without extra characters.
           return segment + '; ' + word;
@@ -204,10 +204,10 @@
     // Remove the previous segment, if it exists.
     var activeSegment = document.getElementsByClassName('active-segment-text');
     if (activeSegment) {
-      segmentsDiv.remove('active-segment-text');
+      segmentsDiv.innerHTML = '';
     }
 
-    var segmentsTitle = document.createTextNode('Segments:');
+    var segmentsTitle = document.createTextNode('Current segment:');
     segmentsDiv.appendChild(segmentsTitle);
 
     var para = document.createElement('P');
@@ -234,10 +234,12 @@
     }*/
   }
 
-  function markActiveSegments(segmentID) {
+  function markActiveSegment(segmentID) {
     for (var i in CKEDITOR.instances) {
       var sameSegment = CKEDITOR.instances[i].document.$.getElementById(segmentID);
-      sameSegment.className = 'active-segment';
+      if (sameSegment) {
+        sameSegment.className = 'active-segment';
+      }
     }
   }
 
