@@ -50,7 +50,7 @@
           var segmentsDiv = document.createElement('div');
           segmentsDiv.id = 'segments-div';
           translationDiv.appendChild(segmentsDiv);
-          createParagraphs(texts);
+          displayContent(texts);
         }
         // Remove the segments div when disabling the 'Show segments'.
         else {
@@ -73,10 +73,10 @@
       cssStd += '.cke_show_segments ' + tag + '{' +
         '}';
       cssImgLeft += '.cke_show_segments ' + tag + '::before{' +
-        'content:url(' + CKEDITOR.getUrl(path + 'images/arrow-right-20.png') + ')' +
+        'content:' + '"\u25B6"' + ';' + 'padding-right: 0.5em;' +
         '}';
       cssImgRight += '.cke_show_segments ' + tag + '::after{' +
-        'content:url(' + CKEDITOR.getUrl(path + 'images/arrow-left-20.png') + ')' +
+        'content:' + '"\u25C0"' + ';' + 'padding-left: 0.5em;' +
         '}';
 
       CKEDITOR.addCss(cssStd.concat(cssImgLeft, cssImgRight));
@@ -124,7 +124,7 @@
 
           if (segmentsDiv) {
             var selectedWord = [getCurrentWord()];
-            createParagraphs(selectedWord);
+            displayContent(selectedWord);
           }
         });
       });
@@ -173,9 +173,10 @@
           }
 
           // Range at the non-zero position of a text node.
+          var word = startNode.getText().substring(indexPrevSpace, indexNextSpace);
 
-          var word = startNode.getText().substring(indexPrevSpace,indexNextSpace);
-          return word.replace(/[.,:;]$/,'');
+          // Return the word without extra characters.
+          return word.replace(/[.,:;!?]$/,'');
         }
         // Selection starts at the 0 index of the text node and/or there's no previous text node in contents.
         return null;
@@ -183,7 +184,7 @@
     }
   });
 
-  function createParagraphs(data) {
+  function displayContent(data) {
     var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
     var segmentsDiv = document.getElementById('segments-div');
 
