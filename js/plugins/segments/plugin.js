@@ -192,7 +192,7 @@
     var para = [];
     var content;
     for (var i = 0; i < data.length; i++) {
-      para[i] = document.createElement("P");
+      para[i] = document.createElement('P');
       content = document.createTextNode(data[i]);
       para[i].appendChild(content);
       segmentsDiv.appendChild(para[i]);
