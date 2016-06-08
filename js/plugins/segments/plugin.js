@@ -3,7 +3,7 @@
  * CKEditor plugin to display TMGMT segments.
  */
 
-(function () {
+(function ($, Drupal, CKEDITOR) {
   'use strict';
 
   var tag = 'tmgmt-segment';
@@ -15,7 +15,7 @@
 
     exec: function (editor) {
       this.toggleState();
-      this.displayContext(editor);
+      // this.displayContext(editor);
       this.refresh(editor);
     },
 
@@ -32,8 +32,29 @@
         if (editor.name !== 'edit-body0value-source-value') {
           CKEDITOR.instances['edit-body0value-source-value'].editable()[funcName]('cke_show_segments');
         }
+
+        // Display the segments' content below the translate editor if the
+        // plugin is enabled.
+        if (this.state === 1) {
+          var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
+          // Put the segments into <p> tags.
+          var segmentsDiv = document.createElement('div');
+          segmentsDiv.id = 'segments-div';
+          translationDiv.appendChild(segmentsDiv);
+        }
+        // Remove the segments display area below the editor when we disable
+        // the plugin.
+        else {
+          if (document.getElementById('segments-div')) {
+            document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
+          }
+
+          // @to-do CLEAR STYLING
+        }
       }
-    },
+    }
+/*  This displays all segments. For now, we don't need this -
+    (just in case, I'm keeping it until next refactoring).
     displayContext: function (editor) {
       var data = editor.getData();
       var segmentedData = data.match(/<tmgmt-segment id=["'](.*?)["']>(.*?)<\/tmgmt-segment>/g);
@@ -57,7 +78,7 @@
           document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
         }
       }
-    }
+    }*/
   };
 
   CKEDITOR.plugins.add('tmgmt_segments', {
@@ -116,14 +137,13 @@
 
       editor.on('contentDom', function () {
         var editable = editor.editable();
-
-        editable.attachListener(editable, 'click', function() {
+        editable.attachListener(editable, 'click', function () {
           // We only display the clicked texts when the plugin is enabled/clicked -
-          // the segments-div exists.
+          // the segments-div exists (depends on the state).
           var segmentsDiv = document.getElementById('segments-div');
 
           if (segmentsDiv) {
-            var selectedWord = [getCurrentWord()];
+            var selectedWord = [getCurrentContent()];
             displayContent(selectedWord);
           }
         });
@@ -147,7 +167,7 @@
       }
 
       // Gets the clicked word.
-      function getCurrentWord() {
+      function getCurrentContent() {
         var range = editor.getSelection().getRanges()[0];
         var startNode = range.startContainer;
         if (startNode.type === CKEDITOR.NODE_TEXT && range.startOffset) {
@@ -168,15 +188,17 @@
           // If the segment with the same ID exists in the source, Search for it
           // and make it red.
           if (CKEDITOR.instances['edit-body0value-source-value'].document.$.getElementById(segmentID)) {
-            startNode.$.parentElement.style.color = 'red';
-            CKEDITOR.instances['edit-body0value-source-value'].document.$.getElementById(segmentID).style.color = 'red';
+            startNode.$.parentElement.setAttribute('class', 'active-segment');
+            // startNode.$.parentElement.style.color = 'red';
+            CKEDITOR.instances['edit-body0value-source-value'].document.$.getElementById(segmentID).setAttribute('class', 'active-segment');
           }
 
           // Range at the non-zero position of a text node.
-          var word = startNode.getText().substring(indexPrevSpace, indexNextSpace);
+          var word = startNode.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
+          var segment = startNode.getText();
 
           // Return the word without extra characters.
-          return word.replace(/[.,:;!?]$/,'');
+          return segment + '; ' + word;
         }
         // Selection starts at the 0 index of the text node and/or there's no previous text node in contents.
         return null;
@@ -188,20 +210,26 @@
     var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
     var segmentsDiv = document.getElementById('segments-div');
 
-    // Create paragraphs for each segment context.
-    var para = [];
-    var content;
-    for (var i = 0; i < data.length; i++) {
-      para[i] = document.createElement('P');
-      content = document.createTextNode(data[i]);
-      para[i].appendChild(content);
-      segmentsDiv.appendChild(para[i]);
+    // Remove the previous segment, if it exists.
+    var activeSegment = document.getElementsByClassName('segment-text');
+    if (activeSegment) {
+      segmentsDiv.remove('active-segment-text');
     }
-    // var newContent = document.createTextNode(texts.join(", "));
-    // segmentsDiv.appendChild(newContent);
+
+    var segmentsTitle = document.createTextNode('Segments:');
+    segmentsDiv.appendChild(segmentsTitle);
+
+    var para = document.createElement('P');
+    para.className = 'active-segment-text';
+    var segmentText = document.createTextNode(data);
+    para.appendChild(segmentText);
+    segmentsDiv.appendChild(para);
     translationDiv.appendChild(segmentsDiv);
   }
-})();
+
+
+
+})(jQuery, Drupal, CKEDITOR);
 
 /**
  * If we want to automatically enable the showsegments command when the editor loads.

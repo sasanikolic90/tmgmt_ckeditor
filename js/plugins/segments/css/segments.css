@@ -1,0 +1,3 @@
+.active-segment:before, .active-segment:after {
+  color: orange;
+}
