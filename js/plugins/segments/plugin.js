@@ -153,10 +153,10 @@
         if (startNode.type === CKEDITOR.NODE_TEXT && range.startOffset) {
           var indexPrevSpace = startNode.getText().lastIndexOf(' ', range.startOffset) + 1;
           var indexNextSpace = startNode.getText().indexOf(' ', range.startOffset);
-          if(indexPrevSpace === -1) {
+          if (indexPrevSpace === -1) {
             indexPrevSpace = 0;
           }
-          if(indexNextSpace === -1) {
+          if (indexNextSpace === -1) {
             indexNextSpace = startNode.getText().length;
           }
 
