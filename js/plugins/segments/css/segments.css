@@ -9,7 +9,3 @@
 .active-segment-text, .active-word-text {
   font-weight: bold;
 }
-
-#segments-div .button {
-  float: right;
-}
