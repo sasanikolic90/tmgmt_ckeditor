@@ -5,3 +5,11 @@
 .inactive-segment:before, .inactive-segment:after {
   color: black;
 }
+
+.active-segment-text, .active-word-text {
+  font-weight: bold;
+}
+
+#segments-div .button {
+  float: right;
+}

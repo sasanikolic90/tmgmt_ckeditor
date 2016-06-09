@@ -16,7 +16,6 @@
 
     exec: function (editor) {
       this.toggleState();
-      // this.displayContext(editor);
       this.refresh(editor);
     },
 
@@ -121,9 +120,10 @@
             if (selectedContent) {
               var selectedSegment = selectedContent.split(';')[0];
               var selectedWord = selectedContent.split(';')[1];
+              var selectedSegmentId = selectedContent.split(';')[2];
               // Display the segment as active.
-              // evt.data.getTarget().setAttribute('class', 'active-segment');
               displayContent(selectedSegment, selectedWord);
+              suggestTranslation(selectedSegmentId, segmentsDiv);
             }
             // If something else is clicked, remove the previous displayed segment.
             else {
@@ -150,7 +150,7 @@
         command.refresh(editor);
       }
 
-      // Gets the clicked word.
+      // Gets the selected segment and word.
       function getActiveContent() {
         var range = editor.getSelection().getRanges()[0];
         var startNode = range.startContainer;
@@ -165,14 +165,14 @@
           }
 
           // Get clicked segment id.
-          var segmentID = startNode.$.parentElement.getAttribute('id');
+          var segmentId = startNode.$.parentElement.getAttribute('id');
           var word = startNode.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
           var segment = startNode.getText();
 
-          markActiveSegment(segmentID);
+          markActiveSegment(segmentId);
 
           // Return the word without extra characters.
-          return segment + '; ' + word;
+          return segment + '; ' + word + ';' + segmentId;
         }
         // Selection starts at the 0 index of the text node and/or there's no previous text node in contents.
         return null;
@@ -180,6 +180,7 @@
     }
   });
 
+  // Displays the selected segment and word in the area below the editor.
   function displayContent(selectedSegment, selectedWord) {
     var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
     var segmentsDiv = document.getElementById('segments-div');
@@ -209,6 +210,23 @@
     translationDiv.appendChild(segmentsDiv);
   }
 
+  // Makes a dummy suggestion for the selected segment translation.
+  function suggestTranslation(selectedSegmentId, segmentsDiv) {
+    var sugTranslationTitle = document.createTextNode('Suggested translation:');
+    segmentsDiv.appendChild(sugTranslationTitle);
+    var sugTrP = document.createElement('P');
+    sugTrP.className = 'suggested-translation';
+    var sugTranslation = document.createTextNode(dummyTranslation + ' ' + selectedSegmentId);
+    sugTrP.appendChild(sugTranslation);
+    segmentsDiv.appendChild(sugTrP);
+
+    var btn = document.createElement('button');
+    var t = document.createTextNode('Use suggestion');
+    btn.appendChild(t);
+    btn.className = 'button';
+    segmentsDiv.appendChild(btn);
+  }
+
   // Resets the active segments in the editor, so that there is only 1 active.
   function resetActiveSegment() {
     for (var i in CKEDITOR.instances) {
@@ -225,9 +243,10 @@
     }*/
   }
 
-  function markActiveSegment(segmentID) {
+  // Marks active segments in the editor.
+  function markActiveSegment(segmentId) {
     for (var i in CKEDITOR.instances) {
-      var sameSegment = CKEDITOR.instances[i].document.$.getElementById(segmentID);
+      var sameSegment = CKEDITOR.instances[i].document.$.getElementById(segmentId);
       if (sameSegment) {
         sameSegment.className = 'active-segment';
       }
