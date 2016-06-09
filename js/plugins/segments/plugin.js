@@ -7,6 +7,7 @@
   'use strict';
 
   var tag = 'tmgmt-segment';
+  var dummyTranslation = 'Dummy translated segment';
 
   var commandDefinition = {
     readOnly: 1,
@@ -37,7 +38,6 @@
         // plugin is enabled.
         if (this.state === 1) {
           var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-          // Put the segments into <p> tags.
           var segmentsDiv = document.createElement('div');
           segmentsDiv.id = 'segments-div';
           translationDiv.appendChild(segmentsDiv);
@@ -51,32 +51,6 @@
         }
       }
     }
-/*  This displays all segments. For now, we don't need this -
-    (just in case, I'm keeping it until next refactoring).
-    displayContext: function (editor) {
-      var data = editor.getData();
-      var segmentedData = data.match(/<tmgmt-segment id=["'](.*?)["']>(.*?)<\/tmgmt-segment>/g);
-      if (segmentedData) {
-        var texts = segmentedData.map(function (val) {
-          return val.replace(/(<([^>]+)>)/ig,'');
-        });
-
-        // Do this only when we click on the 'Show segments' icon.
-        if (this.state === 1) {
-          // Display the segments' context below the translate editor.
-          var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-          // Put the segments into <p> tags.
-          var segmentsDiv = document.createElement('div');
-          segmentsDiv.id = 'segments-div';
-          translationDiv.appendChild(segmentsDiv);
-          displayContent(texts);
-        }
-        // Remove the segments div when disabling the 'Show segments'.
-        else {
-          document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
-        }
-      }
-    }*/
   };
 
   CKEDITOR.plugins.add('tmgmt_segments', {
@@ -139,7 +113,6 @@
           // We only display the clicked texts when the plugin is enabled/clicked -
           // the segments-div exists (depends on the state).
           var segmentsDiv = document.getElementById('segments-div');
-
           if (segmentsDiv) {
             resetActiveSegment();
             var selectedWord = [getCurrentContent()];
