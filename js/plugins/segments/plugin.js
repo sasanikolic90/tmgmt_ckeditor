@@ -29,8 +29,8 @@
         editor.editable()[funcName]('cke_show_segments');
 
         // Display segments also in the source editor.
-        if (editor.name !== 'edit-body0value-source-value') {
-          CKEDITOR.instances['edit-body0value-source-value'].editable()[funcName]('cke_show_segments');
+        for (var i in CKEDITOR.instances) {
+          CKEDITOR.instances[i].editable()[funcName]('cke_show_segments');
         }
 
         // Display the segments' content below the translate editor if the
