@@ -115,10 +115,20 @@
           var segmentsDiv = document.getElementById('segments-div');
           if (segmentsDiv) {
             resetActiveSegment();
-            var selectedWord = [getCurrentContent()];
-            // Display the segment as active.
-            // evt.data.getTarget().setAttribute('class', 'active-segment');
-            displayContent(selectedWord);
+            var selectedContent = getActiveContent();
+
+            // If the segment is clicked, display it.
+            if (selectedContent) {
+              var selectedSegment = selectedContent.split(';')[0];
+              var selectedWord = selectedContent.split(';')[1];
+              // Display the segment as active.
+              // evt.data.getTarget().setAttribute('class', 'active-segment');
+              displayContent(selectedSegment, selectedWord);
+            }
+            // If something else is clicked, remove the previous displayed segment.
+            else {
+              segmentsDiv.innerHTML = '';
+            }
           }
         });
       });
@@ -141,7 +151,7 @@
       }
 
       // Gets the clicked word.
-      function getCurrentContent() {
+      function getActiveContent() {
         var range = editor.getSelection().getRanges()[0];
         var startNode = range.startContainer;
         if (startNode.type === CKEDITOR.NODE_TEXT && range.startOffset) {
@@ -170,7 +180,7 @@
     }
   });
 
-  function displayContent(data) {
+  function displayContent(selectedSegment, selectedWord) {
     var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
     var segmentsDiv = document.getElementById('segments-div');
 
@@ -180,14 +190,22 @@
       segmentsDiv.innerHTML = '';
     }
 
-    var segmentsTitle = document.createTextNode('Current segment:');
+    var segmentsTitle = document.createTextNode('Selected segment:');
     segmentsDiv.appendChild(segmentsTitle);
+    var p1 = document.createElement('P');
+    p1.className = 'active-segment-text';
+    var segmentText = document.createTextNode(selectedSegment);
+    p1.appendChild(segmentText);
+    segmentsDiv.appendChild(p1);
 
-    var para = document.createElement('P');
-    para.className = 'active-segment-text';
-    var segmentText = document.createTextNode(data);
-    para.appendChild(segmentText);
-    segmentsDiv.appendChild(para);
+    var selectedWordTitle = document.createTextNode('Selected word:');
+    segmentsDiv.appendChild(selectedWordTitle);
+    var p2 = document.createElement('P');
+    p2.className = 'active-word-text';
+    var selectedWordText = document.createTextNode(selectedWord);
+    p2.appendChild(selectedWordText);
+    segmentsDiv.appendChild(p2);
+
     translationDiv.appendChild(segmentsDiv);
   }
 
