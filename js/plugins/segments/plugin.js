@@ -124,6 +124,10 @@
               // Display the segment as active.
               displayContent(selectedSegment, selectedWord);
               suggestTranslation(selectedSegmentId, segmentsDiv);
+
+              document.getElementById('btn-use-suggestion').addEventListener('click', function () {
+                addSuggestion(selectedSegmentId);
+              });
             }
             // If something else is clicked, remove the previous displayed segment.
             else {
@@ -224,6 +228,8 @@
     var t = document.createTextNode('Use suggestion');
     btn.appendChild(t);
     btn.className = 'button';
+    btn.setAttribute('type', 'button');
+    btn.id = 'btn-use-suggestion';
     segmentsDiv.appendChild(btn);
   }
 
@@ -232,7 +238,7 @@
     for (var i in CKEDITOR.instances) {
       var activeSegments = [].slice.apply(CKEDITOR.instances[i].document.$.getElementsByClassName('active-segment'));
       for (var j = 0; j < activeSegments.length; j++) {
-        activeSegments[j].className = activeSegments[j].className.replace(/ *\bactive-segment\b/g, "inactive-segment");
+        activeSegments[j].className = activeSegments[j].className.replace(/ *\bactive-segment\b/g, 'inactive-segment');
       }
     }
     /*for (var i in CKEDITOR.instances) {
@@ -251,6 +257,13 @@
         sameSegment.className = 'active-segment';
       }
     }
+  }
+
+  // Adds the suggestion in the editor.
+  function addSuggestion(selectedSegmentId) {
+    var newSegmentText = document.getElementsByClassName('suggested-translation')[0].innerHTML;
+    var newEditorData = '<tmgmt-segment id="' + selectedSegmentId + '">' + newSegmentText + '</tmgmt-segment>';
+    CKEDITOR.instances['edit-body0value-translation-value'].setData(newEditorData);
   }
 
 })(jQuery, Drupal, CKEDITOR);
