@@ -261,9 +261,14 @@
 
   // Adds the suggestion in the editor.
   function addSuggestion(selectedSegmentId) {
+    var editor = CKEDITOR.instances['edit-body0value-translation-value'];
     var newSegmentText = document.getElementsByClassName('suggested-translation')[0].innerHTML;
     var newEditorData = '<tmgmt-segment id="' + selectedSegmentId + '">' + newSegmentText + '</tmgmt-segment>';
-    CKEDITOR.instances['edit-body0value-translation-value'].setData(newEditorData);
+    var newElement = CKEDITOR.dom.element.createFromHtml(newEditorData, editor.document);
+    editor.insertElement(newElement);
+
+    // Mark the active segment.
+    markActiveSegment(selectedSegmentId);
   }
 
 })(jQuery, Drupal, CKEDITOR);
