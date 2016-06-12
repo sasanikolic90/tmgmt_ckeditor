@@ -158,7 +158,7 @@
       function getActiveContent() {
         var range = editor.getSelection().getRanges()[0];
         var startNode = range.startContainer;
-        if (startNode.type === CKEDITOR.NODE_TEXT && range.startOffset) {
+        if (startNode.type === CKEDITOR.NODE_TEXT && range.startOffset && startNode.getParent().getName() === tag) {
           var indexPrevSpace = startNode.getText().lastIndexOf(' ', range.startOffset) + 1;
           var indexNextSpace = startNode.getText().indexOf(' ', range.startOffset);
           if (indexPrevSpace === -1) {
@@ -169,7 +169,7 @@
           }
 
           // Get clicked segment id.
-          var segmentId = startNode.$.parentElement.getAttribute('id');
+          var segmentId = startNode.getParent().getAttribute('id');
           var word = startNode.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
           var segment = startNode.getText();
 
