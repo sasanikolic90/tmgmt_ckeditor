@@ -88,7 +88,7 @@
       // Command for the context menu.
       editor.addCommand('setStatusCompleted', {
         exec: function(editor) {
-          alert("Ok");
+          var selectedContent = getActiveContent();
         }
       });
 
@@ -106,10 +106,13 @@
 
       if (editor.contextMenu) {
         editor.contextMenu.addListener(function (element, selection) {
-          return {setStatusItem: CKEDITOR.TRISTATE_ON};
+          if (element.getName() === tag) {
+            return {
+              setStatusItem: CKEDITOR.TRISTATE_ON
+            };
+          }
         });
       }
-
 
       var command = editor.addCommand('showsegments', commandDefinition);
       command.canUndo = false;
