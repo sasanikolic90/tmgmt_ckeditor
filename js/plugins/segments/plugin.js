@@ -246,6 +246,7 @@
   }
 
   // Resets the active segments in the editor, so that there is only 1 active.
+  // @todo No inactive class.
   function resetActiveSegment() {
     for (var i in CKEDITOR.instances) {
       var activeSegments = [].slice.apply(CKEDITOR.instances[i].document.$.getElementsByClassName('active-segment'));
@@ -262,6 +263,7 @@
   }
 
   // Marks active segments in the editor.
+  // @todo This marker should be added only when editing.
   function markActiveSegment(segmentId) {
     for (var i in CKEDITOR.instances) {
       var sameSegment = CKEDITOR.instances[i].document.$.getElementById(segmentId);
