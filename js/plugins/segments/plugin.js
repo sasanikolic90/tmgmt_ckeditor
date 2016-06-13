@@ -106,7 +106,7 @@
 
       if (editor.contextMenu) {
         editor.contextMenu.addListener(function (element, selection) {
-          if (element.getName() === tag) {
+          if (element.getAscendant(tag, true)) {
             return {
               setStatusItem: CKEDITOR.TRISTATE_ON
             };
