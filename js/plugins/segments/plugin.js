@@ -106,8 +106,20 @@
         }
       });
 
+      editor.on('instanceReady', function () {
+        // When the data is loaded and the translation editor is empty, populate
+        // the content with the source content.
+        var sourceEditor = CKEDITOR.instances['edit-body0value-source-value'];
+        var translationEditor = CKEDITOR.instances['edit-body0value-translation-value'];
+        if (!translationEditor.getData()) {
+          translationEditor.setData(sourceEditor.getData());
+        }
+      });
+
       editor.on('contentDom', function () {
         var editable = editor.editable();
+
+        // Things to do when a word/segment is clicked.
         editable.attachListener(editable, 'click', function (evt) {
           // We only display the clicked texts when the plugin is enabled/clicked -
           // the segments-div exists (depends on the state).
@@ -126,7 +138,7 @@
               suggestTranslation(selectedSegmentId, segmentsDiv);
 
               document.getElementById('btn-use-suggestion').addEventListener('click', function () {
-                addSuggestion(selectedSegmentId);
+                addSuggestion(selectedSegment);
               });
             }
             // If something else is clicked, remove the previous displayed segment.
@@ -259,16 +271,13 @@
     }
   }
 
-  // Adds the suggestion in the editor.
-  function addSuggestion(selectedSegmentId) {
+  // Adds the suggestion in the translation editor.
+  function addSuggestion(selectedSegment) {
     var editor = CKEDITOR.instances['edit-body0value-translation-value'];
+    var editorData = editor.getData();
     var newSegmentText = document.getElementsByClassName('suggested-translation')[0].innerHTML;
-    var newEditorData = '<tmgmt-segment id="' + selectedSegmentId + '">' + newSegmentText + '</tmgmt-segment>';
-    var newElement = CKEDITOR.dom.element.createFromHtml(newEditorData, editor.document);
-    editor.insertElement(newElement);
-
-    // Mark the active segment.
-    markActiveSegment(selectedSegmentId);
+    var replaced_text = editorData.replace(selectedSegment, newSegmentText);
+    editor.setData(replaced_text);
   }
 
 })(jQuery, Drupal, CKEDITOR);
