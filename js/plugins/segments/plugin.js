@@ -85,6 +85,32 @@
         return;
       }
 
+      // Command for the context menu.
+      editor.addCommand('setStatusCompleted', {
+        exec: function(editor) {
+          alert("Ok");
+        }
+      });
+
+      if (editor.addMenuItem) {
+        // A group menu is required
+        editor.addMenuGroup('setStatusGroup');
+
+        // Create a menu item
+        editor.addMenuItem('setStatusItem', {
+          label: 'Set status completed',
+          command: 'setStatusCompleted',
+          group: 'setStatusGroup'
+        });
+      }
+
+      if (editor.contextMenu) {
+        editor.contextMenu.addListener(function (element, selection) {
+          return {setStatusItem: CKEDITOR.TRISTATE_ON};
+        });
+      }
+
+
       var command = editor.addCommand('showsegments', commandDefinition);
       command.canUndo = false;
 
