@@ -99,6 +99,7 @@
         // Create a menu item
         editor.addMenuItem('setStatusItem', {
           label: 'Set status completed',
+          icon: this.path + 'icons/status-completed.png',
           command: 'setStatusCompleted',
           group: 'setStatusGroup'
         });
