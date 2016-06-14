@@ -110,7 +110,7 @@
 
       // Command for the context menu.
       editor.addCommand('setStatusCompleted', {
-        exec: function(editor) {
+        exec: function (editor) {
           var element = editor.getSelection().getStartElement();
           element.setAttribute('data-tmgmt-segment-status', 'completed');
           element.setAttribute('class', 'completed-segment');
@@ -301,6 +301,7 @@
 
   // Resets the active segments in the editor, so that there is only 1 active.
   // @todo No inactive class.
+  // @todo No iteration, hardcode the editors for now or make them work in pairs.
   function resetActiveSegment() {
     for (var i in CKEDITOR.instances) {
       var activeSegments = [].slice.apply(CKEDITOR.instances[i].document.$.getElementsByClassName('active-segment'));
@@ -318,6 +319,7 @@
 
   // Marks active segments in the editor.
   // @todo This marker should be added only when editing.
+  // @todo No iteration, hardcode the editors for now or make them work in pairs.
   function markActiveSegment(segmentId, status) {
     for (var i in CKEDITOR.instances) {
       var sameSegment = CKEDITOR.instances[i].document.$.getElementById(segmentId);
