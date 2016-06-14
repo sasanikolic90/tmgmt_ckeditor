@@ -2,10 +2,21 @@
   color: orange;
 }
 
-.inactive-segment:before, .inactive-segment:after {
-  color: black;
+.completed-segment:before, .completed-segment:after {
+  color: green;
 }
 
 .active-segment-text, .active-word-text {
   font-weight: bold;
+}
+
+#segments-div {
+  float:left;
+  width:50%;
+  overflow:hidden;
+}
+#counter-div {
+  float:left;
+  width:50%;
+  overflow:hidden;
 }

@@ -85,12 +85,15 @@
         return;
       }
 
-      // Command for the context menu.
-      editor.addCommand('setStatusCompleted', {
-        exec: function(editor) {
-          var selectedContent = getActiveContent();
-        }
-      });
+      if (editor.contextMenu) {
+        editor.contextMenu.addListener(function (element, selection) {
+          if (element.getAscendant(tag, true)) {
+            return {
+              setStatusItem: CKEDITOR.TRISTATE_ON
+            };
+          }
+        });
+      }
 
       if (editor.addMenuItem) {
         // A group menu is required
@@ -105,15 +108,36 @@
         });
       }
 
-      if (editor.contextMenu) {
-        editor.contextMenu.addListener(function (element, selection) {
-          if (element.getAscendant(tag, true)) {
-            return {
-              setStatusItem: CKEDITOR.TRISTATE_ON
-            };
+      // Command for the context menu.
+      editor.addCommand('setStatusCompleted', {
+        exec: function(editor) {
+          var element = editor.getSelection().getStartElement();
+          element.setAttribute('data-tmgmt-segment-status', 'completed');
+          element.setAttribute('class', 'completed-segment');
+          markActiveSegment(element.getId(), 'completed');
+
+          var htmldata = editor.getData();
+          var count = (htmldata.match(/data-tmgmt-segment-status/g) || []).length;
+          var countAll = (htmldata.match(/tmgmt-segment/g) || []).length;
+
+          if (!document.getElementById('counter-div')) {
+            var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
+            var counterDiv = document.createElement('div');
+            counterDiv.id = 'counter-div';
+            translationDiv.appendChild(counterDiv);
+            var completedStatusTitle = document.createTextNode('Number of completed segments:');
+            counterDiv.appendChild(completedStatusTitle);
+            var p1 = document.createElement('P');
+            p1.className = 'segment-status-counter';
+            var segmentStatusCounter = document.createTextNode(count.toString() + '/' + countAll);
+            p1.appendChild(segmentStatusCounter);
+            counterDiv.appendChild(p1);
           }
-        });
-      }
+          else {
+            document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;
+          }
+        }
+      });
 
       var command = editor.addCommand('showsegments', commandDefinition);
       command.canUndo = false;
@@ -215,7 +239,7 @@
           var word = startNode.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
           var segment = startNode.getText();
 
-          markActiveSegment(segmentId);
+          markActiveSegment(segmentId, 'active');
 
           // Return the word without extra characters.
           return segment + '; ' + word + ';' + segmentId;
@@ -294,11 +318,16 @@
 
   // Marks active segments in the editor.
   // @todo This marker should be added only when editing.
-  function markActiveSegment(segmentId) {
+  function markActiveSegment(segmentId, status) {
     for (var i in CKEDITOR.instances) {
       var sameSegment = CKEDITOR.instances[i].document.$.getElementById(segmentId);
       if (sameSegment) {
-        sameSegment.className = 'active-segment';
+        if (status === 'active') {
+          sameSegment.className = 'active-segment';
+        }
+        else if (status === 'completed') {
+          sameSegment.className = 'completed-segment';
+        }
       }
     }
   }
