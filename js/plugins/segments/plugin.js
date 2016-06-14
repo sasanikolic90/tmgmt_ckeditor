@@ -118,7 +118,7 @@
 
           var htmldata = editor.getData();
           var count = (htmldata.match(/data-tmgmt-segment-status/g) || []).length;
-          var countAll = (htmldata.match(/tmgmt-segment/g) || []).length;
+          var countAll = (htmldata.match(/<\/tmgmt-segment>/g) || []).length;
 
           if (!document.getElementById('counter-div')) {
             var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
