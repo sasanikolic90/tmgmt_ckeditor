@@ -299,13 +299,12 @@
   }
 
   // Resets the active segments in the editor, so that there is only 1 active.
-  // @todo No inactive class.
   // @todo No iteration, hardcode the editors for now or make them work in pairs.
   function resetActiveSegment() {
     for (var i in CKEDITOR.instances) {
       var activeSegments = [].slice.apply(CKEDITOR.instances[i].document.$.getElementsByClassName('active-segment'));
       for (var j = 0; j < activeSegments.length; j++) {
-        activeSegments[j].className = activeSegments[j].className.replace(/ *\bactive-segment\b/g, 'inactive-segment');
+        activeSegments[j].className = activeSegments[j].className.replace(/ *\bactive-segment\b/g, '');
       }
     }
     /*for (var i in CKEDITOR.instances) {
