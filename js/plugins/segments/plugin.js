@@ -42,13 +42,13 @@
           translationDiv.appendChild(segmentsDiv);
 
           if (editor.addMenuItem) {
-            // A group menu is required
+            // A group menu is required.
             editor.addMenuGroup('setStatusGroup');
 
-            // Create a menu item
+            // Create a context menu item.
             editor.addMenuItem('setStatusItem', {
               label: 'Set status completed',
-              icon: this.path + 'icons/status-completed.png',
+              icon: CKEDITOR.plugins.get('tmgmt_segments').path + 'icons/status-completed.png',
               command: 'setStatusCompleted',
               group: 'setStatusGroup'
             });
@@ -60,6 +60,7 @@
           if (document.getElementById('segments-div')) {
             document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
 
+            // Remove the context menu item.
             editor.removeMenuItem('setStatusItem');
           }
         }
@@ -100,6 +101,27 @@
         return;
       }
 
+      var command = editor.addCommand('showsegments', commandDefinition);
+      command.canUndo = false;
+
+      if (editor.config.startupOutlineBlocks) {
+        command.setState(CKEDITOR.TRISTATE_ON);
+      }
+
+      editor.ui.addButton && editor.ui.addButton('tmgmt_segments', {
+        icon: 'showsegments',
+        label: editor.lang.tmgmt_segments.buttonTitle,
+        command: 'showsegments',
+        toolbar: 'tools,20'
+      });
+
+      // Refresh the command on setData.
+      editor.on('mode', function () {
+        if (command.state !== CKEDITOR.TRISTATE_DISABLED) {
+          command.refresh(editor);
+        }
+      });
+
       if (editor.contextMenu) {
         editor.contextMenu.addListener(function (element, selection) {
           if (element.getAscendant(tag, true)) {
@@ -119,27 +141,6 @@
           markActiveSegment(element.getId(), 'completed');
 
           setCounterCompletedSegments();
-        }
-      });
-
-      var command = editor.addCommand('showsegments', commandDefinition);
-      command.canUndo = false;
-
-      if (editor.config.startupOutlineBlocks) {
-        command.setState(CKEDITOR.TRISTATE_ON);
-      }
-
-      editor.ui.addButton && editor.ui.addButton('tmgmt_segments', {
-        icon: 'showsegments',
-        label: editor.lang.tmgmt_segments.buttonTitle,
-        command: 'showsegments',
-        toolbar: 'tools,20'
-      });
-
-      // Refresh the command on setData.
-      editor.on('mode', function () {
-        if (command.state !== CKEDITOR.TRISTATE_DISABLED) {
-          command.refresh(editor);
         }
       });
 
