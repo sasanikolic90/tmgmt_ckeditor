@@ -40,12 +40,27 @@
           var segmentsDiv = document.createElement('div');
           segmentsDiv.id = 'segments-div';
           translationDiv.appendChild(segmentsDiv);
+
+          if (editor.addMenuItem) {
+            // A group menu is required
+            editor.addMenuGroup('setStatusGroup');
+
+            // Create a menu item
+            editor.addMenuItem('setStatusItem', {
+              label: 'Set status completed',
+              icon: this.path + 'icons/status-completed.png',
+              command: 'setStatusCompleted',
+              group: 'setStatusGroup'
+            });
+          }
         }
         // Remove the segments display area below the editor when we disable
         // the plugin.
         else {
           if (document.getElementById('segments-div')) {
             document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
+
+            editor.removeMenuItem('setStatusItem');
           }
         }
       }
@@ -95,19 +110,6 @@
         });
       }
 
-      if (editor.addMenuItem) {
-        // A group menu is required
-        editor.addMenuGroup('setStatusGroup');
-
-        // Create a menu item
-        editor.addMenuItem('setStatusItem', {
-          label: 'Set status completed',
-          icon: this.path + 'icons/status-completed.png',
-          command: 'setStatusCompleted',
-          group: 'setStatusGroup'
-        });
-      }
-
       // Command for the context menu.
       editor.addCommand('setStatusCompleted', {
         exec: function (editor) {
@@ -116,26 +118,7 @@
           element.setAttribute('class', 'completed-segment');
           markActiveSegment(element.getId(), 'completed');
 
-          var htmldata = editor.getData();
-          var count = (htmldata.match(/data-tmgmt-segment-status/g) || []).length;
-          var countAll = (htmldata.match(/<\/tmgmt-segment>/g) || []).length;
-
-          if (!document.getElementById('counter-div')) {
-            var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-            var counterDiv = document.createElement('div');
-            counterDiv.id = 'counter-div';
-            translationDiv.appendChild(counterDiv);
-            var completedStatusTitle = document.createTextNode('Number of completed segments:');
-            counterDiv.appendChild(completedStatusTitle);
-            var p1 = document.createElement('P');
-            p1.className = 'segment-status-counter';
-            var segmentStatusCounter = document.createTextNode(count.toString() + '/' + countAll);
-            p1.appendChild(segmentStatusCounter);
-            counterDiv.appendChild(p1);
-          }
-          else {
-            document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;
-          }
+          setCounterCompletedSegments();
         }
       });
 
@@ -261,23 +244,38 @@
       segmentsDiv.innerHTML = '';
     }
 
-    var segmentsTitle = document.createTextNode('Selected segment:');
-    segmentsDiv.appendChild(segmentsTitle);
-    var p1 = document.createElement('P');
-    p1.className = 'active-segment-text';
-    var segmentText = document.createTextNode(selectedSegment);
-    p1.appendChild(segmentText);
-    segmentsDiv.appendChild(p1);
-
-    var selectedWordTitle = document.createTextNode('Selected word:');
-    segmentsDiv.appendChild(selectedWordTitle);
-    var p2 = document.createElement('P');
-    p2.className = 'active-word-text';
-    var selectedWordText = document.createTextNode(selectedWord);
-    p2.appendChild(selectedWordText);
-    segmentsDiv.appendChild(p2);
+    setCounterCompletedSegments();
+    createNewParagraph('Selected segment', selectedSegment, segmentsDiv, 'active-segment');
+    createNewParagraph('Selected word', selectedWord, segmentsDiv, 'active-word');
 
     translationDiv.appendChild(segmentsDiv);
+  }
+
+  // Helper function to create and update the counter of completed segments.
+  function setCounterCompletedSegments() {
+    var htmldata = CKEDITOR.currentInstance.getData();
+    var count = (htmldata.match(/data-tmgmt-segment-status/g) || []).length;
+    var countAll = (htmldata.match(/<\/tmgmt-segment>/g) || []).length;
+
+    if (!document.getElementsByClassName('segment-status-counter')[0]) {
+      var segmentsDiv = document.getElementById('segments-div');
+      var segmentStatusCounter = count.toString() + '/' + countAll;
+      createNewParagraph('Number of completed segments', segmentStatusCounter, segmentsDiv, 'segment-status-counter');
+    }
+    else {
+      document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;
+    }
+  }
+
+  // Helper function for creating new paragraph in the area below.
+  function createNewParagraph(title, text, targetDiv, className) {
+    var segmentsTitle = document.createTextNode(title + ':');
+    targetDiv.appendChild(segmentsTitle);
+    var p1 = document.createElement('P');
+    p1.className = className;
+    var segmentText = document.createTextNode(text);
+    p1.appendChild(segmentText);
+    targetDiv.appendChild(p1);
   }
 
   // Makes a dummy suggestion for the selected segment translation.
