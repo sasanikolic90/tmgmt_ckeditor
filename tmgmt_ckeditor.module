@@ -7,6 +7,7 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\editor\Entity\Editor;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_help().
@@ -32,4 +33,15 @@ function tmgmt_ckeditor_help($route_name, RouteMatchInterface $route_match) {
  */
 function tmgmt_ckeditor_ckeditor_css_alter(array &$css, Editor $editor) {
   $css[] = drupal_get_path('module', 'tmgmt_ckeditor') . '/js/plugins/segments/css/segments.css';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param $form_id
+ */
+function tmgmt_ckeditor_form_tmgmt_job_item_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#attached']['library'][] = 'tmgmt_ckeditor/segments_content';
 }

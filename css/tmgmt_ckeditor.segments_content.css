@@ -1,0 +1,7 @@
+.active-segment, .active-word, .suggested-translation {
+  font-weight: bold;
+}
+
+.segment-status-counter {
+  color: green;
+}
