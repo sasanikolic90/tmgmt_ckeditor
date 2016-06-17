@@ -7,7 +7,12 @@
   'use strict';
 
   var tag = 'tmgmt-segment';
-  var dummyTranslation = 'Dummy translated segment';
+  var xmlhttp;
+
+  if (window.XMLHttpRequest) {
+    // code for IE7+, Firefox, Chrome, Opera, Safari
+    xmlhttp = new XMLHttpRequest();
+  }
 
   var commandDefinition = {
     readOnly: 1,
@@ -170,14 +175,17 @@
             if (selectedContent) {
               var selectedSegment = selectedContent.split(';')[0];
               var selectedWord = selectedContent.split(';')[1];
-              var selectedSegmentId = selectedContent.split(';')[2];
               // Display the segment as active.
               displayContent(selectedSegment, selectedWord);
-              suggestTranslation(selectedSegmentId, segmentsDiv);
 
-              document.getElementById('btn-use-suggestion').addEventListener('click', function () {
-                addSuggestion(selectedSegment);
-              });
+              xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                  var jsonData = JSON.parse(xmlhttp.responseText);
+                  suggestTranslation(jsonData.translatedSegment, selectedSegment, segmentsDiv);
+                }
+              };
+              xmlhttp.open('GET', 'http://d8.dev/tmgmt_ckeditor/get.json?segment=' + selectedSegment, true);
+              xmlhttp.send();
             }
             // If something else is clicked, remove the previous displayed segment.
             else {
@@ -280,14 +288,8 @@
   }
 
   // Makes a dummy suggestion for the selected segment translation.
-  function suggestTranslation(selectedSegmentId, segmentsDiv) {
-    var sugTranslationTitle = document.createTextNode('Suggested translation:');
-    segmentsDiv.appendChild(sugTranslationTitle);
-    var sugTrP = document.createElement('P');
-    sugTrP.className = 'suggested-translation';
-    var sugTranslation = document.createTextNode(dummyTranslation + ' ' + selectedSegmentId);
-    sugTrP.appendChild(sugTranslation);
-    segmentsDiv.appendChild(sugTrP);
+  function suggestTranslation(jsonData, selectedSegment, segmentsDiv) {
+    createNewParagraph('Suggested translation', jsonData, segmentsDiv, 'suggested-translation');
 
     var btn = document.createElement('button');
     var t = document.createTextNode('Use suggestion');
@@ -296,6 +298,10 @@
     btn.setAttribute('type', 'button');
     btn.id = 'btn-use-suggestion';
     segmentsDiv.appendChild(btn);
+
+    document.getElementById('btn-use-suggestion').addEventListener('click', function () {
+      addSuggestion(selectedSegment);
+    });
   }
 
   // Resets the active segments in the editor, so that there is only 1 active.
@@ -307,12 +313,6 @@
         activeSegments[j].className = activeSegments[j].className.replace(/ *\bactive-segment\b/g, '');
       }
     }
-    /*for (var i in CKEDITOR.instances) {
-      var activeSegments = CKEDITOR.instances[i].document.$.getElementsByClassName('active-segment');
-      for (var j = 0; j < activeSegments.length; j++) {
-        activeSegments[j].className = 'inactive-segment';
-      }
-    }*/
   }
 
   // Marks active segments in the editor.

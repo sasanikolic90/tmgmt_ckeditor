@@ -1,0 +1,6 @@
+tmgmt_ckeditor.get:
+  path: 'tmgmt_ckeditor/get.json'
+  defaults: { _controller: '\Drupal\tmgmt_ckeditor\Controller\TMGMTCKEditorController::get' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'

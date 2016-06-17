@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * @file
+ * Update function for the tmgmt_ckeditor module.
+ */
+
+use Drupal\node\Entity\Node;
+
+/**
+ *  Create a node with segments.
+ */
+function tmgmt_ckeditor_install() {
+  $node = Node::create(array(
+    'type' => 'translatable_node',
+    'title' => t('Segments test'),
+    'body' => [
+      'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' .
+                 '<tmgmt-segment id="2">' . t('This is the second segment.') . '</tmgmt-segment>' .
+                 '<tmgmt-segment id="3">' . t('This is the third segment.') . '</tmgmt-segment>',
+      'format' => 'basic_html',
+    ],
+    'uid' => '0',
+    'status' => 1,
+  ));
+  $node->save();
+
+  $memory_manager = \Drupal::service('tmgmt_memory.memory_manager');
+
+}
