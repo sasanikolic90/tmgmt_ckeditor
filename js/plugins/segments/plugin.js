@@ -161,6 +161,7 @@
 
       editor.on('contentDom', function () {
         var editable = editor.editable();
+        editable.focus();
 
         // Things to do when a word/segment is clicked.
         editable.attachListener(editable, 'click', function (evt) {
