@@ -184,7 +184,7 @@
                   suggestTranslation(jsonData.translatedSegment, selectedSegment, segmentsDiv);
                 }
               };
-              xmlhttp.open('GET', 'http://d8.dev/tmgmt_ckeditor/get.json?segment=' + selectedSegment, true);
+              xmlhttp.open('GET', drupalSettings.path.baseUrl + 'tmgmt_ckeditor/get.json?segment=' + selectedSegment, true);
               xmlhttp.send();
             }
             // If something else is clicked, remove the previous displayed segment.
