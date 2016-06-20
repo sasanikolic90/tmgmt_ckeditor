@@ -316,7 +316,6 @@
   function resetActiveSegment() {
     for (var i in CKEDITOR.instances) {
       var segments = CKEDITOR.instances[i].document.$.getElementsByTagName(tag);
-      // var activeSegments = [].slice.apply(CKEDITOR.instances[i].document.$.getElementsByTagName(tag).getAttribute('data-tmgmt-segment-active-status'));
       for (var j = 0; j < segments.length; j++) {
         if (segments[j].getAttribute(attrStatusActive)) {
           segments[j].removeAttribute(attrStatusActive);
@@ -333,11 +332,9 @@
       var sameSegment = CKEDITOR.instances[i].document.$.getElementById(segmentId);
       if (sameSegment) {
         if (status === 'active') {
-          // sameSegment.className = 'active-segment';
           sameSegment.setAttribute(attrStatusActive, 'active');
         }
         else if (status === 'completed') {
-          // sameSegment.className = 'completed-segment';
           sameSegment.setAttribute(attrStatusCompleted, 'completed');
         }
       }
