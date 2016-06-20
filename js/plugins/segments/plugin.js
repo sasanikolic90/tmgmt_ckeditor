@@ -8,6 +8,8 @@
 
   var tag = 'tmgmt-segment';
   var xmlhttp;
+  var attrStatusCompleted = 'data-tmgmt-segment-completed-status';
+  var attrStatusActive = 'data-tmgmt-segment-active-status';
 
   if (window.XMLHttpRequest) {
     // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -41,22 +43,26 @@
         // Display the segments' content below the translate editor if the
         // plugin is enabled.
         if (this.state === 1) {
-          var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-          var segmentsDiv = document.createElement('div');
-          segmentsDiv.id = 'segments-div';
-          translationDiv.appendChild(segmentsDiv);
+          // This check is because when clicking "Use suggestion", the editors
+          // refresh, but the status is still active and it adds a new div.
+          if (!document.getElementById('segments-div')) {
+            var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
+            var segmentsDiv = document.createElement('div');
+            segmentsDiv.id = 'segments-div';
+            translationDiv.appendChild(segmentsDiv);
 
-          if (editor.addMenuItem) {
-            // A group menu is required.
-            editor.addMenuGroup('setStatusGroup');
+            if (editor.addMenuItem) {
+              // A group menu is required.
+              editor.addMenuGroup('setStatusGroup');
 
-            // Create a context menu item.
-            editor.addMenuItem('setStatusItem', {
-              label: 'Set status completed',
-              icon: CKEDITOR.plugins.get('tmgmt_segments').path + 'icons/status-completed.png',
-              command: 'setStatusCompleted',
-              group: 'setStatusGroup'
-            });
+              // Create a context menu item.
+              editor.addMenuItem('setStatusItem', {
+                label: 'Set status completed',
+                icon: CKEDITOR.plugins.get('tmgmt_segments').path + 'icons/status-completed.png',
+                command: 'setStatusCompleted',
+                group: 'setStatusGroup'
+              });
+            }
           }
         }
         // Remove the segments display area below the editor when we disable
@@ -141,8 +147,7 @@
       editor.addCommand('setStatusCompleted', {
         exec: function (editor) {
           var element = editor.getSelection().getStartElement();
-          element.setAttribute('data-tmgmt-segment-status', 'completed');
-          element.setAttribute('class', 'completed-segment');
+          element.setAttribute(attrStatusCompleted, 'completed');
           markActiveSegment(element.getId(), 'completed');
 
           setCounterCompletedSegments();
@@ -264,7 +269,8 @@
   // Helper function to create and update the counter of completed segments.
   function setCounterCompletedSegments() {
     var htmldata = CKEDITOR.currentInstance.getData();
-    var count = (htmldata.match(/data-tmgmt-segment-status/g) || []).length;
+    var regex = new RegExp(attrStatusCompleted, 'g');
+    var count = (htmldata.match(regex) || []).length;
     var countAll = (htmldata.match(/<\/tmgmt-segment>/g) || []).length;
 
     if (!document.getElementsByClassName('segment-status-counter')[0]) {
@@ -301,7 +307,7 @@
     segmentsDiv.appendChild(btn);
 
     document.getElementById('btn-use-suggestion').addEventListener('click', function () {
-      addSuggestion(selectedSegment);
+      addSuggestion(jsonData, selectedSegment);
     });
   }
 
@@ -309,9 +315,12 @@
   // @todo No iteration, hardcode the editors for now or make them work in pairs.
   function resetActiveSegment() {
     for (var i in CKEDITOR.instances) {
-      var activeSegments = [].slice.apply(CKEDITOR.instances[i].document.$.getElementsByClassName('active-segment'));
-      for (var j = 0; j < activeSegments.length; j++) {
-        activeSegments[j].className = activeSegments[j].className.replace(/ *\bactive-segment\b/g, '');
+      var segments = CKEDITOR.instances[i].document.$.getElementsByTagName(tag);
+      // var activeSegments = [].slice.apply(CKEDITOR.instances[i].document.$.getElementsByTagName(tag).getAttribute('data-tmgmt-segment-active-status'));
+      for (var j = 0; j < segments.length; j++) {
+        if (segments[j].getAttribute(attrStatusActive)) {
+          segments[j].removeAttribute(attrStatusActive);
+        }
       }
     }
   }
@@ -324,21 +333,22 @@
       var sameSegment = CKEDITOR.instances[i].document.$.getElementById(segmentId);
       if (sameSegment) {
         if (status === 'active') {
-          sameSegment.className = 'active-segment';
+          // sameSegment.className = 'active-segment';
+          sameSegment.setAttribute(attrStatusActive, 'active');
         }
         else if (status === 'completed') {
-          sameSegment.className = 'completed-segment';
+          // sameSegment.className = 'completed-segment';
+          sameSegment.setAttribute(attrStatusCompleted, 'completed');
         }
       }
     }
   }
 
   // Adds the suggestion in the translation editor.
-  function addSuggestion(selectedSegment) {
+  function addSuggestion(jsonData, selectedSegment) {
     var editor = CKEDITOR.instances['edit-body0value-translation-value'];
     var editorData = editor.getData();
-    var newSegmentText = document.getElementsByClassName('suggested-translation')[0].innerHTML;
-    var replaced_text = editorData.replace(selectedSegment, newSegmentText);
+    var replaced_text = editorData.replace(selectedSegment, jsonData);
     editor.setData(replaced_text);
   }
 
