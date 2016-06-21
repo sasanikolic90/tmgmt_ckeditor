@@ -214,6 +214,12 @@
         }
       });
 
+      // Mark the data as changed if the user changes it manually.
+/*      editor.on('change', function (evt) {
+        console.log( 'Total bytes: ' + evt.editor.getData().length );
+        console.log(this.getData());
+      });*/
+
       function onFocusBlur() {
         command.refresh(editor);
       }
