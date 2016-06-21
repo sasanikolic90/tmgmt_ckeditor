@@ -45,10 +45,10 @@
         if (this.state === 1) {
           // This check is because when clicking "Use suggestion", the editors
           // refresh, but the status is still active and it adds a new div.
-          if (!document.getElementById('segments-div')) {
+          if (!document.getElementById('tmgmt-segments')) {
             var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
             var segmentsDiv = document.createElement('div');
-            segmentsDiv.id = 'segments-div';
+            segmentsDiv.id = 'tmgmt-segments';
             translationDiv.appendChild(segmentsDiv);
 
             if (editor.addMenuItem) {
@@ -68,8 +68,8 @@
         // Remove the segments display area below the editor when we disable
         // the plugin.
         else {
-          if (document.getElementById('segments-div')) {
-            document.getElementById('segments-div').parentNode.removeChild(document.getElementById('segments-div'));
+          if (document.getElementById('tmgmt-segments')) {
+            document.getElementById('tmgmt-segments').parentNode.removeChild(document.getElementById('tmgmt-segments'));
 
             // Remove the context menu item.
             editor.removeMenuItem('setStatusItem');
@@ -171,8 +171,8 @@
         // Things to do when a word/segment is clicked.
         editable.attachListener(editable, 'click', function (evt) {
           // We only display the clicked texts when the plugin is enabled/clicked -
-          // the segments-div exists (depends on the state).
-          var segmentsDiv = document.getElementById('segments-div');
+          // the tmgmt-segments exists (depends on the state).
+          var segmentsDiv = document.getElementById('tmgmt-segments');
           if (segmentsDiv) {
             resetActiveSegment();
             var selectedContent = getActiveContent();
@@ -251,7 +251,7 @@
   // Displays the selected segment and word in the area below the editor.
   function displayContent(selectedSegment, selectedWord) {
     var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-    var segmentsDiv = document.getElementById('segments-div');
+    var segmentsDiv = document.getElementById('tmgmt-segments');
 
     // Remove the previous segment, if it exists.
     var activeSegment = document.getElementsByClassName('active-segment-text');
@@ -260,8 +260,8 @@
     }
 
     setCounterCompletedSegments();
-    createNewParagraph('Selected segment', selectedSegment, segmentsDiv, 'active-segment');
-    createNewParagraph('Selected word', selectedWord, segmentsDiv, 'active-word');
+    createNewParagraph('tmgmt-active-segment-div', 'Selected segment', selectedSegment, segmentsDiv, 'active-segment');
+    createNewParagraph('tmgmt-active-word-div', 'Selected word', selectedWord, segmentsDiv, 'active-word');
 
     translationDiv.appendChild(segmentsDiv);
   }
@@ -274,9 +274,9 @@
     var countAll = (htmldata.match(/<\/tmgmt-segment>/g) || []).length;
 
     if (!document.getElementsByClassName('segment-status-counter')[0]) {
-      var segmentsDiv = document.getElementById('segments-div');
+      var segmentsDiv = document.getElementById('tmgmt-segments');
       var segmentStatusCounter = count.toString() + '/' + countAll;
-      createNewParagraph('Number of completed segments', segmentStatusCounter, segmentsDiv, 'segment-status-counter');
+      createNewParagraph('tmgmt-segment-counter-div','Number of completed segments', segmentStatusCounter, segmentsDiv, 'segment-status-counter');
     }
     else {
       document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;
@@ -284,30 +284,35 @@
   }
 
   // Helper function for creating new paragraph in the area below.
-  function createNewParagraph(title, text, targetDiv, className) {
+  function createNewParagraph(parentDiv, title, text, targetDiv, className) {
+    var wrapper = document.createElement('div');
+    wrapper.className = parentDiv;
     var segmentsTitle = document.createTextNode(title + ':');
-    targetDiv.appendChild(segmentsTitle);
+    wrapper.appendChild(segmentsTitle);
     var p1 = document.createElement('P');
     p1.className = className;
     var segmentText = document.createTextNode(text);
     p1.appendChild(segmentText);
-    targetDiv.appendChild(p1);
+    wrapper.appendChild(p1);
+    targetDiv.appendChild(wrapper);
   }
 
   // Makes a dummy suggestion for the selected segment translation.
   function suggestTranslation(jsonData, selectedSegment, segmentsDiv) {
-    createNewParagraph('Suggested translation', jsonData, segmentsDiv, 'suggested-translation');
+    createNewParagraph('tmgmt-suggested-translation-div', 'Suggested translation', jsonData, segmentsDiv, 'suggested-translation');
 
+    var wrapper = document.getElementsByClassName('tmgmt-suggested-translation-div');
     var btn = document.createElement('button');
     var t = document.createTextNode('Use suggestion');
     btn.appendChild(t);
     btn.className = 'button';
     btn.setAttribute('type', 'button');
     btn.id = 'btn-use-suggestion';
-    segmentsDiv.appendChild(btn);
+    wrapper[0].appendChild(btn);
 
-    document.getElementById('btn-use-suggestion').addEventListener('click', function () {
+    btn.addEventListener('click', function () {
       addSuggestion(jsonData, selectedSegment);
+      wrapper[0].parentNode.removeChild(wrapper[0]);
     });
   }
 
