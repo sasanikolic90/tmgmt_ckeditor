@@ -10,6 +10,7 @@
   var xmlhttp;
   var attrStatusCompleted = 'data-tmgmt-segment-completed-status';
   var attrStatusActive = 'data-tmgmt-segment-active-status';
+  var editorTimer = null;
 
   if (window.XMLHttpRequest) {
     // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -215,10 +216,16 @@
       });
 
       // Mark the data as changed if the user changes it manually.
-/*      editor.on('change', function (evt) {
-        console.log( 'Total bytes: ' + evt.editor.getData().length );
-        console.log(this.getData());
-      });*/
+      editor.on('change', function (evt) {
+        if (editorTimer != null && editorTimer.length) {
+          clearTimeout(editorTimer);
+        }
+        editorTimer = setTimeout(function () {
+          console.log(evt.editor.getData());
+        }, 1000);
+        // console.log( 'Total bytes: ' + evt.editor.getData().length );
+        // console.log(this.getData());
+      });
 
       function onFocusBlur() {
         command.refresh(editor);
