@@ -2,12 +2,10 @@ langcode: en
 status: true
 dependencies:
   config:
-    - filter.format.basic_html
+    - filter.format.translation_html
   module:
     - ckeditor
-_core:
-  default_config_hash: AqlPmO16LvJI4D0Ih6u4GFQIzqr5OnLgAUSjcUGWk2g
-format: basic_html
+format: translation_html
 editor: ckeditor
 settings:
   toolbar:
@@ -19,7 +17,7 @@ settings:
             - Bold
             - Italic
         -
-          name: Linking
+          name: Links
           items:
             - DrupalLink
             - DrupalUnlink
@@ -33,10 +31,6 @@ settings:
           items:
             - Blockquote
             - DrupalImage
-        -
-          name: 'Block Formatting'
-          items:
-            - Format
         -
           name: Tools
           items:

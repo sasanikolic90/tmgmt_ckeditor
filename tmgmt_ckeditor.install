@@ -6,6 +6,8 @@
  */
 
 use Drupal\node\Entity\Node;
+use Drupal\user\Entity\Role;
+use Drupal\user\RoleInterface;
 
 /**
  *  Create a node with segments.
@@ -18,19 +20,24 @@ function tmgmt_ckeditor_install() {
       'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' .
                  '<tmgmt-segment id="2">' . t('This is the second segment.') . '</tmgmt-segment>' .
                  '<tmgmt-segment id="3">' . t('This is the third segment.') . '</tmgmt-segment>',
-      'format' => 'basic_html',
+      'format' => 'translation_html',
     ],
     'uid' => '0',
     'status' => 1,
   ));
   $node->save();
 
+  // Allow translation_html to all authenticated users.
+  /** @var Role $role */
+  $role = Role::load(RoleInterface::AUTHENTICATED_ID);
+  $role->grantPermission('use text format translation_html');
+  $role->save();
+
   $memory_manager = \Drupal::service('tmgmt_memory.memory_manager');
 
   // Hardcoded dummy segments.
   $first_segment_text = 'This is the first segment.';
   $second_segment_text = 'This is the second segment.';
-  $third_segment_text = 'This is the third segment.';
 
   // Hardcoded translations of the dummy segments.
   $first_segment_translated = 'This is the first translated segment';
