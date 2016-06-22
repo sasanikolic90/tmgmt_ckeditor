@@ -190,11 +190,10 @@
                   suggestTranslation(jsonData.translatedSegment, selectedContent['segmentText'], segmentsDiv);
                 }
               };
-              // xmlhttp.open('GET', drupalSettings.path.baseUrl + 'tmgmt_ckeditor/get.json?segment=' + selectedContent['segmentText'], true);
               xmlhttp.open('GET', drupalSettings.path.baseUrl +
                 'tmgmt_ckeditor/get.json?segment=' + selectedContent['segmentText'] +
-                '&lang_source=' + selectedContent['sourceLanguage'] + '&lang_target=' +
-                selectedContent['targetLanguage'], true);
+                '&lang_source=' + selectedContent['sourceLanguage'] +
+                '&lang_target=' + selectedContent['targetLanguage'], true);
               xmlhttp.send();
             }
             // If something else is clicked, remove the previous displayed segment.
