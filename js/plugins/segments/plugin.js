@@ -216,7 +216,7 @@
       });
 
       // Mark the data as changed if the user changes it manually.
-      editor.on('change', function (evt) {
+      /*editor.on('change', function (evt) {
         if (editorTimer != null && editorTimer.length) {
           clearTimeout(editorTimer);
         }
@@ -225,7 +225,7 @@
         }, 1000);
         // console.log( 'Total bytes: ' + evt.editor.getData().length );
         // console.log(this.getData());
-      });
+      });*/
 
       function onFocusBlur() {
         command.refresh(editor);
@@ -350,10 +350,10 @@
       var sameSegment = CKEDITOR.instances[i].document.$.getElementById(segmentId);
       if (sameSegment) {
         if (status === 'active') {
-          sameSegment.setAttribute(attrStatusActive, 'active');
+          sameSegment.setAttribute(attrStatusActive, '');
         }
         else if (status === 'completed') {
-          sameSegment.setAttribute(attrStatusCompleted, 'completed');
+          sameSegment.setAttribute(attrStatusCompleted, '');
         }
       }
     }

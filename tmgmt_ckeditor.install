@@ -17,8 +17,8 @@ function tmgmt_ckeditor_install() {
     'type' => 'translatable_node',
     'title' => t('Segments test'),
     'body' => [
-      'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' .
-                 '<tmgmt-segment id="2">' . t('This is the second segment.') . '</tmgmt-segment>' .
+      'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' . '<br />' .
+                 '<tmgmt-segment id="2">' . t('This is the second segment.') . '</tmgmt-segment>' . '<br />' .
                  '<tmgmt-segment id="3">' . t('This is the third segment.') . '</tmgmt-segment>',
       'format' => 'translation_html',
     ],
