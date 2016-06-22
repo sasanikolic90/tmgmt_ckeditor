@@ -180,18 +180,16 @@
 
             // If the segment is clicked, display it.
             if (selectedContent) {
-              var selectedSegment = selectedContent.split(';')[0];
-              var selectedWord = selectedContent.split(';')[1];
               // Display the segment as active.
-              displayContent(selectedSegment, selectedWord);
+              displayContent(selectedContent['segmentText'], selectedContent['word']);
 
               xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                   var jsonData = JSON.parse(xmlhttp.responseText);
-                  suggestTranslation(jsonData.translatedSegment, selectedSegment, segmentsDiv);
+                  suggestTranslation(jsonData.translatedSegment, selectedContent['segmentText'], segmentsDiv);
                 }
               };
-              xmlhttp.open('GET', drupalSettings.path.baseUrl + 'tmgmt_ckeditor/get.json?segment=' + selectedSegment, true);
+              xmlhttp.open('GET', drupalSettings.path.baseUrl + 'tmgmt_ckeditor/get.json?segment=' + selectedContent['segmentText'], true);
               xmlhttp.send();
             }
             // If something else is clicked, remove the previous displayed segment.
@@ -246,14 +244,15 @@
           }
 
           // Get clicked segment id.
-          var segmentId = startNode.getParent().getAttribute('id');
-          var word = startNode.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
-          var segment = startNode.getText();
+          var activeSegmentData = [];
+          activeSegmentData['segmentId'] = startNode.getParent().getAttribute('id');
+          activeSegmentData['segmentText'] = startNode.getText();
+          activeSegmentData['word'] = startNode.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
 
-          markActiveSegment(segmentId, 'active');
+          markActiveSegment(activeSegmentData['segmentId'], 'active');
 
           // Return the word without extra characters.
-          return segment + '; ' + word + ';' + segmentId;
+          return activeSegmentData;
         }
         // Selection starts at the 0 index of the text node and/or there's no previous text node in contents.
         return null;
@@ -335,7 +334,7 @@
     for (var i in CKEDITOR.instances) {
       var segments = CKEDITOR.instances[i].document.$.getElementsByTagName(tag);
       for (var j = 0; j < segments.length; j++) {
-        if (segments[j].getAttribute(attrStatusActive)) {
+        if (segments[j].getAttribute(attrStatusActive) != null) {
           segments[j].removeAttribute(attrStatusActive);
         }
       }
