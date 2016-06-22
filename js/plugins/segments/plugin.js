@@ -183,13 +183,18 @@
               // Display the segment as active.
               displayContent(selectedContent['segmentText'], selectedContent['word']);
 
-              xmlhttp.onreadystatechange = function() {
+              xmlhttp = new XMLHttpRequest();
+              xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                   var jsonData = JSON.parse(xmlhttp.responseText);
                   suggestTranslation(jsonData.translatedSegment, selectedContent['segmentText'], segmentsDiv);
                 }
               };
-              xmlhttp.open('GET', drupalSettings.path.baseUrl + 'tmgmt_ckeditor/get.json?segment=' + selectedContent['segmentText'], true);
+              // xmlhttp.open('GET', drupalSettings.path.baseUrl + 'tmgmt_ckeditor/get.json?segment=' + selectedContent['segmentText'], true);
+              xmlhttp.open('GET', drupalSettings.path.baseUrl +
+                'tmgmt_ckeditor/get.json?segment=' + selectedContent['segmentText'] +
+                '&lang_source=' + selectedContent['sourceLanguage'] + '&lang_target=' +
+                selectedContent['targetLanguage'], true);
               xmlhttp.send();
             }
             // If something else is clicked, remove the previous displayed segment.
@@ -248,6 +253,8 @@
           activeSegmentData['segmentId'] = startNode.getParent().getAttribute('id');
           activeSegmentData['segmentText'] = startNode.getText();
           activeSegmentData['word'] = startNode.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
+          activeSegmentData['sourceLanguage'] = document.getElementsByClassName('tmgmt-ui-source-language')[0].getAttribute('data-tmgmt-source-language');
+          activeSegmentData['targetLanguage'] = document.getElementsByClassName('tmgmt-ui-target-language')[0].getAttribute('data-tmgmt-target-language');
 
           markActiveSegment(activeSegmentData['segmentId'], 'active');
 
