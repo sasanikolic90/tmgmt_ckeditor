@@ -187,7 +187,7 @@
               xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                   var jsonData = JSON.parse(xmlhttp.responseText);
-                  suggestTranslation(jsonData.translatedSegment, selectedContent['segmentText'], segmentsDiv);
+                  suggestTranslation(jsonData.trSegmentStrippedText, selectedContent['segmentText'], segmentsDiv);
                 }
               };
               xmlhttp.open('GET', drupalSettings.path.baseUrl +

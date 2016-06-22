@@ -32,7 +32,12 @@ class TMGMTCKEditorController extends ControllerBase {
        */
       $memory_manager = \Drupal::service('tmgmt_memory.memory_manager');
       $translated_segment = $memory_manager->getSegmentTranslation($sourceLanguage, $content, $targetLanguage);
-      $json_segment = array("translatedSegment" => $translated_segment->getTarget()->getStrippedData());
+      if ($translated_segment) {
+        $json_segment = array("trSegmentStrippedText" => $translated_segment->getTarget()->getStrippedData());
+      }
+      else {
+        return new JsonResponse(null, 204);
+      }
     }
     return new JsonResponse($json_segment);
   }
