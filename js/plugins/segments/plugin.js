@@ -259,8 +259,8 @@
           activeSegmentData['segmentId'] = startNode.getParent().getAttribute('id');
           activeSegmentData['segmentText'] = startNode.getText();
           activeSegmentData['word'] = startNode.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
-          activeSegmentData['sourceLanguage'] = document.getElementsByClassName('tmgmt-ui-source-language')[0].getAttribute('data-tmgmt-source-language');
-          activeSegmentData['targetLanguage'] = document.getElementsByClassName('tmgmt-ui-target-language')[0].getAttribute('data-tmgmt-target-language');
+          activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
+          activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
 
           markActiveSegment(activeSegmentData['segmentId'], 'active');
 
