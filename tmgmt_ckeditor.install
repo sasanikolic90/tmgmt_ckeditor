@@ -40,7 +40,9 @@ function tmgmt_ckeditor_install() {
   $second_segment_text = 'This is the second segment.';
 
   // Hardcoded translations of the dummy segments.
-  $first_segment_translated = 'This is the first translated segment';
+  $first_segment_translation_1 = 'This is the first translated segment';
+  $first_segment_translation_2 = 'This is the first translated segment 2';
+  $first_segment_translation_3 = 'This is the first translated segment 3';
   $second_segment_translated = 'This is the second translated segment';
 
   // Adding the segments to tmgmt_memory.
@@ -48,6 +50,8 @@ function tmgmt_ckeditor_install() {
   $memory_manager->addSegment('en', $second_segment_text);
 
   // Adding the translations of the dummy segments to tmgmt_memory.
-  $memory_manager->addSegmentTranslation('en', $first_segment_text, 'de', $first_segment_translated);
+  $memory_manager->addSegmentTranslation('en', $first_segment_text, 'de', $first_segment_translation_1);
+  $memory_manager->addSegmentTranslation('en', $first_segment_text, 'de', $first_segment_translation_2);
+  $memory_manager->addSegmentTranslation('en', $first_segment_text, 'de', $first_segment_translation_3);
   $memory_manager->addSegmentTranslation('en', $second_segment_text, 'de', $second_segment_translated);
 }

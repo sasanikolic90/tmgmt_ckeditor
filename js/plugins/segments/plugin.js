@@ -187,7 +187,14 @@
               xmlhttp.onreadystatechange = function () {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                   var jsonData = JSON.parse(xmlhttp.responseText);
-                  suggestTranslation(jsonData.trSegmentStrippedText, selectedContent['segmentText'], segmentsDiv);
+                  // Make a wrapper for suggested translations.
+                  var suggestedTranslations = document.createElement('div');
+                  suggestedTranslations.className = 'suggested-translations';
+                  segmentsDiv.appendChild(suggestedTranslations);
+
+                  jsonData.forEach(function (object) {
+                    suggestTranslation(object, selectedContent['segmentText'], suggestedTranslations);
+                  });
                 }
               };
               xmlhttp.open('GET', drupalSettings.path.baseUrl +
@@ -302,13 +309,13 @@
   }
 
   // Helper function for creating new paragraph in the area below.
-  function createNewParagraph(parentDiv, title, text, targetDiv, className) {
+  function createNewParagraph(parentDiv, title, text, targetDiv, paragraphClassName) {
     var wrapper = document.createElement('div');
     wrapper.className = parentDiv;
     var segmentsTitle = document.createTextNode(title + ':');
     wrapper.appendChild(segmentsTitle);
     var p1 = document.createElement('P');
-    p1.className = className;
+    p1.className = paragraphClassName;
     var segmentText = document.createTextNode(text);
     p1.appendChild(segmentText);
     wrapper.appendChild(p1);
@@ -316,22 +323,30 @@
   }
 
   // Makes a dummy suggestion for the selected segment translation.
-  function suggestTranslation(jsonData, selectedSegment, segmentsDiv) {
-    createNewParagraph('tmgmt-suggested-translation-div', 'Suggested translation', jsonData, segmentsDiv, 'suggested-translation');
+  function suggestTranslation(jsonData, selectedSegment, targetDiv) {
+    createNewParagraph('tmgmt-suggested-translation-div-' + jsonData.targetSegmentId, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
 
-    var wrapper = document.getElementsByClassName('tmgmt-suggested-translation-div');
+    var wrapper = document.getElementsByClassName('tmgmt-suggested-translation-div-' + jsonData.targetSegmentId);
     var btn = document.createElement('button');
     var t = document.createTextNode('Use suggestion');
     btn.appendChild(t);
     btn.className = 'button';
     btn.setAttribute('type', 'button');
-    btn.id = 'btn-use-suggestion';
+    btn.id = 'btn-use-suggestion-' + jsonData.targetSegmentId;
     wrapper[0].appendChild(btn);
 
     btn.addEventListener('click', function () {
-      addSuggestion(jsonData, selectedSegment);
-      wrapper[0].parentNode.removeChild(wrapper[0]);
+      addSuggestion(jsonData.trSegmentStrippedText, selectedSegment);
+      targetDiv.parentNode.removeChild(targetDiv);
     });
+  }
+
+  // Adds the suggestion in the translation editor.
+  function addSuggestion(suggestedTranslation, selectedSegment) {
+    var editor = CKEDITOR.instances['edit-body0value-translation-value'];
+    var editorData = editor.getData();
+    var replaced_text = editorData.replace(selectedSegment, suggestedTranslation);
+    editor.setData(replaced_text);
   }
 
   // Resets the active segments in the editor, so that there is only 1 active.
@@ -362,14 +377,6 @@
         }
       }
     }
-  }
-
-  // Adds the suggestion in the translation editor.
-  function addSuggestion(jsonData, selectedSegment) {
-    var editor = CKEDITOR.instances['edit-body0value-translation-value'];
-    var editorData = editor.getData();
-    var replaced_text = editorData.replace(selectedSegment, jsonData);
-    editor.setData(replaced_text);
   }
 
 })(jQuery, Drupal, CKEDITOR);
