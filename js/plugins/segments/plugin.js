@@ -10,6 +10,7 @@
   var xmlhttp;
   var attrStatusCompleted = 'data-tmgmt-segment-completed-status';
   var attrStatusActive = 'data-tmgmt-segment-active-status';
+  var attrSource = 'data-tmgmt-segment-source';
   var editorTimer = null;
 
   if (window.XMLHttpRequest) {
@@ -173,41 +174,8 @@
         editable.attachListener(editable, 'click', function (evt) {
           // We only display the clicked texts when the plugin is enabled/clicked -
           // the tmgmt-segments exists (depends on the state).
-          var segmentsDiv = document.getElementById('tmgmt-segments');
-          if (segmentsDiv) {
-            resetActiveSegment();
-            var selectedContent = getActiveContent();
 
-            // If the segment is clicked, display it.
-            if (selectedContent) {
-              // Display the segment as active.
-              displayContent(selectedContent['segmentText'], selectedContent['word']);
-
-              xmlhttp = new XMLHttpRequest();
-              xmlhttp.onreadystatechange = function () {
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                  var jsonData = JSON.parse(xmlhttp.responseText);
-                  // Make a wrapper for suggested translations.
-                  var suggestedTranslations = document.createElement('div');
-                  suggestedTranslations.className = 'suggested-translations';
-                  segmentsDiv.appendChild(suggestedTranslations);
-
-                  jsonData.forEach(function (object) {
-                    suggestTranslation(object, selectedContent['segmentText'], suggestedTranslations);
-                  });
-                }
-              };
-              xmlhttp.open('GET', drupalSettings.path.baseUrl +
-                'tmgmt_ckeditor/get.json?segment=' + selectedContent['segmentText'] +
-                '&lang_source=' + selectedContent['sourceLanguage'] +
-                '&lang_target=' + selectedContent['targetLanguage'], true);
-              xmlhttp.send();
-            }
-            // If something else is clicked, remove the previous displayed segment.
-            else {
-              segmentsDiv.innerHTML = '';
-            }
-          }
+          refreshActiveContent();
         });
       });
 
@@ -224,41 +192,82 @@
         }
       });
 
-      // Mark the data as changed if the user changes it manually.
-      /*editor.on('change', function (evt) {
+      // Set the source data attribute to user if the user changes it manually.
+      editor.on('change', function (evt) {
         if (editorTimer != null && editorTimer.length) {
           clearTimeout(editorTimer);
         }
         editorTimer = setTimeout(function () {
-          console.log(evt.editor.getData());
+          refreshActiveContent();
         }, 1000);
-        // console.log( 'Total bytes: ' + evt.editor.getData().length );
-        // console.log(this.getData());
-      });*/
+      });
 
       function onFocusBlur() {
         command.refresh(editor);
       }
 
+      function refreshActiveContent() {
+        var segmentsDiv = document.getElementById('tmgmt-segments');
+        if (segmentsDiv) {
+          resetActiveSegment();
+          var selectedContent = getActiveContent();
+
+          // If the segment is clicked, display it.
+          if (selectedContent) {
+            // Display the segment as active.
+            displayContent(selectedContent['segmentText'], selectedContent['word']);
+
+            // Do the http request to the memory.
+            getDataFromMemory(selectedContent, segmentsDiv);
+          }
+          // If something else is clicked, remove the previous displayed segment.
+          else {
+            segmentsDiv.innerHTML = '';
+          }
+        }
+      }
+
+      function getDataFromMemory(selectedContent, segmentsDiv) {
+        xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+          if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+            var jsonData = JSON.parse(xmlhttp.responseText);
+            // Make a wrapper for suggested translations.
+            var suggestedTranslations = document.createElement('div');
+            suggestedTranslations.className = 'suggested-translations';
+            segmentsDiv.appendChild(suggestedTranslations);
+
+            jsonData.forEach(function (object) {
+              suggestTranslation(object, selectedContent['segmentText'], suggestedTranslations);
+            });
+          }
+        };
+        xmlhttp.open('GET', drupalSettings.path.baseUrl +
+          'tmgmt_ckeditor/get.json?segment=' + selectedContent['segmentText'] +
+          '&lang_source=' + selectedContent['sourceLanguage'] +
+          '&lang_target=' + selectedContent['targetLanguage'], true);
+        xmlhttp.send();
+      }
+
       // Gets the selected segment and word.
       function getActiveContent() {
         var range = editor.getSelection().getRanges()[0];
-        var startNode = range.startContainer;
-        if (startNode.type === CKEDITOR.NODE_TEXT && range.startOffset && startNode.getParent().getName() === tag) {
-          var indexPrevSpace = startNode.getText().lastIndexOf(' ', range.startOffset) + 1;
-          var indexNextSpace = startNode.getText().indexOf(' ', range.startOffset);
+        var clickedSegment = range.startContainer;
+        if (clickedSegment.type === CKEDITOR.NODE_TEXT && range.startOffset && clickedSegment.getParent().getName() === tag) {
+          var indexPrevSpace = clickedSegment.getText().lastIndexOf(' ', range.startOffset) + 1;
+          var indexNextSpace = clickedSegment.getText().indexOf(' ', range.startOffset);
           if (indexPrevSpace === -1) {
             indexPrevSpace = 0;
           }
           if (indexNextSpace === -1) {
-            indexNextSpace = startNode.getText().length;
+            indexNextSpace = clickedSegment.getText().length;
           }
 
           // Get clicked segment id.
           var activeSegmentData = [];
-          activeSegmentData['segmentId'] = startNode.getParent().getAttribute('id');
-          activeSegmentData['segmentText'] = startNode.getText();
-          activeSegmentData['word'] = startNode.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
+          activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
+          activeSegmentData['segmentText'] = clickedSegment.getText();
+          activeSegmentData['word'] = clickedSegment.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
           activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
           activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
 
@@ -336,17 +345,19 @@
     wrapper[0].appendChild(btn);
 
     btn.addEventListener('click', function () {
-      addSuggestion(jsonData.trSegmentStrippedText, selectedSegment);
+      addSuggestion(jsonData.sourceSegmentId, jsonData.trSegmentStrippedText, selectedSegment);
       targetDiv.parentNode.removeChild(targetDiv);
     });
   }
 
   // Adds the suggestion in the translation editor.
-  function addSuggestion(suggestedTranslation, selectedSegment) {
+  function addSuggestion(segmentId, suggestedTranslation, selectedSegment) {
     var editor = CKEDITOR.instances['edit-body0value-translation-value'];
     var editorData = editor.getData();
     var replaced_text = editorData.replace(selectedSegment, suggestedTranslation);
     editor.setData(replaced_text);
+    var sourceSegment = editor.document.$.getElementById(segmentId);
+    sourceSegment.setAttribute(attrSource, 'memory');
   }
 
   // Resets the active segments in the editor, so that there is only 1 active.
