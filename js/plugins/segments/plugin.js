@@ -11,7 +11,9 @@
   var attrStatusCompleted = 'data-tmgmt-segment-completed-status';
   var attrStatusActive = 'data-tmgmt-segment-active-status';
   var attrSource = 'data-tmgmt-segment-source';
+  var attrQuality = 'data-tmgmt-segment-quality';
   var editorTimer = null;
+  var disableListener = false;
 
   if (window.XMLHttpRequest) {
     // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -172,9 +174,6 @@
 
         // Things to do when a word/segment is clicked.
         editable.attachListener(editable, 'click', function (evt) {
-          // We only display the clicked texts when the plugin is enabled/clicked -
-          // the tmgmt-segments exists (depends on the state).
-
           refreshActiveContent();
         });
       });
@@ -194,6 +193,11 @@
 
       // Set the source data attribute to user if the user changes it manually.
       editor.on('change', function (evt) {
+        // Exit from function when the flag is true. This is set when adding a
+        // segment from the memory (clicking the button).
+        if (disableListener == true) {
+          return;
+        }
         if (editorTimer != null && editorTimer.length) {
           clearTimeout(editorTimer);
         }
@@ -206,7 +210,10 @@
         command.refresh(editor);
       }
 
+      // Things to do after the content is selected.
       function refreshActiveContent() {
+        // We only display the clicked texts when the plugin is enabled/clicked -
+        // the tmgmt-segments exists (depends on the state).
         var segmentsDiv = document.getElementById('tmgmt-segments');
         if (segmentsDiv) {
           resetActiveSegment();
@@ -345,19 +352,21 @@
     wrapper[0].appendChild(btn);
 
     btn.addEventListener('click', function () {
-      addSuggestion(jsonData.sourceSegmentId, jsonData.trSegmentStrippedText, selectedSegment);
+      addSuggestion(jsonData, selectedSegment);
       targetDiv.parentNode.removeChild(targetDiv);
     });
   }
 
   // Adds the suggestion in the translation editor.
-  function addSuggestion(segmentId, suggestedTranslation, selectedSegment) {
+  function addSuggestion(jsonData, selectedSegment) {
     var editor = CKEDITOR.instances['edit-body0value-translation-value'];
     var editorData = editor.getData();
-    var replaced_text = editorData.replace(selectedSegment, suggestedTranslation);
+    var replaced_text = editorData.replace(selectedSegment, jsonData.trSegmentStrippedText);
     editor.setData(replaced_text);
-    var sourceSegment = editor.document.$.getElementById(segmentId);
+    var sourceSegment = editor.document.$.getElementById(jsonData.sourceSegmentId);
     sourceSegment.setAttribute(attrSource, 'memory');
+    sourceSegment.setAttribute(attrQuality, jsonData.quality);
+    disableListener = true;
   }
 
   // Resets the active segments in the editor, so that there is only 1 active.
