@@ -404,18 +404,17 @@
 
   // Marks active segments in the editor.
   // @todo This marker should be added only when editing.
-  // @todo No iteration, hardcode the editors for now or make them work in pairs.
   function markActiveSegment(segmentId, status) {
-    for (var i in CKEDITOR.instances) {
-      var sameSegment = CKEDITOR.instances[i].document.$.getElementById(segmentId);
-      if (sameSegment) {
-        if (status === 'active') {
-          sameSegment.setAttribute(attrStatusActive, '');
-        }
-        else if (status === 'completed') {
-          sameSegment.setAttribute(attrStatusCompleted, '');
-        }
-      }
+    var relatedEditorName = CKEDITOR.currentInstance.name.replace('value-translation-value', 'value-source-value');
+    var translationSegment = CKEDITOR.currentInstance.document.$.getElementById(segmentId);
+    var sourceSegment = CKEDITOR.instances[relatedEditorName].document.$.getElementById(segmentId);
+    if (status === 'active') {
+      translationSegment.setAttribute(attrStatusActive, '');
+      sourceSegment.setAttribute(attrStatusActive, '');
+    }
+    else if (status === 'completed') {
+      translationSegment.setAttribute(attrStatusCompleted, '');
+      sourceSegment.setAttribute(attrStatusCompleted, '');
     }
   }
 
