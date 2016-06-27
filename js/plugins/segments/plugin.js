@@ -160,11 +160,26 @@
 
       editor.on('instanceReady', function () {
         // When the data is loaded and the translation editor is empty, populate
-        // the content with the source content.
-        var sourceEditor = CKEDITOR.instances['edit-body0value-source-value'];
-        var translationEditor = CKEDITOR.instances['edit-body0value-translation-value'];
-        if (!translationEditor.getData()) {
-          translationEditor.setData(sourceEditor.getData());
+        // the content with the corresponding source content.
+        var key;
+        var instance;
+        var owns = Object.prototype.hasOwnProperty;
+
+        for (key in CKEDITOR.instances) {
+          if (owns.call(CKEDITOR.instances, key)) {
+            instance = CKEDITOR.instances[key];
+            // Get the editor id.
+            // var matchId = instance.name.match(/\d+/);
+            // var instanceId = parseInt(matchId[0], 10);
+
+            // If we find a translation editor without data, populate it from the
+            // corresponding source editor.
+            var translationNameMatch = instance.name.match(/.*value-translation-value$/);
+            if (translationNameMatch != null && !instance.getData()) {
+              var sourceEditorName = instance.name.replace('value-translation-value', 'value-source-value');
+              instance.setData(CKEDITOR.instances[sourceEditorName].getData());
+            }
+          }
         }
       });
 
