@@ -14,6 +14,8 @@
   var attrQuality = 'data-tmgmt-segment-quality';
   var editorTimer = null;
   var disableListener = false;
+  var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1,3);
+  var editor_id;
 
   if (window.XMLHttpRequest) {
     // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -36,6 +38,9 @@
         var showSegments = (this.state === CKEDITOR.TRISTATE_ON &&
         (editor.elementMode !== CKEDITOR.ELEMENT_MODE_INLINE || editor.focusManager.hasFocus));
 
+        var matchId = editor.name.match(/\d+/);
+        var editorId = parseInt(matchId[0], 10);
+
         var funcName = showSegments ? 'attachClass' : 'removeClass';
         editor.editable()[funcName]('cke_show_segments');
 
@@ -49,12 +54,7 @@
         if (this.state === 1) {
           // This check is because when clicking "Use suggestion", the editors
           // refresh, but the status is still active and it adds a new div.
-          if (!document.getElementById('tmgmt-segments')) {
-            var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-            var segmentsDiv = document.createElement('div');
-            segmentsDiv.id = 'tmgmt-segments';
-            translationDiv.appendChild(segmentsDiv);
-
+          if (document.getElementsByClassName('tmgmt-segments')[editorId].innerHTML === '') {
             if (editor.addMenuItem) {
               // A group menu is required.
               editor.addMenuGroup('setStatusGroup');
@@ -72,9 +72,9 @@
         // Remove the segments display area below the editor when we disable
         // the plugin.
         else {
-          if (document.getElementById('tmgmt-segments')) {
-            document.getElementById('tmgmt-segments').parentNode.removeChild(document.getElementById('tmgmt-segments'));
-
+          if (document.getElementsByClassName('tmgmt-segments')[editorId]) {
+            // document.getElementsByClassName('tmgmt-segments')[editorId].parentNode.removeChild(document.getElementsByClassName('tmgmt-segments')[editorId]);
+            document.getElementsByClassName('tmgmt-segments')[editorId].innerHTML = '';
             // Remove the context menu item.
             editor.removeMenuItem('setStatusItem');
           }
@@ -168,9 +168,6 @@
         for (key in CKEDITOR.instances) {
           if (owns.call(CKEDITOR.instances, key)) {
             instance = CKEDITOR.instances[key];
-            // Get the editor id.
-            // var matchId = instance.name.match(/\d+/);
-            // var instanceId = parseInt(matchId[0], 10);
 
             // If we find a translation editor without data, populate it from the
             // corresponding source editor.
@@ -178,6 +175,14 @@
             if (translationNameMatch != null && !instance.getData()) {
               var sourceEditorName = instance.name.replace('value-translation-value', 'value-source-value');
               instance.setData(CKEDITOR.instances[sourceEditorName].getData());
+
+              // Get the editor id.
+              var matchId = instance.name.match(/\d+/);
+              var editorId = parseInt(matchId[0], 10);
+              wrappers[editorId].setAttribute('data-tmgmt-segments-info-area', editorId);
+              var segmentsDiv = document.createElement('div');
+              segmentsDiv.className = 'tmgmt-segments';
+              wrappers[editorId].appendChild(segmentsDiv);
             }
           }
         }
@@ -189,6 +194,7 @@
 
         // Things to do when a word/segment is clicked.
         editable.attachListener(editable, 'click', function (evt) {
+          editor_id = parseInt(editor.name.match(/\d+/)[0], 10);
           refreshActiveContent();
         });
       });
@@ -229,7 +235,7 @@
       function refreshActiveContent() {
         // We only display the clicked texts when the plugin is enabled/clicked -
         // the tmgmt-segments exists (depends on the state).
-        var segmentsDiv = document.getElementById('tmgmt-segments');
+        var segmentsDiv = document.getElementsByClassName('tmgmt-segments')[editor_id];
         if (segmentsDiv) {
           resetActiveSegment();
           var selectedContent = getActiveContent();
@@ -237,10 +243,10 @@
           // If the segment is clicked, display it.
           if (selectedContent) {
             // Display the segment as active.
-            displayContent(selectedContent['segmentText'], selectedContent['word']);
+            displayContent(selectedContent['segmentText'], selectedContent['word'], editor_id);
 
             // Do the http request to the memory.
-            getDataFromMemory(selectedContent, segmentsDiv);
+            getDataFromMemory(selectedContent, segmentsDiv, editor_id);
           }
           // If something else is clicked, remove the previous displayed segment.
           else {
@@ -306,8 +312,7 @@
 
   // Displays the selected segment and word in the area below the editor.
   function displayContent(selectedSegment, selectedWord) {
-    var translationDiv = document.getElementsByClassName('tmgmt-ui-data-item-translation')[1];
-    var segmentsDiv = document.getElementById('tmgmt-segments');
+    var segmentsDiv = document.getElementsByClassName('tmgmt-segments')[editor_id];
 
     // Remove the previous segment, if it exists.
     var activeSegment = document.getElementsByClassName('active-segment-text');
@@ -319,7 +324,7 @@
     createNewParagraph('tmgmt-active-segment-div', 'Selected segment', selectedSegment, segmentsDiv, 'active-segment');
     createNewParagraph('tmgmt-active-word-div', 'Selected word', selectedWord, segmentsDiv, 'active-word');
 
-    translationDiv.appendChild(segmentsDiv);
+    wrappers[editor_id].appendChild(segmentsDiv);
   }
 
   // Helper function to create and update the counter of completed segments.
@@ -330,7 +335,7 @@
     var countAll = (htmldata.match(/<\/tmgmt-segment>/g) || []).length;
 
     if (!document.getElementsByClassName('segment-status-counter')[0]) {
-      var segmentsDiv = document.getElementById('tmgmt-segments');
+      var segmentsDiv = document.getElementsByClassName('tmgmt-segments')[editor_id];
       var segmentStatusCounter = count.toString() + '/' + countAll;
       createNewParagraph('tmgmt-segment-counter-div','Number of completed segments', segmentStatusCounter, segmentsDiv, 'segment-status-counter');
     }
@@ -374,7 +379,7 @@
 
   // Adds the suggestion in the translation editor.
   function addSuggestion(jsonData, selectedSegment) {
-    var editor = CKEDITOR.instances['edit-body0value-translation-value'];
+    var editor = CKEDITOR.currentInstance;
     var editorData = editor.getData();
     var replaced_text = editorData.replace(selectedSegment, jsonData.trSegmentStrippedText);
     editor.setData(replaced_text);
