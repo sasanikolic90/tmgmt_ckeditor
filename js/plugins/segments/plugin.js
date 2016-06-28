@@ -15,8 +15,9 @@
   var editorTimer = null;
   var disableListener = false;
   var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1,3);
-  var editor_id;
+  var editor_id = null;
   var activeSegmentId;
+  var activeEditorName;
 
   if (window.XMLHttpRequest) {
     // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -195,6 +196,12 @@
 
         // Things to do when a word/segment is clicked.
         editable.attachListener(editable, 'click', function (evt) {
+          // Remove segmentsDiv when changing editor.
+          if (editor_id != null && parseInt(editor.name.match(/\d+/)[0], 10) !== editor_id) {
+            var segmentsDiv = document.getElementsByClassName('tmgmt-segments')[editor_id];
+            segmentsDiv.innerHTML = '';
+          }
+          // Set the editor_id to the newly clicked editor's id.
           editor_id = parseInt(editor.name.match(/\d+/)[0], 10);
           refreshActiveContent();
         });
@@ -238,11 +245,11 @@
         // the tmgmt-segments exists (depends on the state).
         var segmentsDiv = document.getElementsByClassName('tmgmt-segments')[editor_id];
         if (segmentsDiv) {
-          if (activeSegmentId) {
-            resetActiveSegment(activeSegmentId);
+          if (activeSegmentId && activeEditorName) {
+            resetActiveSegment(activeSegmentId, activeEditorName);
           }
-          var selectedContent = getActiveContent();
 
+          var selectedContent = getActiveContent();
           // If the segment is clicked, display it.
           if (selectedContent) {
             // Display the segment as active.
@@ -303,6 +310,7 @@
           activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
 
           activeSegmentId = activeSegmentData['segmentId'];
+          activeEditorName = editor.name;
           markSegment(activeSegmentData['segmentId'], 'active');
 
           // Return the word without extra characters.
@@ -395,9 +403,9 @@
 
   // Resets the active segments in the editor, so that there is only 1 active.
   // @todo No iteration, hardcode the editors for now or make them work in pairs.
-  function resetActiveSegment(segmentId) {
-    var relatedEditorName = CKEDITOR.currentInstance.name.replace('value-translation-value', 'value-source-value');
-    var translationSegment = CKEDITOR.currentInstance.document.$.getElementById(segmentId);
+  function resetActiveSegment(segmentId, editorName) {
+    var relatedEditorName = CKEDITOR.instances[activeEditorName].name.replace('value-translation-value', 'value-source-value');
+    var translationSegment = CKEDITOR.instances[activeEditorName].document.$.getElementById(segmentId);
     var sourceSegment = CKEDITOR.instances[relatedEditorName].document.$.getElementById(segmentId);
     translationSegment.removeAttribute(attrStatusActive);
     sourceSegment.removeAttribute(attrStatusActive);

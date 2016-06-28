@@ -8,3 +8,4 @@ version: VERSION
 dependencies:
  - tmgmt_memory
  - tmgmt_demo
+ - paragraphs_demo

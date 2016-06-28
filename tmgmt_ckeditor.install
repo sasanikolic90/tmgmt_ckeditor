@@ -6,6 +6,7 @@
  */
 
 use Drupal\node\Entity\Node;
+use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 
@@ -34,6 +35,7 @@ function tmgmt_ckeditor_install() {
   $role->save();
 
   $memory_manager = \Drupal::service('tmgmt_memory.memory_manager');
+  $segmenter = \Drupal::service('tmgmt_memory.segmenter');
 
   // Hardcoded dummy segments.
   $first_segment_text = 'This is the first segment.';
@@ -43,15 +45,104 @@ function tmgmt_ckeditor_install() {
   $first_segment_translation_1 = 'This is the first translated segment';
   $first_segment_translation_2 = 'This is the first translated segment 2';
   $first_segment_translation_3 = 'This is the first translated segment 3';
-  $second_segment_translated = 'This is the second translated segment';
+  $second_segment_translation = 'This is the second translated segment';
 
   // Adding the segments to tmgmt_memory.
-  $memory_manager->addSegment('en', $first_segment_text);
-  $memory_manager->addSegment('en', $second_segment_text);
+  $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
+  $memory_manager->addUsage('en', $second_segment_text, null, null, 2);
 
   // Adding the translations of the dummy segments to tmgmt_memory.
-  $memory_manager->addSegmentTranslation('en', $first_segment_text, 'de', $first_segment_translation_1);
-  $memory_manager->addSegmentTranslation('en', $first_segment_text, 'de', $first_segment_translation_2);
-  $memory_manager->addSegmentTranslation('en', $first_segment_text, 'de', $first_segment_translation_3);
-  $memory_manager->addSegmentTranslation('en', $second_segment_text, 'de', $second_segment_translated);
+  // Adding the segments to tmgmt_memory.
+  $first_source_usage_1 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
+  $first_source_usage_2 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
+  $first_source_usage_3 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
+  $second_source_usage = $memory_manager->addUsage('en', $second_segment_text, null, null, 2);
+
+  $first_target_usage_1 = $memory_manager->addUsage('de', $first_segment_translation_1, null, null, 1);
+  $first_target_usage_2 = $memory_manager->addUsage('de', $first_segment_translation_2, null, null, 1);
+  $first_target_usage_3 = $memory_manager->addUsage('de', $first_segment_translation_3, null, null, 1);
+  $second_target_usage = $memory_manager->addUsage('de', $second_segment_translation, null, null, 2);
+
+  // Adding the translations of the dummy segments to tmgmt_memory.
+  $memory_manager->addUsageTranslation($first_source_usage_1, $first_target_usage_1);
+  $memory_manager->addUsageTranslation($first_source_usage_2, $first_target_usage_2);
+  $memory_manager->addUsageTranslation($first_source_usage_3, $first_target_usage_3);
+  $memory_manager->addUsageTranslation($second_source_usage, $second_target_usage);
+
+  // Dummy paragraphs for testing.
+  $paragraph1 = Paragraph::create([
+    'title' => 'Paragraph 1',
+    'type' => 'text',
+    'field_text_demo' => [
+      'value' => '<tmgmt-segment id="4">This is the first segment in a paragraph.</tmgmt-segment>' . '<br />' .
+                 '<tmgmt-segment id="5">This is the second segment in a paragraph.</tmgmt-segment>',
+      'format' => 'translation_html',
+    ],
+  ]);
+  $paragraph1->save();
+
+  $paragraph2 = Paragraph::create([
+    'title' => 'Paragraph 2',
+    'type' => 'text',
+    'field_text_demo' => [
+      'value' => '<tmgmt-segment id="6">This is the third segment in a paragraph.</tmgmt-segment>',
+      'format' => 'translation_html',
+    ],
+  ]);
+  $paragraph2->save();
+
+  $paragraph3 = Paragraph::create([
+    'title' => 'Paragraph 3',
+    'type' => 'text',
+    'field_text_demo' => [
+      'value' => '<tmgmt-segment id="7">This is the fourth segment in a paragraph.</tmgmt-segment>',
+      'format' => 'translation_html',
+    ],
+  ]);
+  $paragraph3->save();
+
+  $node2 = Node::create(array(
+    'type' => 'paragraphed_content_demo',
+    'title' => 'Paragraphs test for CKEditor segments plugin',
+    'uid' => '0',
+    'status' => 1,
+    'field_paragraphs_demo' => array(
+      array(
+        'target_id' => $paragraph1->id(),
+        'target_revision_id' => $paragraph1->getRevisionId(),
+      ),
+      array(
+        'target_id' => $paragraph2->id(),
+        'target_revision_id' => $paragraph2->getRevisionId(),
+      ),
+      array(
+        'target_id' => $paragraph3->id(),
+        'target_revision_id' => $paragraph3->getRevisionId(),
+      ),
+    ),
+  ));
+  $node2->save();
+
+  $first_paragraph_segment = 'This is the first segment in a paragraph.';
+  $second_paragraph_segment = 'This is the second segment in a paragraph.';
+  $third_paragraph_segment = 'This is the third segment in a paragraph.';
+
+  // Hardcoded translations of the dummy segments.
+  $first_segment_translation = 'This is the first translated segment in a paragraph.';
+  $second_segment_translation = 'This is the second translated segment in a paragraph.';
+  $third_segment_translation = 'This is the third translated segment in a paragraph.';
+
+  // Adding the segments to tmgmt_memory.
+  $first_paragraph_source_usage = $memory_manager->addUsage('en', $first_paragraph_segment, null, null, 4);
+  $second_paragraph_source_usage = $memory_manager->addUsage('en', $second_paragraph_segment, null, null, 5);
+  $third_paragraph_source_usage = $memory_manager->addUsage('en', $third_paragraph_segment, null, null, 6);
+
+  $first_paragraph_target_usage = $memory_manager->addUsage('de', $first_segment_translation, null, null, 4);
+  $second_paragraph_target_usage = $memory_manager->addUsage('de', $second_segment_translation, null, null, 5);
+  $third_paragraph_target_usage = $memory_manager->addUsage('de', $third_segment_translation, null, null, 6);
+
+  // Adding the translations of the dummy segments to tmgmt_memory.
+  $memory_manager->addUsageTranslation($first_paragraph_source_usage, $first_paragraph_target_usage);
+  $memory_manager->addUsageTranslation($second_paragraph_source_usage, $second_paragraph_target_usage);
+  $memory_manager->addUsageTranslation($third_paragraph_source_usage, $third_paragraph_target_usage);
 }
