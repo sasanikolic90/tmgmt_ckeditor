@@ -16,6 +16,7 @@
   var disableListener = false;
   var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1,3);
   var editor_id;
+  var activeSegmentId;
 
   if (window.XMLHttpRequest) {
     // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -152,7 +153,7 @@
         exec: function (editor) {
           var element = editor.getSelection().getStartElement();
           element.setAttribute(attrStatusCompleted, 'completed');
-          markActiveSegment(element.getId(), 'completed');
+          markSegment(element.getId(), 'completed');
 
           setCounterCompletedSegments();
         }
@@ -237,7 +238,9 @@
         // the tmgmt-segments exists (depends on the state).
         var segmentsDiv = document.getElementsByClassName('tmgmt-segments')[editor_id];
         if (segmentsDiv) {
-          resetActiveSegment();
+          if (activeSegmentId) {
+            resetActiveSegment(activeSegmentId);
+          }
           var selectedContent = getActiveContent();
 
           // If the segment is clicked, display it.
@@ -299,7 +302,8 @@
           activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
           activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
 
-          markActiveSegment(activeSegmentData['segmentId'], 'active');
+          activeSegmentId = activeSegmentData['segmentId'];
+          markSegment(activeSegmentData['segmentId'], 'active');
 
           // Return the word without extra characters.
           return activeSegmentData;
@@ -391,20 +395,17 @@
 
   // Resets the active segments in the editor, so that there is only 1 active.
   // @todo No iteration, hardcode the editors for now or make them work in pairs.
-  function resetActiveSegment() {
-    for (var i in CKEDITOR.instances) {
-      var segments = CKEDITOR.instances[i].document.$.getElementsByTagName(tag);
-      for (var j = 0; j < segments.length; j++) {
-        if (segments[j].getAttribute(attrStatusActive) != null) {
-          segments[j].removeAttribute(attrStatusActive);
-        }
-      }
-    }
+  function resetActiveSegment(segmentId) {
+    var relatedEditorName = CKEDITOR.currentInstance.name.replace('value-translation-value', 'value-source-value');
+    var translationSegment = CKEDITOR.currentInstance.document.$.getElementById(segmentId);
+    var sourceSegment = CKEDITOR.instances[relatedEditorName].document.$.getElementById(segmentId);
+    translationSegment.removeAttribute(attrStatusActive);
+    sourceSegment.removeAttribute(attrStatusActive);
   }
 
-  // Marks active segments in the editor.
+  // Marks active and completed segments in the editor.
   // @todo This marker should be added only when editing.
-  function markActiveSegment(segmentId, status) {
+  function markSegment(segmentId, status) {
     var relatedEditorName = CKEDITOR.currentInstance.name.replace('value-translation-value', 'value-source-value');
     var translationSegment = CKEDITOR.currentInstance.document.$.getElementById(segmentId);
     var sourceSegment = CKEDITOR.instances[relatedEditorName].document.$.getElementById(segmentId);
