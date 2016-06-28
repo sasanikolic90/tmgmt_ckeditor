@@ -54,19 +54,19 @@ function tmgmt_ckeditor_install() {
   // Adding the translations of the dummy segments to tmgmt_memory.
   // Adding the segments to tmgmt_memory.
   $first_source_usage_1 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
-  $first_source_usage_2 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
-  $first_source_usage_3 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
-  $second_source_usage = $memory_manager->addUsage('en', $second_segment_text, null, null, 2);
-
   $first_target_usage_1 = $memory_manager->addUsage('de', $first_segment_translation_1, null, null, 1);
-  $first_target_usage_2 = $memory_manager->addUsage('de', $first_segment_translation_2, null, null, 1);
-  $first_target_usage_3 = $memory_manager->addUsage('de', $first_segment_translation_3, null, null, 1);
-  $second_target_usage = $memory_manager->addUsage('de', $second_segment_translation, null, null, 2);
-
-  // Adding the translations of the dummy segments to tmgmt_memory.
   $memory_manager->addUsageTranslation($first_source_usage_1, $first_target_usage_1);
+
+  $first_source_usage_2 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
+  $first_target_usage_2 = $memory_manager->addUsage('de', $first_segment_translation_2, null, null, 1);
   $memory_manager->addUsageTranslation($first_source_usage_2, $first_target_usage_2);
+
+  $first_source_usage_3 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
+  $first_target_usage_3 = $memory_manager->addUsage('de', $first_segment_translation_3, null, null, 1);
   $memory_manager->addUsageTranslation($first_source_usage_3, $first_target_usage_3);
+
+  $second_source_usage = $memory_manager->addUsage('en', $second_segment_text, null, null, 2);
+  $second_target_usage = $memory_manager->addUsage('de', $second_segment_translation, null, null, 2);
   $memory_manager->addUsageTranslation($second_source_usage, $second_target_usage);
 
   // Dummy paragraphs for testing.
@@ -134,15 +134,14 @@ function tmgmt_ckeditor_install() {
 
   // Adding the segments to tmgmt_memory.
   $first_paragraph_source_usage = $memory_manager->addUsage('en', $first_paragraph_segment, null, null, 4);
-  $second_paragraph_source_usage = $memory_manager->addUsage('en', $second_paragraph_segment, null, null, 5);
-  $third_paragraph_source_usage = $memory_manager->addUsage('en', $third_paragraph_segment, null, null, 6);
-
   $first_paragraph_target_usage = $memory_manager->addUsage('de', $first_segment_translation, null, null, 4);
-  $second_paragraph_target_usage = $memory_manager->addUsage('de', $second_segment_translation, null, null, 5);
-  $third_paragraph_target_usage = $memory_manager->addUsage('de', $third_segment_translation, null, null, 6);
-
-  // Adding the translations of the dummy segments to tmgmt_memory.
   $memory_manager->addUsageTranslation($first_paragraph_source_usage, $first_paragraph_target_usage);
+
+  $second_paragraph_source_usage = $memory_manager->addUsage('en', $second_paragraph_segment, null, null, 5);
+  $second_paragraph_target_usage = $memory_manager->addUsage('de', $second_segment_translation, null, null, 5);
   $memory_manager->addUsageTranslation($second_paragraph_source_usage, $second_paragraph_target_usage);
+
+  $third_paragraph_source_usage = $memory_manager->addUsage('en', $third_paragraph_segment, null, null, 6);
+  $third_paragraph_target_usage = $memory_manager->addUsage('de', $third_segment_translation, null, null, 6);
   $memory_manager->addUsageTranslation($third_paragraph_source_usage, $third_paragraph_target_usage);
 }

@@ -243,6 +243,7 @@
       function refreshActiveContent() {
         // We only display the clicked texts when the plugin is enabled/clicked -
         // the tmgmt-segments exists (depends on the state).
+        // @todo this doesn't work anymore - the div is created on instanceReady
         var segmentsDiv = document.getElementsByClassName('tmgmt-segments')[editor_id];
         if (segmentsDiv) {
           if (activeSegmentId && activeEditorName) {
