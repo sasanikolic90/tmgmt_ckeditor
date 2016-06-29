@@ -276,8 +276,8 @@
             suggestedTranslations.className = 'suggested-translations';
             segmentsDiv.appendChild(suggestedTranslations);
 
-            jsonData.forEach(function (object) {
-              suggestTranslation(object, selectedContent['segmentText'], suggestedTranslations);
+            jsonData.forEach(function (object, index) {
+              suggestTranslation(object, index, selectedContent['segmentText'], suggestedTranslations);
             });
           }
         };
@@ -361,27 +361,28 @@
   function createNewParagraph(parentDiv, title, text, targetDiv, paragraphClassName) {
     var wrapper = document.createElement('div');
     wrapper.className = parentDiv;
-    var segmentsTitle = document.createTextNode(title + ':');
-    wrapper.appendChild(segmentsTitle);
     var p1 = document.createElement('P');
-    p1.className = paragraphClassName;
-    var segmentText = document.createTextNode(text);
-    p1.appendChild(segmentText);
+    p1.className = 'tmgmt-segments-title';
+    p1.appendChild(document.createTextNode(title + ':'));
     wrapper.appendChild(p1);
+    var p2 = document.createElement('P');
+    p2.className = paragraphClassName;
+    p2.appendChild(document.createTextNode(text));
+    wrapper.appendChild(p2);
     targetDiv.appendChild(wrapper);
   }
 
   // Makes a dummy suggestion for the selected segment translation.
-  function suggestTranslation(jsonData, selectedSegment, targetDiv) {
-    createNewParagraph('tmgmt-suggested-translation-div-' + jsonData.targetSegmentId, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
+  function suggestTranslation(jsonData, index, selectedSegment, targetDiv) {
+    createNewParagraph('tmgmt-suggested-translation-div-' + index, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
 
-    var wrapper = document.getElementsByClassName('tmgmt-suggested-translation-div-' + jsonData.targetSegmentId);
+    var wrapper = document.getElementsByClassName('tmgmt-suggested-translation-div-' + index);
     var btn = document.createElement('button');
     var t = document.createTextNode('Use suggestion');
     btn.appendChild(t);
     btn.className = 'button';
     btn.setAttribute('type', 'button');
-    btn.id = 'btn-use-suggestion-' + jsonData.targetSegmentId;
+    btn.id = 'btn-use-suggestion-' + index;
     wrapper[0].appendChild(btn);
 
     btn.addEventListener('click', function () {
