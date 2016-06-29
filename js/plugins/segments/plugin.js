@@ -375,9 +375,10 @@
 
   // Makes a dummy suggestion for the selected segment translation.
   function suggestTranslation(jsonData, index, selectedSegment, targetDiv) {
-    createNewParagraph('tmgmt-suggested-translation-div-' + index, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
+    var wrapperClass = 'tmgmt-suggested-translation-div-editor-' + editor_id + '-index-' + index;
+    createNewParagraph(wrapperClass, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
 
-    var wrapper = document.getElementsByClassName('tmgmt-suggested-translation-div-' + index);
+    var wrapper = document.getElementsByClassName(wrapperClass);
     var btn = document.createElement('button');
     var t = document.createTextNode('Use suggestion');
     btn.appendChild(t);
