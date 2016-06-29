@@ -32,6 +32,8 @@
     exec: function (editor) {
       this.toggleState();
       this.refresh(editor);
+      var relatedEditor = getRelatedEditor(editor);
+      relatedEditor.commands.showsegments.toggleState();
     },
 
     refresh: function (editor) {
@@ -42,14 +44,13 @@
 
         var matchId = editor.name.match(/\d+/);
         editor_id = parseInt(matchId[0], 10);
-        var currentEditorName = editor.name;
-        var relatedEditorName = CKEDITOR.instances[currentEditorName].name.replace('value-translation-value', 'value-source-value');
+        var relatedEditor = getRelatedEditor(editor);
 
         var funcName = showSegments ? 'attachClass' : 'removeClass';
         editor.editable()[funcName]('cke_show_segments');
 
-        // Display segments also in the source editor.
-        CKEDITOR.instances[relatedEditorName].editable()[funcName]('cke_show_segments');
+        // Display segments also in the related editor.
+        relatedEditor.editable()[funcName]('cke_show_segments');
 
         // Display the segments' content below the translate editor if the
         // plugin is enabled.
@@ -189,8 +190,8 @@
             // corresponding source editor.
             var translationNameMatch = instance.name.match(/.*value-translation-value$/);
             if (translationNameMatch != null && !instance.getData()) {
-              var sourceEditorName = instance.name.replace('value-translation-value', 'value-source-value');
-              instance.setData(CKEDITOR.instances[sourceEditorName].getData());
+              var sourceEditor = getRelatedEditor(instance);
+              instance.setData(sourceEditor.getData());
 
               // Get the editor id.
               var matchId = instance.name.match(/\d+/);
@@ -221,19 +222,17 @@
       editor.on('change', function (evt) {
         // Check if the editor is the one that is active.
         var currentEditorId = parseInt(editor.name.match(/\d+/)[0], 10);
-        if (editor_id === currentEditorId) {
-          // Exit from function when the flag is true. This is set when adding a
-          // segment from the memory (clicking the button).
-          if (disableListener == true) {
-            return;
-          }
-          if (editorTimer != null && editorTimer.length) {
-            clearTimeout(editorTimer);
-          }
-          editorTimer = setTimeout(function () {
-            refreshActiveContent();
-          }, 1000);
+        // Exit from function when the flag is true. This is set when adding a
+        // segment from the memory (clicking the button).
+        if (disableListener == true) {
+          return;
         }
+        if (editorTimer != null && editorTimer.length) {
+          clearTimeout(editorTimer);
+        }
+        editorTimer = setTimeout(function () {
+          refreshActiveContent();
+        }, 1000);
       });
 
       function onFocusBlur() {
@@ -408,27 +407,39 @@
   // Resets the active segments in the editor, so that there is only 1 active.
   // @todo No iteration, hardcode the editors for now or make them work in pairs.
   function resetActiveSegment(segmentId) {
-    var relatedEditorName = CKEDITOR.instances[activeEditorName].name.replace('value-translation-value', 'value-source-value');
     var translationSegment = CKEDITOR.instances[activeEditorName].document.$.getElementById(segmentId);
-    var sourceSegment = CKEDITOR.instances[relatedEditorName].document.$.getElementById(segmentId);
+    var relatedEditor = getRelatedEditor(CKEDITOR.instances[activeEditorName]);
+    var relatedSegment = relatedEditor.document.$.getElementById(segmentId);
     translationSegment.removeAttribute(attrStatusActive);
-    sourceSegment.removeAttribute(attrStatusActive);
+    relatedSegment.removeAttribute(attrStatusActive);
   }
 
   // Marks active and completed segments in the editor.
   // @todo This marker should be added only when editing.
   function markSegment(segmentId, status) {
-    var relatedEditorName = CKEDITOR.currentInstance.name.replace('value-translation-value', 'value-source-value');
     var translationSegment = CKEDITOR.currentInstance.document.$.getElementById(segmentId);
-    var sourceSegment = CKEDITOR.instances[relatedEditorName].document.$.getElementById(segmentId);
+    var relatedEditor = getRelatedEditor(CKEDITOR.currentInstance);
+    var relatedSegment = relatedEditor.document.$.getElementById(segmentId);
     if (status === 'active') {
       translationSegment.setAttribute(attrStatusActive, '');
-      sourceSegment.setAttribute(attrStatusActive, '');
+      relatedSegment.setAttribute(attrStatusActive, '');
     }
     else if (status === 'completed') {
       translationSegment.setAttribute(attrStatusCompleted, '');
-      sourceSegment.setAttribute(attrStatusCompleted, '');
+      relatedSegment.setAttribute(attrStatusCompleted, '');
     }
+  }
+
+  function getRelatedEditor(editor) {
+    var currentEditorName = editor.name;
+    var relatedEditorName;
+    if (CKEDITOR.instances[currentEditorName].name.match(/.*value-translation-value$/)) {
+      relatedEditorName = CKEDITOR.instances[currentEditorName].name.replace('value-translation-value', 'value-source-value');
+    }
+    else if (CKEDITOR.instances[currentEditorName].name.match(/.*value-source-value$/)) {
+      relatedEditorName = CKEDITOR.instances[currentEditorName].name.replace('value-source-value', 'value-translation-value');
+    }
+    return CKEDITOR.instances[relatedEditorName];
   }
 
 })(jQuery, Drupal, CKEDITOR);
