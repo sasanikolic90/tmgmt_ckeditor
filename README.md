@@ -1,9 +1,8 @@
-# CKEditorSegments
+# tmgmt_ckeditor
 CKEditor plugins for TMGMT.
 
 To enable the display segments, do the following:
-- Enable tmgmt_ckeditor module
-- Configure the Basic HTML editor on /admin/config/content/formats/manage/basic_html 
-- drag the CKEditor segments icon in to the "Active toolbar" (I suggest creating 
-a new group).
-- Add <tmgmt-segment id class> in the "Allowed HTML tags" input field.
+- Enable tmgmt_ckeditor module (this enables tmgmt_demo and paragraphs_demo for testing)
+- It automatically adds a new HTML format
+- Translate a translatable node or a paragraphed article
+- You can see the work done on the translate and review page
