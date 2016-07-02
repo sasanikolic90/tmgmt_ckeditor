@@ -5,6 +5,8 @@ dependencies:
     - filter.format.translation_html
   module:
     - ckeditor
+_core:
+  default_config_hash: 2icbshAgIB4P0J0BtyOfnvlAakicG20txDDfHmaoR2E
 format: translation_html
 editor: ckeditor
 settings:
@@ -39,6 +41,7 @@ settings:
           name: Segments
           items:
             - tmgmt_segments
+            - tmgmt_tags
   plugins:
     language:
       language_list: un

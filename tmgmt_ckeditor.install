@@ -18,7 +18,7 @@ function tmgmt_ckeditor_install() {
     'type' => 'translatable_node',
     'title' => t('Segments test'),
     'body' => [
-      'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' . '<br />' .
+      'value' => '<tmgmt-segment id="1">' . t('This is the first <tmgmt-tag tag=”&lt;p&gt;” /> segment.</tmgmt-tag>') . '</tmgmt-segment>' . '<br />' .
                  '<tmgmt-segment id="2">' . t('This is the second segment.') . '</tmgmt-segment>' . '<br />' .
                  '<tmgmt-segment id="3">' . t('This is the third segment.') . '</tmgmt-segment>',
       'format' => 'translation_html',
@@ -38,7 +38,7 @@ function tmgmt_ckeditor_install() {
   $segmenter = \Drupal::service('tmgmt_memory.segmenter');
 
   // Hardcoded dummy segments.
-  $first_segment_text = 'This is the first segment.';
+  $first_segment_text = 'This is the first <tmgmt-tag tag=”&lt;p&gt;” /> segment.</tmgmt-tag>';
   $second_segment_text = 'This is the second segment.';
 
   // Hardcoded translations of the dummy segments.

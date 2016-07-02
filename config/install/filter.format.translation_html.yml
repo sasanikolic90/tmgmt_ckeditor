@@ -3,6 +3,8 @@ status: true
 dependencies:
   module:
     - editor
+_core:
+  default_config_hash: 6moTnK7uZ0oAzqjYEVJfnE2VG1Dj7sv9osfp1clD0bk
 name: 'Translation HTML'
 format: translation_html
 weight: 0
@@ -25,7 +27,7 @@ filters:
     status: true
     weight: -10
     settings:
-      allowed_html: '<tmgmt-segment id data-tmgmt-segment-completed-status data-tmgmt-segment-active-status data-tmgmt-segment-source data-tmgmt-segment-quality> <a href hreflang> <em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type> <li> <dl> <dt> <dd> <h2 id> <h3 id> <h4 id> <h5 id> <h6 id> <img src alt data-entity-type data-entity-uuid data-align data-caption>'
+      allowed_html: '<tmgmt-tag tag> <tmgmt-segment id data-tmgmt-segment-completed-status data-tmgmt-segment-active-status data-tmgmt-segment-source data-tmgmt-segment-quality> <a href hreflang> <em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type> <li> <dl> <dt> <dd> <h2 id> <h3 id> <h4 id> <h5 id> <h6 id> <img src alt data-entity-type data-entity-uuid data-align data-caption>'
       filter_html_help: false
       filter_html_nofollow: false
   filter_html_image_secure:

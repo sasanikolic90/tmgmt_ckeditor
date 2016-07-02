@@ -6,18 +6,18 @@ use Drupal\ckeditor\CKEditorPluginBase;
 use Drupal\editor\Entity\Editor;
 
 /**
- * Defines the "tmgmt_segments" plugin.
+ * Defines the "tmgmt_tags" plugin.
  *
  * NOTE: The plugin ID ('id' key) corresponds to the CKEditor plugin name.
  * It is the first argument of the CKEDITOR.plugins.add() function in the
  * plugin.js file.
  *
  * @CKEditorPlugin(
- *   id = "tmgmt_segments",
- *   label = @Translation("CKEditor segments")
+ *   id = "tmgmt_tags",
+ *   label = @Translation("CKEditor masked HTML tags")
  * )
  */
-class tmgmt_segments extends CKEditorPluginBase {
+class tmgmt_tags extends CKEditorPluginBase {
 
   /**
    * {@inheritdoc}
@@ -29,11 +29,11 @@ class tmgmt_segments extends CKEditorPluginBase {
   public function getButtons() {
     // Make sure that the path to the image matches the file structure of
     // the CKEditor plugin you are implementing.
-    $path = drupal_get_path('module', 'tmgmt_ckeditor') . '/js/plugins/segments';
+    $path = drupal_get_path('module', 'tmgmt_ckeditor') . '/js/plugins/tags';
     return array(
-      'tmgmt_segments' => array(
-        'label' => t('CKEditor segments'),
-        'image' => $path . '/icons/showsegments.png',
+      'tmgmt_tags' => array(
+        'label' => t('CKEditor mask HTML tags'),
+        'image' => $path . '/icons/showtags.png',
       ),
     );
   }
@@ -44,7 +44,7 @@ class tmgmt_segments extends CKEditorPluginBase {
   public function getFile() {
     // Make sure that the path to the plugin.js matches the file structure of
     // the CKEditor plugin you are implementing.
-    return drupal_get_path('module', 'tmgmt_ckeditor') . '/js/plugins/segments/plugin.js';
+    return drupal_get_path('module', 'tmgmt_ckeditor') . '/js/plugins/tags/plugin.js';
   }
 
   /**
