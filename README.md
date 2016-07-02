@@ -1,4 +1,4 @@
-# tmgmt_segments
+# tmgmt_ckeditor
 CKEditor plugins for TMGMT.
 
 To enable the display segments, do the following:
