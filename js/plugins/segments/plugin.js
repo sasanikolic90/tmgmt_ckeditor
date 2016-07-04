@@ -52,6 +52,9 @@
         // Display the segments' content below the translate editor if the
         // plugin is enabled.
         if (this.state === 1) {
+          // Enable showtags plugin.
+          editor.getCommand('showtags').enable();
+
           // Set the flag for the keystrokes listeners to enabled.
           enableListener = true;
 
@@ -87,6 +90,10 @@
         // Remove the segments display area below the editor when we disable
         // the plugin.
         else {
+          // Disable showtags plugin.
+          editor.editable()['removeClass']('cke_show_tags');
+          editor.getCommand('showtags').disable();
+
           if (editorPair.below) {
             editorPair.below.innerHTML = '';
             // Remove the context menu item.

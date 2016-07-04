@@ -12,6 +12,7 @@
     readOnly: 1,
     preserveState: true,
     editorFocus: false,
+    startDisabled: true,
 
     exec: function (editor) {
       this.toggleState();
