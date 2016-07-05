@@ -40,6 +40,7 @@ function tmgmt_ckeditor_install() {
   // Hardcoded dummy segments.
   $first_segment_text = 'This is the first segment.';
   $second_segment_text = 'This is the second segment.';
+  // Send full html over request or just stripped text?
   $third_segment_text = 'This is the third <tmgmt-tag tag=”&lt;b&gt;” />segment</tmgmt-tag tag="&lt;&#92;b&gt;">.';
 
   // Hardcoded translations of the dummy segments.

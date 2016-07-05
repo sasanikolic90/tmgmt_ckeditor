@@ -306,8 +306,14 @@
   // Gets the selected segment and word.
   function getActiveContent() {
     var range = CKEDITOR.currentInstance.getSelection().getRanges()[0];
-    var clickedSegment = range.startContainer;
-    if (clickedSegment.type === CKEDITOR.NODE_TEXT && range.startOffset && clickedSegment.getParent().getName() === tag) {
+    var clickedSegment = range.startContainer.getParent();
+
+    // If the clicked element is inside tmgmt-tags, we need to get the parent.
+    if (clickedSegment.getName() === 'tmgmt-tag') {
+      clickedSegment = clickedSegment.getParent();
+    }
+
+    if (range.startOffset && clickedSegment.getName() === tag) {
       var indexPrevSpace = clickedSegment.getText().lastIndexOf(' ', range.startOffset) + 1;
       var indexNextSpace = clickedSegment.getText().indexOf(' ', range.startOffset);
       if (indexPrevSpace === -1) {
@@ -319,7 +325,7 @@
 
       // Get clicked segment id.
       var activeSegmentData = [];
-      activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
+      activeSegmentData['segmentId'] = clickedSegment.getAttribute('id');
       activeSegmentData['segmentText'] = clickedSegment.getText();
       activeSegmentData['word'] = clickedSegment.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
