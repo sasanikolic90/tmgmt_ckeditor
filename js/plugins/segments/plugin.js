@@ -7,18 +7,18 @@
   'use strict';
 
   var tag = 'tmgmt-segment';
-  var xmlhttp;
   var attrStatusCompleted = 'data-tmgmt-segment-completed-status';
   var attrStatusActive = 'data-tmgmt-segment-active-status';
   var attrSource = 'data-tmgmt-segment-source';
   var attrQuality = 'data-tmgmt-segment-quality';
   var editorTimer = null;
   var enableListener = false;
-  var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1,3);
+  var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1, 3);
+  var editorPairs = [];
 
   if (window.XMLHttpRequest) {
     // code for IE7+, Firefox, Chrome, Opera, Safari
-    xmlhttp = new XMLHttpRequest();
+    var xmlhttp = new XMLHttpRequest();
   }
 
   var commandDefinition = {
@@ -40,7 +40,7 @@
         (editor.elementMode !== CKEDITOR.ELEMENT_MODE_INLINE || editor.focusManager.hasFocus));
 
         var matchId = editor.name.match(/\d+/);
-        editorPair.id = parseInt(matchId[0], 10);
+        EditorPair.id = parseInt(matchId[0], 10);
         var relatedEditor = getRelatedEditor(editor);
 
         var funcName = showSegments ? 'attachClass' : 'removeClass';
@@ -60,8 +60,8 @@
 
           // This check is because when clicking "Use suggestion", the editors
           // refresh, but the status is still active and it adds a new div.
-          editorPair.below = document.getElementsByClassName('tmgmt-segments')[editorPair.id];
-          if (editorPair.below.innerHTML === '') {
+          EditorPair.below = document.getElementsByClassName('tmgmt-segments')[EditorPair.id];
+          if (EditorPair.below.innerHTML === '') {
             if (editor.addMenuItem) {
               // A group menu is required.
               editor.addMenuGroup('setStatusGroup');
@@ -82,8 +82,8 @@
           // Things to do when a word/segment is clicked.
           editable.attachListener(editable, 'click', function (evt) {
             // Remove segmentsDiv when changing editor.
-            editorPair.below.innerHTML = '';
-            // Set the editorPair.id to the newly clicked editor's id.
+            EditorPair.below.innerHTML = '';
+            // Set the EditorPair.id to the newly clicked editor's id.
             refreshActiveContent();
           });
         }
@@ -94,12 +94,12 @@
           editor.editable()['removeClass']('cke_show_tags');
           editor.getCommand('showtags').disable();
 
-          if (editorPair.below) {
-            editorPair.below.innerHTML = '';
+          if (EditorPair.below) {
+            EditorPair.below.innerHTML = '';
             // Remove the context menu item.
             editor.removeMenuItem('setStatusItem');
-            // Reset the editorPair.id.
-            editorPair.id = null;
+            // Reset the EditorPair.id.
+            EditorPair.id = null;
           }
         }
       }
@@ -111,8 +111,7 @@
     icons: 'showsegments',
     hidpi: true,
     onLoad: function () {
-      var cssStd, cssImgLeft, cssImgRight,
-        path = CKEDITOR.getUrl(this.path);
+      var cssStd, cssImgLeft, cssImgRight;
 
       cssStd = cssImgLeft = cssImgRight = '';
 
@@ -161,7 +160,7 @@
       });
 
       if (editor.contextMenu) {
-        editor.contextMenu.addListener(function (element, selection) {
+        editor.contextMenu.addListener(function (element) {
           if (element.getAscendant(tag, true)) {
             return {
               setStatusItem: CKEDITOR.TRISTATE_ON
@@ -175,7 +174,7 @@
         exec: function (editor) {
           var element = editor.getSelection().getStartElement();
           element.setAttribute(attrStatusCompleted, 'completed');
-          editorPair.activeSegmentId = element.getId();
+          EditorPair.activeSegmentId = element.getId();
           markSegment('completed');
 
           setCounterCompletedSegments();
@@ -185,30 +184,24 @@
       editor.on('instanceReady', function () {
         // When the data is loaded and the translation editor is empty, populate
         // the content with the corresponding source content.
-        var key;
-        var instance;
-        var owns = Object.prototype.hasOwnProperty;
+        var segmentsDiv;
 
-        for (key in CKEDITOR.instances) {
-          if (owns.call(CKEDITOR.instances, key)) {
-            instance = CKEDITOR.instances[key];
+        var translationNameMatch = editor.name.match(/.*value-translation-value$/);
+        // Get the editor id.
+        var editorMatchId = editor.name.match(/\d+/);
+        var editorId = parseInt(editorMatchId[0], 10);
 
-            // If we find a translation editor without data, populate it from the
-            // corresponding source editor.
-            var translationNameMatch = instance.name.match(/.*value-translation-value$/);
-            if (translationNameMatch != null && !instance.getData()) {
-              var sourceEditor = getRelatedEditor(instance);
-              instance.setData(sourceEditor.getData());
+        if (translationNameMatch != null && !editor.getData()) {
+          var sourceEditor = getRelatedEditor(editor);
+          editor.setData(sourceEditor.getData());
 
-              // Get the editor id.
-              var matchId = instance.name.match(/\d+/);
-              var editorId = parseInt(matchId[0], 10);
-              wrappers[editorId].setAttribute('data-tmgmt-segments-info-area', editorId);
-              var segmentsDiv = document.createElement('div');
-              segmentsDiv.className = 'tmgmt-segments';
-              wrappers[editorId].appendChild(segmentsDiv);
-            }
-          }
+          wrappers[editorId].setAttribute('data-tmgmt-segments-info-area', editorId);
+          segmentsDiv = document.createElement('div');
+          segmentsDiv.className = 'tmgmt-segments';
+          wrappers[editorId].appendChild(segmentsDiv);
+
+          // Create an array of editor pairs.
+          editorPairs[editorId] = new EditorPair(editorId, sourceEditor, editor, segmentsDiv, null, null, null, null);
         }
       });
 
@@ -247,12 +240,12 @@
   });
 
   // New structure per editor pair.
-  function editorPair(id, editorName, left, right, below, activeSegmentId, activeWord, counter) {
+  function EditorPair(id, left, right, below, activeEditorName, activeSegmentId, activeWord, counter) {
     this.id = id;
-    this.editorName = editorName;
     this.leftEditor = left;
     this.rightEditor = right;
     this.areaBelow = below;
+    this.activeEditorName = activeEditorName;
     this.activeSegmentId = activeSegmentId;
     this.activeWord = activeWord;
     this.completedCounter = counter;
@@ -262,7 +255,7 @@
   function refreshActiveContent() {
     // We only display the clicked texts when the plugin is enabled/clicked -
     // the area below exists (depends on the state).
-    if (editorPair.activeSegmentId && editorPair.editorName) {
+    if (EditorPair.activeSegmentId && EditorPair.activeEditorName) {
       resetActiveSegment();
     }
 
@@ -270,26 +263,26 @@
     // If the segment is clicked, display it.
     if (selectedContent) {
       // Display the segment as active.
-      displayContent(selectedContent['segmentText'], selectedContent['word'], editorPair.id);
+      displayContent(selectedContent['segmentText'], selectedContent['word'], EditorPair.id);
 
       // Do the http request to the memory.
-      getDataFromMemory(selectedContent, editorPair.id);
+      getDataFromMemory(selectedContent, EditorPair.id);
     }
     // If something else is clicked, remove the previous displayed segment.
     else {
-      editorPair.below.innerHTML = '';
+      EditorPair.below.innerHTML = '';
     }
   }
 
   function getDataFromMemory(selectedContent) {
-    xmlhttp = new XMLHttpRequest();
+    var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
       if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
         var jsonData = JSON.parse(xmlhttp.responseText);
         // Make a wrapper for suggested translations.
         var suggestedTranslations = document.createElement('div');
         suggestedTranslations.className = 'suggested-translations';
-        editorPair.below.appendChild(suggestedTranslations);
+        EditorPair.below.appendChild(suggestedTranslations);
 
         jsonData.forEach(function (object, index) {
           suggestTranslation(object, index, selectedContent['segmentText'], suggestedTranslations);
@@ -331,8 +324,8 @@
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
       activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
 
-      editorPair.activeSegmentId = activeSegmentData['segmentId'];
-      editorPair.editorName = CKEDITOR.currentInstance.name;
+      EditorPair.activeSegmentId = activeSegmentData['segmentId'];
+      EditorPair.activeEditorName = CKEDITOR.currentInstance.name;
       markSegment('active');
 
       // Return the word without extra characters.
@@ -347,14 +340,14 @@
     // Remove the previous segment, if it exists.
     var activeSegment = document.getElementsByClassName('active-segment-text');
     if (activeSegment) {
-      editorPair.below.innerHTML = '';
+      EditorPair.below.innerHTML = '';
     }
 
     setCounterCompletedSegments();
-    createNewParagraph('tmgmt-active-segment-div', 'Selected segment', selectedSegment, editorPair.below, 'active-segment');
-    createNewParagraph('tmgmt-active-word-div', 'Selected word', selectedWord, editorPair.below, 'active-word');
+    createNewParagraph('tmgmt-active-segment-div', 'Selected segment', selectedSegment, EditorPair.below, 'active-segment');
+    createNewParagraph('tmgmt-active-word-div', 'Selected word', selectedWord, EditorPair.below, 'active-word');
 
-    wrappers[editorPair.id].appendChild(editorPair.below);
+    wrappers[EditorPair.id].appendChild(EditorPair.below);
   }
 
   // Helper function to create and update the counter of completed segments.
@@ -366,7 +359,7 @@
 
     if (!document.getElementsByClassName('segment-status-counter')[0]) {
       var segmentStatusCounter = count.toString() + '/' + countAll;
-      createNewParagraph('tmgmt-segment-counter-div','Number of completed segments', segmentStatusCounter, editorPair.below, 'segment-status-counter');
+      createNewParagraph('tmgmt-segment-counter-div','Number of completed segments', segmentStatusCounter, EditorPair.below, 'segment-status-counter');
     }
     else {
       document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;
@@ -390,7 +383,7 @@
 
   // Makes a dummy suggestion for the selected segment translation.
   function suggestTranslation(jsonData, index, selectedSegment, targetDiv) {
-    var wrapperClass = 'tmgmt-suggested-translation-div-editor-' + editorPair.id + '-index-' + index;
+    var wrapperClass = 'tmgmt-suggested-translation-div-editor-' + EditorPair.id + '-index-' + index;
     createNewParagraph(wrapperClass, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
 
     var wrapper = document.getElementsByClassName(wrapperClass);
@@ -423,9 +416,9 @@
   // Resets the active segments in the editor, so that there is only 1 active.
   // @todo No iteration, hardcode the editors for now or make them work in pairs.
   function resetActiveSegment() {
-    var translationSegment = CKEDITOR.instances[editorPair.editorName].document.$.getElementById(editorPair.activeSegmentId);
-    var relatedEditor = getRelatedEditor(CKEDITOR.instances[editorPair.editorName]);
-    var relatedSegment = relatedEditor.document.$.getElementById(editorPair.activeSegmentId);
+    var translationSegment = CKEDITOR.instances[EditorPair.activeEditorName].document.$.getElementById(EditorPair.activeSegmentId);
+    var relatedEditor = getRelatedEditor(CKEDITOR.instances[EditorPair.activeEditorName]);
+    var relatedSegment = relatedEditor.document.$.getElementById(EditorPair.activeSegmentId);
     translationSegment.removeAttribute(attrStatusActive);
     relatedSegment.removeAttribute(attrStatusActive);
   }
@@ -433,9 +426,9 @@
   // Marks active and completed segments in the editor.
   // @todo This marker should be added only when editing.
   function markSegment(status) {
-    var translationSegment = CKEDITOR.currentInstance.document.$.getElementById(editorPair.activeSegmentId);
+    var translationSegment = CKEDITOR.currentInstance.document.$.getElementById(EditorPair.activeSegmentId);
     var relatedEditor = getRelatedEditor(CKEDITOR.currentInstance);
-    var relatedSegment = relatedEditor.document.$.getElementById(editorPair.activeSegmentId);
+    var relatedSegment = relatedEditor.document.$.getElementById(EditorPair.activeSegmentId);
     if (status === 'active') {
       translationSegment.setAttribute(attrStatusActive, '');
       relatedSegment.setAttribute(attrStatusActive, '');
