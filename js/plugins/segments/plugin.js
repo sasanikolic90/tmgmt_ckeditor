@@ -15,6 +15,7 @@
   var enableListener = false;
   var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1, 3);
   var editorPairs = [];
+  var activeEditorId;
 
   if (window.XMLHttpRequest) {
     // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -40,7 +41,8 @@
         (editor.elementMode !== CKEDITOR.ELEMENT_MODE_INLINE || editor.focusManager.hasFocus));
 
         var matchId = editor.name.match(/\d+/);
-        EditorPair.id = parseInt(matchId[0], 10);
+        activeEditorId = parseInt(matchId[0], 10);
+        editorPairs[activeEditorId].activeEditorName = editor.name;
         var relatedEditor = getRelatedEditor(editor);
 
         var funcName = showSegments ? 'attachClass' : 'removeClass';
@@ -60,8 +62,8 @@
 
           // This check is because when clicking "Use suggestion", the editors
           // refresh, but the status is still active and it adds a new div.
-          EditorPair.below = document.getElementsByClassName('tmgmt-segments')[EditorPair.id];
-          if (EditorPair.below.innerHTML === '') {
+          editorPairs[activeEditorId].below = document.getElementsByClassName('tmgmt-segments')[editorPairs[activeEditorId].id];
+          if (editorPairs[activeEditorId].below.innerHTML === '') {
             if (editor.addMenuItem) {
               // A group menu is required.
               editor.addMenuGroup('setStatusGroup');
@@ -82,8 +84,8 @@
           // Things to do when a word/segment is clicked.
           editable.attachListener(editable, 'click', function (evt) {
             // Remove segmentsDiv when changing editor.
-            EditorPair.below.innerHTML = '';
-            // Set the EditorPair.id to the newly clicked editor's id.
+            editorPairs[activeEditorId].below.innerHTML = '';
+            // Set the editorPairs[activeEditorId].id to the newly clicked editor's id.
             refreshActiveContent();
           });
         }
@@ -94,12 +96,12 @@
           editor.editable()['removeClass']('cke_show_tags');
           editor.getCommand('showtags').disable();
 
-          if (EditorPair.below) {
-            EditorPair.below.innerHTML = '';
+          if (editorPairs[activeEditorId].below) {
+            editorPairs[activeEditorId].below.innerHTML = '';
             // Remove the context menu item.
             editor.removeMenuItem('setStatusItem');
-            // Reset the EditorPair.id.
-            EditorPair.id = null;
+            // Reset the editorPairs[activeEditorId].id.
+            editorPairs[activeEditorId].id = null;
           }
         }
       }
@@ -152,13 +154,6 @@
         toolbar: 'tools,20'
       });
 
-      // Refresh the command on setData.
-      editor.on('mode', function () {
-        if (command.state !== CKEDITOR.TRISTATE_DISABLED) {
-          command.refresh(editor);
-        }
-      });
-
       if (editor.contextMenu) {
         editor.contextMenu.addListener(function (element) {
           if (element.getAscendant(tag, true)) {
@@ -174,7 +169,7 @@
         exec: function (editor) {
           var element = editor.getSelection().getStartElement();
           element.setAttribute(attrStatusCompleted, 'completed');
-          EditorPair.activeSegmentId = element.getId();
+          editorPairs[activeEditorId].activeSegmentId = element.getId();
           markSegment('completed');
 
           setCounterCompletedSegments();
@@ -218,6 +213,13 @@
         }
       });
 
+      /*// Refresh the editor when the plugin is enabled.
+      editor.on('mode', function () {
+        if (command.state !== CKEDITOR.TRISTATE_DISABLED) {
+          command.refresh(editor);
+        }
+      });*/
+
       // Set the source data attribute to user if the user changes it manually.
       editor.on('change', function (evt) {
         // Exit from function when the flag is true. This is set when adding a
@@ -255,7 +257,7 @@
   function refreshActiveContent() {
     // We only display the clicked texts when the plugin is enabled/clicked -
     // the area below exists (depends on the state).
-    if (EditorPair.activeSegmentId && EditorPair.activeEditorName) {
+    if (editorPairs[activeEditorId].activeSegmentId && editorPairs[activeEditorId].activeEditorName) {
       resetActiveSegment();
     }
 
@@ -263,14 +265,14 @@
     // If the segment is clicked, display it.
     if (selectedContent) {
       // Display the segment as active.
-      displayContent(selectedContent['segmentText'], selectedContent['word'], EditorPair.id);
+      displayContent(selectedContent['segmentText'], selectedContent['word'], editorPairs[activeEditorId].id);
 
       // Do the http request to the memory.
-      getDataFromMemory(selectedContent, EditorPair.id);
+      getDataFromMemory(selectedContent, editorPairs[activeEditorId].id);
     }
     // If something else is clicked, remove the previous displayed segment.
     else {
-      EditorPair.below.innerHTML = '';
+      editorPairs[activeEditorId].below.innerHTML = '';
     }
   }
 
@@ -282,7 +284,7 @@
         // Make a wrapper for suggested translations.
         var suggestedTranslations = document.createElement('div');
         suggestedTranslations.className = 'suggested-translations';
-        EditorPair.below.appendChild(suggestedTranslations);
+        editorPairs[activeEditorId].below.appendChild(suggestedTranslations);
 
         jsonData.forEach(function (object, index) {
           suggestTranslation(object, index, selectedContent['segmentText'], suggestedTranslations);
@@ -324,8 +326,8 @@
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
       activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
 
-      EditorPair.activeSegmentId = activeSegmentData['segmentId'];
-      EditorPair.activeEditorName = CKEDITOR.currentInstance.name;
+      editorPairs[activeEditorId].activeSegmentId = activeSegmentData['segmentId'];
+      editorPairs[activeEditorId].activeEditorName = CKEDITOR.currentInstance.name;
       markSegment('active');
 
       // Return the word without extra characters.
@@ -340,14 +342,14 @@
     // Remove the previous segment, if it exists.
     var activeSegment = document.getElementsByClassName('active-segment-text');
     if (activeSegment) {
-      EditorPair.below.innerHTML = '';
+      editorPairs[activeEditorId].below.innerHTML = '';
     }
 
     setCounterCompletedSegments();
-    createNewParagraph('tmgmt-active-segment-div', 'Selected segment', selectedSegment, EditorPair.below, 'active-segment');
-    createNewParagraph('tmgmt-active-word-div', 'Selected word', selectedWord, EditorPair.below, 'active-word');
+    createNewParagraph('tmgmt-active-segment-div', 'Selected segment', selectedSegment, editorPairs[activeEditorId].below, 'active-segment');
+    createNewParagraph('tmgmt-active-word-div', 'Selected word', selectedWord, editorPairs[activeEditorId].below, 'active-word');
 
-    wrappers[EditorPair.id].appendChild(EditorPair.below);
+    wrappers[editorPairs[activeEditorId].id].appendChild(editorPairs[activeEditorId].below);
   }
 
   // Helper function to create and update the counter of completed segments.
@@ -359,7 +361,7 @@
 
     if (!document.getElementsByClassName('segment-status-counter')[0]) {
       var segmentStatusCounter = count.toString() + '/' + countAll;
-      createNewParagraph('tmgmt-segment-counter-div','Number of completed segments', segmentStatusCounter, EditorPair.below, 'segment-status-counter');
+      createNewParagraph('tmgmt-segment-counter-div','Number of completed segments', segmentStatusCounter, editorPairs[activeEditorId].below, 'segment-status-counter');
     }
     else {
       document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;
@@ -383,7 +385,7 @@
 
   // Makes a dummy suggestion for the selected segment translation.
   function suggestTranslation(jsonData, index, selectedSegment, targetDiv) {
-    var wrapperClass = 'tmgmt-suggested-translation-div-editor-' + EditorPair.id + '-index-' + index;
+    var wrapperClass = 'tmgmt-suggested-translation-div-editor-' + editorPairs[activeEditorId].id + '-index-' + index;
     createNewParagraph(wrapperClass, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
 
     var wrapper = document.getElementsByClassName(wrapperClass);
@@ -410,15 +412,15 @@
     var sourceSegment = editor.document.$.getElementById(jsonData.sourceSegmentId);
     sourceSegment.setAttribute(attrSource, 'memory');
     sourceSegment.setAttribute(attrQuality, jsonData.quality);
-    enableListener = true;
+    enableListener = false;
   }
 
   // Resets the active segments in the editor, so that there is only 1 active.
   // @todo No iteration, hardcode the editors for now or make them work in pairs.
   function resetActiveSegment() {
-    var translationSegment = CKEDITOR.instances[EditorPair.activeEditorName].document.$.getElementById(EditorPair.activeSegmentId);
-    var relatedEditor = getRelatedEditor(CKEDITOR.instances[EditorPair.activeEditorName]);
-    var relatedSegment = relatedEditor.document.$.getElementById(EditorPair.activeSegmentId);
+    var translationSegment = CKEDITOR.instances[editorPairs[activeEditorId].activeEditorName].document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
+    var relatedEditor = getRelatedEditor(CKEDITOR.instances[editorPairs[activeEditorId].activeEditorName]);
+    var relatedSegment = relatedEditor.document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
     translationSegment.removeAttribute(attrStatusActive);
     relatedSegment.removeAttribute(attrStatusActive);
   }
@@ -426,9 +428,9 @@
   // Marks active and completed segments in the editor.
   // @todo This marker should be added only when editing.
   function markSegment(status) {
-    var translationSegment = CKEDITOR.currentInstance.document.$.getElementById(EditorPair.activeSegmentId);
+    var translationSegment = CKEDITOR.currentInstance.document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
     var relatedEditor = getRelatedEditor(CKEDITOR.currentInstance);
-    var relatedSegment = relatedEditor.document.$.getElementById(EditorPair.activeSegmentId);
+    var relatedSegment = relatedEditor.document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
     if (status === 'active') {
       translationSegment.setAttribute(attrStatusActive, '');
       relatedSegment.setAttribute(attrStatusActive, '');
