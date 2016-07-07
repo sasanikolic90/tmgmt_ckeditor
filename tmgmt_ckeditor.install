@@ -20,7 +20,7 @@ function tmgmt_ckeditor_install() {
     'body' => [
       'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' . '<br />' .
                  '<tmgmt-segment id="2">' . t('This is the second segment.') . '</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="3">' . t('This is the third <tmgmt-tag tag=”&lt;b&gt;” />segment.</tmgmt-tag tag="&lt;&#92;b&gt;">') . '</tmgmt-segment>',
+                 '<tmgmt-segment id="3">' . t('This is the third segment. <tmgmt-tag tag=”&lt;b&gt;” />This is a testing text inside a tag.</tmgmt-tag tag="&lt;/b&gt;">') . '</tmgmt-segment>',
       'format' => 'translation_html',
     ],
     'uid' => '0',
@@ -41,7 +41,7 @@ function tmgmt_ckeditor_install() {
   $first_segment_text = 'This is the first segment.';
   $second_segment_text = 'This is the second segment.';
   // Send full html over request or just stripped text?
-  $third_segment_text = 'This is the third <tmgmt-tag tag=”&lt;b&gt;”/>segment</tmgmt-tag tag="&lt;/b&gt;">.';
+  $third_segment_text = 'This is the third segment. This is a testing text inside a tag.';
 
   // Hardcoded translations of the dummy segments.
   $first_segment_translation_1 = 'This is the first translated segment';
@@ -72,8 +72,8 @@ function tmgmt_ckeditor_install() {
   $second_target_usage = $memory_manager->addUsage('de', $second_segment_translation, null, null, 2);
   $memory_manager->addUsageTranslation($second_source_usage, $second_target_usage);
 
-  $third_source_usage = $memory_manager->addUsage('en', $third_segment_text, null, null, 2);
-  $third_target_usage = $memory_manager->addUsage('de', $third_segment_translation, null, null, 2);
+  $third_source_usage = $memory_manager->addUsage('en', $third_segment_text, null, null, 3);
+  $third_target_usage = $memory_manager->addUsage('de', $third_segment_translation, null, null, 3);
   $memory_manager->addUsageTranslation($third_source_usage, $third_target_usage);
 
   // Dummy paragraphs for testing.

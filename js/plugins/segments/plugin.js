@@ -307,12 +307,8 @@
     var range = CKEDITOR.currentInstance.getSelection().getRanges()[0];
     var clickedSegment = range.startContainer.getParent();
 
-    // If the clicked element is inside tmgmt-tags, we need to get the parent.
-    if (clickedSegment.getName() === 'tmgmt-tag') {
-      clickedSegment = clickedSegment.getParent();
-    }
-
-    if (range.startOffset && clickedSegment.getName() === tag) {
+    // If we clicked the segment or the tag inside.
+    if (range.startOffset && (clickedSegment.getName() === tag || clickedSegment.getParent().getName() === tag)) {
       var indexPrevSpace = clickedSegment.getText().lastIndexOf(' ', range.startOffset) + 1;
       var indexNextSpace = clickedSegment.getText().indexOf(' ', range.startOffset);
       if (indexPrevSpace === -1) {
@@ -322,10 +318,16 @@
         indexNextSpace = clickedSegment.getText().length;
       }
 
-      // Get clicked segment id.
+      // If the clicked element was the tag, we need to get the parent
       var activeSegmentData = [];
-      activeSegmentData['segmentId'] = clickedSegment.getAttribute('id');
-      activeSegmentData['segmentText'] = clickedSegment.getText();
+      if (clickedSegment.getName() === 'tmgmt-tag') {
+        activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
+        activeSegmentData['segmentText'] = clickedSegment.getParent().getText();
+      }
+      else {
+        activeSegmentData['segmentId'] = clickedSegment.getAttribute('id');
+        activeSegmentData['segmentText'] = clickedSegment.getText();
+      }
       activeSegmentData['word'] = clickedSegment.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
       activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
