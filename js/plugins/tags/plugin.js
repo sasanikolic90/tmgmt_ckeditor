@@ -17,6 +17,8 @@
     exec: function (editor) {
       this.toggleState();
       this.refresh(editor);
+      var relatedEditor = getRelatedEditor(editor);
+      relatedEditor.commands.showtags.toggleState();
     },
 
     refresh: function(editor) {

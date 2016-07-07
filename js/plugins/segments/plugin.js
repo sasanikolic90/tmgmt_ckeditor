@@ -96,6 +96,9 @@
           // Disable showtags plugin.
           editor.editable()['removeClass']('cke_show_tags');
           editor.getCommand('showtags').disable();
+          relatedEditor.editable()['removeClass']('cke_show_tags');
+          relatedEditor.getCommand('showtags').disable();
+
 
           if (editorPairs[activeEditorId].below) {
             editorPairs[activeEditorId].below.innerHTML = '';
