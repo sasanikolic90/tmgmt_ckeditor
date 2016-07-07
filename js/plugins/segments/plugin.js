@@ -6,7 +6,8 @@
 (function ($, Drupal, CKEDITOR) {
   'use strict';
 
-  var tag = 'tmgmt-segment';
+  var tmgmtSegmentsTag = 'tmgmt-segment';
+  var tmgmtTagInsideSegments = 'tmgmt-tag';
   var attrStatusCompleted = 'data-tmgmt-segment-completed-status';
   var attrStatusActive = 'data-tmgmt-segment-active-status';
   var attrSource = 'data-tmgmt-segment-source';
@@ -121,12 +122,12 @@
 
       cssStd = cssImgLeft = cssImgRight = '';
 
-      cssStd += '.cke_show_segments ' + tag + '{' +
+      cssStd += '.cke_show_segments ' + tmgmtSegmentsTag + '{' +
         '}';
-      cssImgLeft += '.cke_show_segments ' + tag + '::before{' +
+      cssImgLeft += '.cke_show_segments ' + tmgmtSegmentsTag + '::before{' +
         'content:' + '"\u25B6"' + ';' + 'padding-right: 0.5em;' +
         '}';
-      cssImgRight += '.cke_show_segments ' + tag + '::after{' +
+      cssImgRight += '.cke_show_segments ' + tmgmtSegmentsTag + '::after{' +
         'content:' + '"\u25C0"' + ';' + 'padding-left: 0.5em;' +
         '}';
 
@@ -160,7 +161,7 @@
 
       if (editor.contextMenu) {
         editor.contextMenu.addListener(function (element) {
-          if (element.getAscendant(tag, true)) {
+          if (element.getAscendant(tmgmtSegmentsTag, true)) {
             return {
               setStatusItem: CKEDITOR.TRISTATE_ON
             };
@@ -173,7 +174,14 @@
         exec: function (editor) {
           var element = editor.getSelection().getStartElement();
           element.setAttribute(attrStatusCompleted, 'completed');
-          editorPairs[activeEditorId].activeSegmentId = element.getId();
+          // If the clicked element is the segment, set the id.
+          if (element.getName() === tmgmtSegmentsTag) {
+            editorPairs[activeEditorId].activeSegmentId = element.getId();
+          }
+          // If the clicked element is the tag, get the id from the parent.
+          else if (element.getName() === tmgmtTagInsideSegments) {
+            editorPairs[activeEditorId].activeSegmentId = element.getParent().getId();
+          }
           markSegment('completed');
 
           setCounterCompletedSegments();
@@ -308,7 +316,7 @@
     var clickedSegment = range.startContainer.getParent();
 
     // If we clicked the segment or the tag inside.
-    if (range.startOffset && (clickedSegment.getName() === tag || clickedSegment.getParent().getName() === tag)) {
+    if (range.startOffset && (clickedSegment.getName() === tmgmtSegmentsTag || clickedSegment.getParent().getName() === tmgmtSegmentsTag)) {
       var indexPrevSpace = clickedSegment.getText().lastIndexOf(' ', range.startOffset) + 1;
       var indexNextSpace = clickedSegment.getText().indexOf(' ', range.startOffset);
       if (indexPrevSpace === -1) {
@@ -320,7 +328,7 @@
 
       // If the clicked element was the tag, we need to get the parent
       var activeSegmentData = [];
-      if (clickedSegment.getName() === 'tmgmt-tag') {
+      if (clickedSegment.getName() === tmgmtTagInsideSegments) {
         activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
         activeSegmentData['segmentText'] = clickedSegment.getParent().getText();
       }
@@ -334,6 +342,7 @@
 
       editorPairs[activeEditorId].activeSegmentId = activeSegmentData['segmentId'];
       editorPairs[activeEditorId].activeEditorName = CKEDITOR.currentInstance.name;
+      editorPairs[activeEditorId].activeWord = activeSegmentData['word'];
       markSegment('active');
 
       // Return the word without extra characters.
