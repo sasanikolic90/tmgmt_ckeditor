@@ -56,6 +56,7 @@
         if (this.state === 1) {
           // Enable showtags plugin.
           editor.getCommand('showtags').enable();
+          relatedEditor.getCommand('showtags').enable();
 
           // Set the flag for the keystrokes listeners to enabled.
           enableListener = true;

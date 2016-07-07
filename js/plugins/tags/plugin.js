@@ -26,6 +26,10 @@
 
         var funcName = showTags ? 'attachClass' : 'removeClass';
         editor.editable()[funcName]('cke_show_tags');
+
+        // Display tags also in the related editor.
+        var relatedEditor = getRelatedEditor(editor);
+        relatedEditor.editable()[funcName]('cke_show_tags');
       }
     }
   };
@@ -95,6 +99,18 @@
       }
     }
   });
+
+  function getRelatedEditor(editor) {
+    var currentEditorName = editor.name;
+    var relatedEditorName;
+    if (CKEDITOR.instances[currentEditorName].name.match(/.*value-translation-value$/)) {
+      relatedEditorName = CKEDITOR.instances[currentEditorName].name.replace('value-translation-value', 'value-source-value');
+    }
+    else if (CKEDITOR.instances[currentEditorName].name.match(/.*value-source-value$/)) {
+      relatedEditorName = CKEDITOR.instances[currentEditorName].name.replace('value-source-value', 'value-translation-value');
+    }
+    return CKEDITOR.instances[relatedEditorName];
+  }
 })(jQuery, Drupal, CKEDITOR);
 
 /**
