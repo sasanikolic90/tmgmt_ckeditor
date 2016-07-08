@@ -277,10 +277,10 @@
     // If the segment is clicked, display it.
     if (selectedContent) {
       // Display the segment as active.
-      displayContent(selectedContent['segmentText'], selectedContent['word'], editorPairs[activeEditorId].id);
+      displayContent();
 
       // Do the http request to the memory.
-      getDataFromMemory(selectedContent, editorPairs[activeEditorId].id);
+      getDataFromMemory(selectedContent);
     }
     // If something else is clicked, remove the previous displayed segment.
     else {
@@ -299,12 +299,13 @@
         editorPairs[activeEditorId].below.appendChild(suggestedTranslations);
 
         jsonData.forEach(function (object, index) {
-          suggestTranslation(object, index, selectedContent['segmentText'], suggestedTranslations);
+          suggestTranslation(object, index, selectedContent['segmentHtmlText'], suggestedTranslations);
         });
       }
     };
     xmlhttp.open('GET', drupalSettings.path.baseUrl +
-      'tmgmt_ckeditor/get.json?segment=' + selectedContent['segmentText'] +
+      'tmgmt_ckeditor/get.json?segmentStrippedText=' + selectedContent['segmentStrippedText'] +
+      '&segmentHtmlText=' + selectedContent['segmentHtmlText'] +
       '&lang_source=' + selectedContent['sourceLanguage'] +
       '&lang_target=' + selectedContent['targetLanguage'], true);
     xmlhttp.send();
@@ -330,12 +331,15 @@
       var activeSegmentData = [];
       if (clickedSegment.getName() === tmgmtTagInsideSegments) {
         activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
-        activeSegmentData['segmentText'] = clickedSegment.getParent().getText();
+        activeSegmentData['segmentStrippedText'] = clickedSegment.getParent().getText();
+        activeSegmentData['segmentHtmlText'] = clickedSegment.getParent().getHtml();
       }
       else {
         activeSegmentData['segmentId'] = clickedSegment.getAttribute('id');
-        activeSegmentData['segmentText'] = clickedSegment.getText();
+        activeSegmentData['segmentStrippedText'] = clickedSegment.getText();
+        activeSegmentData['segmentHtmlText'] = clickedSegment.getHtml();
       }
+      var sourceSegment = CKEDITOR.currentInstance.document.$.getElementById(activeSegmentData['segmentId']);
       activeSegmentData['word'] = clickedSegment.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
       activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
@@ -343,6 +347,8 @@
       editorPairs[activeEditorId].activeSegmentId = activeSegmentData['segmentId'];
       editorPairs[activeEditorId].activeEditorName = CKEDITOR.currentInstance.name;
       editorPairs[activeEditorId].activeWord = activeSegmentData['word'];
+      editorPairs[activeEditorId].activeSegmentStrippedText = activeSegmentData['segmentStrippedText'];
+      editorPairs[activeEditorId].activeSegmentHtmlText = activeSegmentData['segmentHtmlText'];
       markSegment('active');
 
       // Return the word without extra characters.
@@ -353,7 +359,7 @@
   }
 
   // Displays the selected segment and word in the area below the editor.
-  function displayContent(selectedSegment, selectedWord) {
+  function displayContent() {
     // Remove the previous segment, if it exists.
     var activeSegment = document.getElementsByClassName('active-segment-text');
     if (activeSegment) {
@@ -361,8 +367,8 @@
     }
 
     setCounterCompletedSegments();
-    createNewParagraph('tmgmt-active-segment-div', 'Selected segment', selectedSegment, editorPairs[activeEditorId].below, 'active-segment');
-    createNewParagraph('tmgmt-active-word-div', 'Selected word', selectedWord, editorPairs[activeEditorId].below, 'active-word');
+    createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].below, 'active-segment');
+    createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].below, 'active-word');
 
     wrappers[editorPairs[activeEditorId].id].appendChild(editorPairs[activeEditorId].below);
   }
@@ -401,7 +407,7 @@
   // Makes a dummy suggestion for the selected segment translation.
   function suggestTranslation(jsonData, index, selectedSegment, targetDiv) {
     var wrapperClass = 'tmgmt-suggested-translation-div-editor-' + editorPairs[activeEditorId].id + '-index-' + index;
-    createNewParagraph(wrapperClass, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
+    createNewParagraph(wrapperClass, 'Suggested translation', jsonData.trSegmentHtmlText, targetDiv, 'suggested-translation-text');
 
     var wrapper = document.getElementsByClassName(wrapperClass);
     var btn = document.createElement('button');
@@ -422,11 +428,11 @@
   function addSuggestion(jsonData, selectedSegment) {
     var editor = CKEDITOR.currentInstance;
     var editorData = editor.getData();
-    var replaced_text = editorData.replace(selectedSegment, jsonData.trSegmentStrippedText);
+    var replaced_text = editorData.replace(selectedSegment, jsonData.trSegmentHtmlText);
     editor.setData(replaced_text);
     var sourceSegment = editor.document.$.getElementById(jsonData.sourceSegmentId);
-    sourceSegment.setAttribute(attrSource, 'memory');
-    sourceSegment.setAttribute(attrQuality, jsonData.quality);
+    // sourceSegment.setAttribute(attrSource, 'memory');
+    // sourceSegment.setAttribute(attrQuality, jsonData.quality);
     enableListener = false;
   }
 

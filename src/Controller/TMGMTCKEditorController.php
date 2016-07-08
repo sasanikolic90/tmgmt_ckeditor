@@ -22,20 +22,21 @@ class TMGMTCKEditorController extends ControllerBase {
    *   Returns data in a json.
    */
   public function get(Request $request) {
-    $content = $request->query->get('segment');
+    $strippedContent = $request->query->get('segmentStrippedText');
+    $fullContent = $request->query->get('segmentHtmlText');
     $sourceLanguage = $request->query->get('lang_source');
     $targetLanguage = $request->query->get('lang_target');
     $json_segment = array();
-    if (!empty($content)) {
+    if (!empty($fullContent)) {
       /**
        * @var \Drupal\tmgmt_memory\MemoryManager $memory_manager
        */
       $memory_manager = \Drupal::service('tmgmt_memory.memory_manager');
-      $translated_segments = $memory_manager->getUsageTranslations($sourceLanguage, $content, $targetLanguage);
+      $translated_segments = $memory_manager->getUsageTranslations($sourceLanguage, $fullContent, $targetLanguage);
       if ($translated_segments) {
         foreach($translated_segments as $key => $segment) {
           $json_segment[]  = array(
-            "trSegmentStrippedText" => $segment->getTarget()->getData(),
+            "trSegmentHtmlText" => $segment->getTarget()->getData(),
             'quality' => $segment->getQuality(),
             'sourceSegmentId' => $segment->getSource()->getSegmentDelta(),
             'targetSegmentId' => $segment->getTarget()->getSegmentDelta(),
