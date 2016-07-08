@@ -339,7 +339,6 @@
         activeSegmentData['segmentStrippedText'] = clickedSegment.getText();
         activeSegmentData['segmentHtmlText'] = clickedSegment.getHtml();
       }
-      var sourceSegment = CKEDITOR.currentInstance.document.$.getElementById(activeSegmentData['segmentId']);
       activeSegmentData['word'] = clickedSegment.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
       activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
@@ -431,8 +430,8 @@
     var replaced_text = editorData.replace(selectedSegment, jsonData.trSegmentHtmlText);
     editor.setData(replaced_text);
     var sourceSegment = editor.document.$.getElementById(jsonData.sourceSegmentId);
-    // sourceSegment.setAttribute(attrSource, 'memory');
-    // sourceSegment.setAttribute(attrQuality, jsonData.quality);
+    sourceSegment.setAttribute(attrSource, 'memory');
+    sourceSegment.setAttribute(attrQuality, jsonData.quality);
     enableListener = false;
   }
 
