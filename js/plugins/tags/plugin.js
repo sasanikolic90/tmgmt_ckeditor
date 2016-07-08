@@ -12,7 +12,6 @@
     readOnly: 1,
     preserveState: true,
     editorFocus: false,
-    startDisabled: true,
 
     exec: function (editor) {
       this.toggleState();
@@ -40,6 +39,7 @@
     lang: 'en',
     icons: 'showtags',
     hidpi: true,
+    requires: 'tmgmt_segments',
     onLoad: function () {
       var cssStd, cssImgLeft, cssImgRight;
 
