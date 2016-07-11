@@ -1,7 +1,0 @@
-[data-tmgmt-segment-active-status]:before, [data-tmgmt-segment-active-status]:after {
-  color: orange;
-}
-
-[data-tmgmt-segment-completed-status]:before, [data-tmgmt-segment-completed-status]:after {
-  color: green;
-}

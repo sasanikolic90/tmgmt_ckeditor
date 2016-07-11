@@ -1,0 +1,6 @@
+.cke_show_tags tmgmt-tag::before {
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+  margin-right: 0.3em;
+  background-color: #CCC;
+}

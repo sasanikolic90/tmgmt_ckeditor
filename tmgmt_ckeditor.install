@@ -20,8 +20,9 @@ function tmgmt_ckeditor_install() {
     'body' => [
       'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' . '<br />' .
                  '<tmgmt-segment id="2">' . t('This is the second segment.') . '</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="3">' . t('This is the third segment. <tmgmt-tag element="b" raw="&lt;b&gt;"/>This is a testing text inside a tag.</tmgmt-tag element="b" raw="&lt;/b&gt;">') . '</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="4">' . t('This is the fourth segment. <tmgmt-tag element="img" raw="&lt;img src=\'path\' alt=\'test\' title=\'Test title\' &gt;"/>This is a testing text inside a tag.</tmgmt-tag element="img" raw="&lt;/img&gt;">') . '</tmgmt-segment>',
+                 '<tmgmt-segment id="3">' . t('This is the third segment. <tmgmt-tag element="b" raw="&lt;b&gt;"/>This is a testing text inside a tag. The tag is properly closed..<tmgmt-tag element="b" raw="&lt;/b&gt;"/>') . '</tmgmt-segment>' . '<br />' .
+                 '<tmgmt-segment id="4">' . t('This is the fourth segment. <tmgmt-tag element="b" raw="&lt;b&gt;"/>This is a testing text inside a tag. The tag is not properly closed.') . '</tmgmt-segment>' . '<br />' .
+                 '<tmgmt-segment id="5">' . t('This is the fifth segment. <tmgmt-tag element="img" raw="&lt;img src=\'path\' alt=\'test\' title=\'Test title\' &gt;"/>This is a testing text inside an image tag with attributes.<tmgmt-tag element="img" raw="&lt;/img&gt;"/>') . '</tmgmt-segment>',
       'format' => 'translation_html',
     ],
     'uid' => '0',
@@ -36,14 +37,14 @@ function tmgmt_ckeditor_install() {
   $role->save();
 
   $memory_manager = \Drupal::service('tmgmt_memory.memory_manager');
-  $segmenter = \Drupal::service('tmgmt_memory.segmenter');
 
   // Hardcoded dummy segments.
   $first_segment_text = 'This is the first segment.';
   $second_segment_text = 'This is the second segment.';
   // Send full html over request or just stripped text?
-  $third_segment_text = 'This is the third segment. <tmgmt-tag element="b" raw="&lt;b&gt;"/>This is a testing text inside a tag.</tmgmt-tag element="b" raw="&lt;/b&gt;">';
-  $fourth_segment_text = 'This is the fourth segment. <tmgmt-tag element="img" raw="&lt;img src="/path" alt="test" title="Test title" &gt;"/>This is a testing text inside a tag.</tmgmt-tag element="img" raw="&lt;/img&gt;">';
+  $third_segment_text = 'This is the third segment. <tmgmt-tag element="b" raw="&lt;b&gt;"/>This is a testing text inside a tag. THe tag is properly closed..<tmgmt-tag element="b" raw="&lt;/b&gt;"/>';
+  $fourth_segment_text = 'This is the fourth segment. <tmgmt-tag element="b" raw="&lt;b&gt;"/>This is a testing text inside a tag. The tag is not properly closed.';
+  $fifth_segment_text = 'This is the fifth segment. <tmgmt-tag element="img" raw="&lt;img src=\'path\' alt=\'test\' title=\'Test title\' &gt;"/>This is a testing text inside an image tag with attributes.<tmgmt-tag element="img" raw="&lt;/img&gt;"/>';
 
   // Hardcoded translations of the dummy segments.
   $first_segment_translation_1 = 'This is the first translated segment';
@@ -52,6 +53,7 @@ function tmgmt_ckeditor_install() {
   $second_segment_translation = 'This is the second translated segment';
   $third_segment_translation = 'This is the third translated segment';
   $fourth_segment_translation = 'This is the fourth translated segment';
+  $fifth_segment_translation = 'This is the fifth translated segment';
 
   // Adding the segments to tmgmt_memory.
   $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
@@ -82,6 +84,10 @@ function tmgmt_ckeditor_install() {
   $fourth_source_usage = $memory_manager->addUsage('en', $fourth_segment_text, null, null, 4);
   $fourth_target_usage = $memory_manager->addUsage('de', $fourth_segment_translation, null, null, 4);
   $memory_manager->addUsageTranslation($fourth_source_usage, $fourth_target_usage);
+
+  $fifth_source_usage = $memory_manager->addUsage('en', $fifth_segment_text, null, null, 5);
+  $fifth_target_usage = $memory_manager->addUsage('de', $fifth_segment_translation, null, null, 5);
+  $memory_manager->addUsageTranslation($fifth_source_usage, $fifth_target_usage);
 
   // Dummy paragraphs for testing.
   $paragraph1 = Paragraph::create([

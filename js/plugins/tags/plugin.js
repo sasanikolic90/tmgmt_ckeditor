@@ -40,21 +40,32 @@
     icons: 'showtags',
     hidpi: true,
     requires: 'tmgmt_segments',
+
+    // Display tags in the editor.
     onLoad: function () {
-      var cssStd, cssImgLeft, cssImgRight;
-
-      cssStd = cssImgLeft = cssImgRight = '';
-
-      cssStd += '.cke_show_tags ' + tag + '{' +
-        '}';
-      cssImgLeft += '.cke_show_tags ' + tag + '::before{' +
-        'content:' + '"\u25B7"' + ';' + 'padding-right: 0.5em;' +
-        '}';
-      cssImgRight += '.cke_show_tags ' + tag + '::after{' +
-        'content:' + '"\u25C3"' + ';' + 'padding-left: 0.5em;' +
-        '}';
-
-      CKEDITOR.addCss(cssStd.concat(cssImgLeft, cssImgRight));
+      var openingTag;
+      var element;
+      var tags;
+      // Loop over editor instances.
+      for (var i in CKEDITOR.instances) {
+        // Search only in source editors.
+        var sourceEditor = CKEDITOR.instances[i].name.match(/.*value-source-value$/);
+        if (sourceEditor) {
+          // If tags with elements are found, add the css to display the tags before.
+          var regex = new RegExp(/element=\"(\w+?)\"/g);
+          tags = _.uniq(CKEDITOR.instances[i].getData().match(regex));
+          for (var j in tags) {
+            var parts = regex.exec(tags[j]); // Run regex exec.
+            regex.lastIndex = 0; // Reset the last index of regex (null issue).
+            element = '[' + parts[0] + ']';
+            openingTag = '';
+            openingTag += '.cke_show_tags ' + tag + element + '::before{' +
+              'content:' + '"' + parts[1] + '"' +
+              '}';
+            CKEDITOR.addCss(openingTag);
+          }
+        }
+      }
     },
 
     init: function (editor) {

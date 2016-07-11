@@ -33,6 +33,7 @@ function tmgmt_ckeditor_help($route_name, RouteMatchInterface $route_match) {
  */
 function tmgmt_ckeditor_ckeditor_css_alter(array &$css, Editor $editor) {
   $css[] = drupal_get_path('module', 'tmgmt_ckeditor') . '/js/plugins/segments/css/segments.css';
+  $css[] = drupal_get_path('module', 'tmgmt_ckeditor') . '/js/plugins/tags/css/tags.css';
 }
 
 /**
