@@ -8,6 +8,7 @@
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\editor\Entity\Editor;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\tmgmt\JobItemInterface;
 
 /**
  * Implements hook_help().
@@ -50,4 +51,37 @@ function tmgmt_ckeditor_form_tmgmt_job_item_edit_form_alter(&$form, FormStateInt
   $job_item = $form_state->getFormObject()->getEntity();
   $form['#attached']['drupalSettings']['sourceLanguage'] = $job_item->getJob()->getSourceLangcode();
   $form['#attached']['drupalSettings']['targetLanguage'] = $job_item->getJob()->getTargetLangcode();
+}
+
+/**
+ * Implements hook_tmgmt_data_item_text_output_alter().
+ */
+function tmgmt_ckeditor_tmgmt_data_item_text_output_alter(&$text, $data_item, JobItemInterface $job_item) {
+  // Unmask HTML tags for b-tags.
+  if (preg_match('/(<([\w]+)>)(.*?)(<\/([\w]+)>)/', $text, $matches)) {
+    $text = str_replace($matches[1], '<tmgmt-tag element="' . $matches[2] . '" raw="&lt;' . $matches[2] . '&gt;">', $text);
+    $text = str_replace($matches[4], '</tmgmt-tag element="' . $matches[2] . '" raw="&lt;/' . $matches[2] . '&gt;">', $text);
+  }
+
+  // Unmask HTML tag for img-tags.
+  if (preg_match('/(<([\w]+)\s)([^\/>]+)(\/>)/', $text, $matches)) {
+    $text = str_replace($matches[0], '<tmgmt-tag element="' . $matches[2] . '" raw="&lt;' . $matches[2] . ' ' . $matches[3] . '/&gt;" />', $text);
+  }
+}
+
+/**
+ * Implements hook_tmgmt_data_item_text_input_alter().
+ */
+function tmgmt_ckeditor_tmgmt_data_item_text_input_alter(&$text, $data_item, JobItemInterface $job_item) {
+  if (preg_match('/((<(\btmgmt-tag\b[^"]+)\"([\w]+)\"([^>]+>))([^</]+)(<(\/\btmgmt-tag\b.+)>))/', $text, $matches)) {
+    // Mask HTML tags for b-tags.
+    if ($matches[4] == 'b') {
+      $text = str_replace($matches[2], '<tmgmt-tag element="' . $matches[2] . '" raw="&lt;' . $matches[2] . '&gt;">', $text);
+      $text = str_replace($matches[4], '</tmgmt-tag element="' . $matches[2] . '" raw="&lt;/' . $matches[2] . '&gt;">', $text);
+    }
+    // Mask HTML tags for img-tag.
+    elseif ($matches[4] == 'img') {
+
+    }
+  }
 }
