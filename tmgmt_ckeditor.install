@@ -20,10 +20,9 @@ function tmgmt_ckeditor_install() {
     'body' => [
       'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' . '<br />' .
                  '<tmgmt-segment id="2">' . t('This is the second segment.') . '</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="3">' . t('This is the third segment. <b>This is a testing text inside a tag. The tag is properly closed..</b>') . '</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="4">' . t('This is the fourth segment. <b/>This is a testing text inside a tag. The tag is not properly closed.') . '</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="4">' . t('This is the fourth segment. <img src="path" alt="test" title="Test img title"/>') . '</tmgmt-segment>',
-                 '<tmgmt-segment id="5">' . t('This is the fifth segment. <img src="path" alt="test" title="Test title">This is a testing text inside an image tag with attributes.</img>') . '</tmgmt-segment>',
+                 '<tmgmt-segment id="3">' . t('This is the third segment. <b>This is a testing text inside a tag. The tag is properly closed.</b>') . '</tmgmt-segment><br />' .
+                 '<tmgmt-segment id="4">' . t('This is the fourth segment. <b>This is a testing text inside a tag. The tag is not properly closed.') . '</tmgmt-segment><br />' .
+                 '<tmgmt-segment id="5">' . t('This is the fifth segment. <img src="path" alt="test" title="This is a testing text inside an image tag with attributes" />') . '</tmgmt-segment>',
       'format' => 'translation_html',
     ],
     'uid' => '0',
