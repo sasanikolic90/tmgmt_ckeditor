@@ -20,8 +20,8 @@ function tmgmt_ckeditor_install() {
     'body' => [
       'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' . '<br />' .
                  '<tmgmt-segment id="2">' . t('This is the second segment.') . '</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="3">' . t('This is the third segment. <b>This is a testing text inside a tag. The tag is properly closed.</b>') . '</tmgmt-segment><br />' .
-                 '<tmgmt-segment id="4">' . t('This is the fourth segment. <b>This is a testing text inside a tag. The tag is not properly closed.') . '</tmgmt-segment><br />' .
+                 '<tmgmt-segment id="3">' . t('This is the third segment. <b>This is a testing text inside a tag. The tag is properly closed.</b>') . '</tmgmt-segment>' . '<br />' .
+                 '<tmgmt-segment id="4">' . t('This is the fourth segment. <b>This is a testing text inside a tag. The tag is not properly closed.') . '</tmgmt-segment>' . '<br />' .
                  '<tmgmt-segment id="5">' . t('This is the fifth segment. <img src="path" alt="test" title="This is a testing text inside an image tag with attributes" />') . '</tmgmt-segment>',
       'format' => 'translation_html',
     ],
@@ -42,9 +42,9 @@ function tmgmt_ckeditor_install() {
   $first_segment_text = 'This is the first segment.';
   $second_segment_text = 'This is the second segment.';
   // Send full html over request or just stripped text?
-  $third_segment_text = 'This is the third segment. <tmgmt-tag element="b" raw="&lt;b&gt;"/>This is a testing text inside a tag. THe tag is properly closed..<tmgmt-tag element="b" raw="&lt;/b&gt;"/>';
-  $fourth_segment_text = 'This is the fourth segment. <tmgmt-tag element="b" raw="&lt;b&gt;"/>This is a testing text inside a tag. The tag is not properly closed.';
-  $fifth_segment_text = 'This is the fifth segment. <tmgmt-tag element="img" raw="&lt;img src=\'path\' alt=\'test\' title=\'Test title\' &gt;"/>This is a testing text inside an image tag with attributes.<tmgmt-tag element="img" raw="&lt;/img&gt;"/>';
+  $third_segment_text = 'This is the third segment. <tmgmt-tag element="b" raw="&lt;b&gt;">This is a testing text inside a tag. THe tag is properly closed.<tmgmt-tag element="/b" raw="&lt;%2Fb&gt;">';
+  $fourth_segment_text = 'This is the fourth segment. <tmgmt-tag element="b" raw="&lt;b&gt;">This is a testing text inside a tag. The tag is not properly closed.';
+  $fifth_segment_text = 'This is the fifth segment. <tmgmt-tag element="img" raw="&lt;img src=&quot;path&quot; alt=&quot;test&quot; title=&quot;This is a testing text inside an image tag with attributes&quot; %2F&gt;" />';
 
   // Hardcoded translations of the dummy segments.
   $first_segment_translation_1 = 'This is the first translated segment';

@@ -57,24 +57,17 @@ function tmgmt_ckeditor_form_tmgmt_job_item_edit_form_alter(&$form, FormStateInt
  * Implements hook_tmgmt_data_item_text_output_alter().
  */
 function tmgmt_ckeditor_tmgmt_data_item_text_output_alter(&$text, $data_item, JobItemInterface $job_item) {
-  if (preg_match_all('/(<([^\btmgmt\b]+[^\s]+)[^>]+?>)([^>]+?[^\/][^>]+>)/', $text, $matches)) {
+  if (preg_match_all('/<((/?[a-z-]+).*?)\s?/?>/', $text, $matches)) {
 
     // Go through each HTML-tag match found.
     for ($i = 0, $max = count($matches[0]); $i < $max; $i++) {
-      $unmasked_text = $matches[0][$i];
+      if (strpos($matches[2][$i], 'tmgmt')) {
+        continue;
+      }
 
-      // Mask opening HTML-tags for b-tags.
-      if ($matches[2][$i] == 'b') {
-        $unmasked_text = str_replace($matches[1][$i], '<tmgmt-tag element="' . $matches[2][$i] . '" raw="' . htmlspecialchars($matches[1][$i]) . '">', $unmasked_text);
-      }
-      // Mask HTML-tags for img-tag.
-      elseif ($matches[2][$i] == 'img') {
-        $unmasked_text = str_replace($matches[1][$i], '<tmgmt-tag element="' . $matches[2][$i] . '" raw="' . htmlspecialchars($matches[1][$i]) . '" />', $unmasked_text);
-      }
-      // Mask closing tag.
-      if ($matches[4][$i] == '</' . $matches[2][$i] . '>') {
-        $unmasked_text = str_replace('</' . $matches[2][$i] . '>', '</tmgmt-tag>', $unmasked_text);
-      }
+      // Mask an HTML-tag.
+      $unmasked_text = $matches[0][$i];
+      $unmasked_text = str_replace($matches[1][$i], 'tmgmt-tag element="' . $matches[2][$i] . '" raw="' . htmlspecialchars($matches[0][$i]) . '"', $unmasked_text);
 
       // Mask each HTML-tag one by one.
       $text = str_replace($matches[0][$i], $unmasked_text, $text);
@@ -86,23 +79,19 @@ function tmgmt_ckeditor_tmgmt_data_item_text_output_alter(&$text, $data_item, Jo
  * Implements hook_tmgmt_data_item_text_input_alter().
  */
 function tmgmt_ckeditor_tmgmt_data_item_text_input_alter(&$text, $data_item, JobItemInterface $job_item) {
-  if (preg_match_all('/(<\btmgmt-tag\b[^"]+\"([\w]+)[^\braw\b]+[^"]+\"([^>]+)\"\s?\/?>?)[^<]+(<\/[^<]+)/', $text, $matches)) {
+  if (preg_match_all('/<((/?[a-z-]+).*?)\s?/?>/', $text, $matches)) {
 
     // Go through each tmgmt-tag match found.
     for ($i = 0, $max = count($matches[0]); $i < $max; $i++) {
-      $masked_text = $matches[0][$i];
+      if (strpos($matches[2][$i], 'tmgmt-tag') == FALSE) {
+        continue;
+      }
 
-      // Unmask opening tmgmt-tags for b-tags.
-      if ($matches[2][$i] == 'b') {
-        $masked_text = str_replace($matches[1][$i], htmlspecialchars_decode($matches[3][$i]), $masked_text);
-      }
-      // Unmask tmgmt-tags for img-tag.
-      elseif ($matches[2][$i] == 'img') {
-        $masked_text = str_replace($matches[1][$i] . '>', htmlspecialchars_decode($matches[3][$i]), $masked_text);
-      }
-      // Unmask closing tag.
-      if ($matches[4][$i] == '</tmgmt-tag>') {
-        $masked_text = str_replace('tmgmt-tag', $matches[2][$i], $masked_text);
+      // Unmask a tmgmt-tag.
+      $masked_text = $matches[0][$i];
+      // Get the raw property.
+      if (preg_match_all('/</?[^\&]+(.*?)\"\s?/?>/', $masked_text, $raw)) {
+        $masked_text = str_replace($matches[1][$i], htmlspecialchars_decode($raw[1][0]), $masked_text);
       }
 
       // Unmask each tmgmt-tag one by one.
