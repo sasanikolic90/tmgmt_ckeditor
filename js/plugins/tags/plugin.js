@@ -101,10 +101,15 @@
       }
 
       // Refresh the command on setData.
-      editor.on('contentDom', function() {
+      editor.on('contentDom', function () {
         if (command.state !== CKEDITOR.TRISTATE_DISABLED) {
           command.refresh(editor);
         }
+      });
+
+      // Refresh the command on setData.
+      editor.on('instanceReady', function () {
+        CKEDITOR.dtd.$empty['tmgmt-tag'] = 1;
       });
 
       function onFocusBlur() {
