@@ -180,15 +180,14 @@
       });
 
       editor.on('instanceReady', function () {
-        // When the data is loaded and the translation editor is empty, populate
-        // the content with the corresponding source content.
         var segmentsDiv;
-
         var translationNameMatch = editor.name.match(/.*value-translation-value$/);
         // Get the editor id.
         var editorMatchId = editor.name.match(/\d+/);
         var editorId = parseInt(editorMatchId[0], 10);
 
+        // When the data is loaded and the translation editor is empty, populate
+        // the content with the corresponding source content.
         if (translationNameMatch != null && !editor.getData()) {
           var sourceEditor = getRelatedEditor(editor);
           editor.setData(sourceEditor.getData());
