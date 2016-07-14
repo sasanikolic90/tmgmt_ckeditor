@@ -43,7 +43,6 @@
 
         var matchId = editor.name.match(/\d+/);
         activeEditorId = parseInt(matchId[0], 10);
-        editorPairs[activeEditorId].activeEditorName = editor.name;
         var relatedEditor = getRelatedEditor(editor);
 
         var funcName = showSegments ? 'attachClass' : 'removeClass';
@@ -55,14 +54,16 @@
         // Display the segments' content below the translate editor if the
         // plugin is enabled.
         if (this.state === 1) {
+          // Set the active editor name.
+          editorPairs[activeEditorId].activeEditorName = editor.name;
 
           // Set the flag for the keystrokes listeners to enabled.
           enableListener = true;
 
           // This check is because when clicking "Use suggestion", the editors
           // refresh, but the status is still active and it adds a new div.
-          editorPairs[activeEditorId].below = document.getElementsByClassName('tmgmt-segments')[editorPairs[activeEditorId].id];
-          if (editorPairs[activeEditorId].below.innerHTML === '') {
+          editorPairs[activeEditorId].areaBelow = document.getElementsByClassName('tmgmt-segments')[editorPairs[activeEditorId].id];
+          if (editorPairs[activeEditorId].areaBelow.innerHTML === '') {
             if (editor.addMenuItem) {
               // A group menu is required.
               editor.addMenuGroup('setStatusGroup');
@@ -83,7 +84,7 @@
           // Things to do when a word/segment is clicked.
           editable.attachListener(editable, 'click', function (evt) {
             // Remove segmentsDiv when changing editor.
-            editorPairs[activeEditorId].below.innerHTML = '';
+            editorPairs[activeEditorId].areaBelow.innerHTML = '';
             // Set the editorPairs[activeEditorId].id to the newly clicked editor's id.
             refreshActiveContent();
           });
@@ -91,14 +92,9 @@
         // Remove the segments display area below the editor when we disable
         // the plugin.
         else {
-
-          if (editorPairs[activeEditorId].below) {
-            editorPairs[activeEditorId].below.innerHTML = '';
-            // Remove the context menu item.
-            editor.removeMenuItem('setStatusItem');
-            // Reset the editorPairs[activeEditorId].id.
-            editorPairs[activeEditorId].id = null;
-          }
+          editorPairs[activeEditorId].areaBelow.innerHTML = '';
+          // Remove the context menu item.
+          editor.removeMenuItem('setStatusItem');
         }
       }
     }
@@ -244,11 +240,11 @@
   });
 
   // New structure per editor pair.
-  function EditorPair(id, left, right, below, activeEditorName, activeSegmentId, activeWord, counter) {
+  function EditorPair(id, leftEditor, rightEditor, areaBelow, activeEditorName, activeSegmentId, activeWord, counter) {
     this.id = id;
-    this.leftEditor = left;
-    this.rightEditor = right;
-    this.areaBelow = below;
+    this.leftEditor = leftEditor;
+    this.rightEditor = rightEditor;
+    this.areaBelow = areaBelow;
     this.activeEditorName = activeEditorName;
     this.activeSegmentId = activeSegmentId;
     this.activeWord = activeWord;
@@ -274,7 +270,7 @@
     }
     // If something else is clicked, remove the previous displayed segment.
     else {
-      editorPairs[activeEditorId].below.innerHTML = '';
+      editorPairs[activeEditorId].areaBelow.innerHTML = '';
     }
   }
 
@@ -286,7 +282,7 @@
         // Make a wrapper for suggested translations.
         var suggestedTranslations = document.createElement('div');
         suggestedTranslations.className = 'suggested-translations';
-        editorPairs[activeEditorId].below.appendChild(suggestedTranslations);
+        editorPairs[activeEditorId].areaBelow.appendChild(suggestedTranslations);
 
         jsonData.forEach(function (object, index) {
           suggestTranslation(object, index, selectedContent['segmentHtmlText'], suggestedTranslations);
@@ -352,14 +348,14 @@
     // Remove the previous segment, if it exists.
     var activeSegment = document.getElementsByClassName('active-segment-text');
     if (activeSegment) {
-      editorPairs[activeEditorId].below.innerHTML = '';
+      editorPairs[activeEditorId].areaBelow.innerHTML = '';
     }
 
     setCounterCompletedSegments();
-    createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].below, 'active-segment');
-    createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].below, 'active-word');
+    createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].areaBelow, 'active-segment');
+    createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].areaBelow, 'active-word');
 
-    wrappers[editorPairs[activeEditorId].id].appendChild(editorPairs[activeEditorId].below);
+    wrappers[editorPairs[activeEditorId].id].appendChild(editorPairs[activeEditorId].areaBelow);
   }
 
   // Helper function to create and update the counter of completed segments.
@@ -371,7 +367,7 @@
 
     if (!document.getElementsByClassName('segment-status-counter')[0]) {
       var segmentStatusCounter = count.toString() + '/' + countAll;
-      createNewParagraph('tmgmt-segment-counter-div','Number of completed segments', segmentStatusCounter, editorPairs[activeEditorId].below, 'segment-status-counter');
+      createNewParagraph('tmgmt-segment-counter-div','Number of completed segments', segmentStatusCounter, editorPairs[activeEditorId].areaBelow, 'segment-status-counter');
     }
     else {
       document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;
