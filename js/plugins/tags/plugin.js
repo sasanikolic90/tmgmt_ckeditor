@@ -48,21 +48,25 @@
       var tags;
       // Loop over editor instances.
       for (var i in CKEDITOR.instances) {
-        // Search only in source editors.
-        var sourceEditor = CKEDITOR.instances[i].name.match(/.*value-source-value$/);
-        if (sourceEditor) {
-          // If tags with elements are found, add the css to display the tags before.
-          var regex = new RegExp(/element=\"(\w+?)\"/g);
-          tags = _.uniq(CKEDITOR.instances[i].getData().match(regex));
-          for (var j in tags) {
-            var parts = regex.exec(tags[j]); // Run regex exec.
-            regex.lastIndex = 0; // Reset the last index of regex (null issue).
-            element = '[' + parts[0] + ']';
-            openingTag = '';
-            openingTag += '.cke_show_tags ' + tag + element + '::before{' +
-              'content:' + '"' + parts[1] + '"' +
-              '}';
-            CKEDITOR.addCss(openingTag);
+        if (CKEDITOR.instances.hasOwnProperty(i)) {
+          // Search only in source editors.
+          var sourceEditor = CKEDITOR.instances[i].name.match(/.*value-source-value$/);
+          if (sourceEditor) {
+            // If tags with elements are found, add the css to display the tags before.
+            var regex = new RegExp(/element=\"(\w+?)\"/g);
+            tags = _.uniq(CKEDITOR.instances[i].getData().match(regex));
+            for (var j in tags) {
+              if (tags.hasOwnProperty(j)) {
+                var parts = regex.exec(tags[j]); // Run regex exec.
+                regex.lastIndex = 0; // Reset the last index of regex (null issue).
+                element = '[' + parts[0] + ']';
+                openingTag = '';
+                openingTag += '.cke_show_tags ' + tag + element + '::before{' +
+                  'content:' + '"' + parts[1] + '"' +
+                  '}';
+                CKEDITOR.addCss(openingTag);
+              }
+            }
           }
         }
       }
