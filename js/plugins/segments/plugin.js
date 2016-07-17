@@ -85,7 +85,8 @@
           editable.focus();
 
           // Things to do when a word/segment is clicked.
-          editable.attachListener(editable, 'click', function (evt) {
+          editable.attachListener(editable, 'click', function (event) {
+            event.preventDefault();
             // Remove segmentsDiv when changing editor.
             editorPairs[activeEditorId].areaBelow.innerHTML = '';
             // Set the editorPairs[activeEditorId].id to the newly clicked editor's id.
@@ -428,7 +429,8 @@
     btn.id = 'btn-use-suggestion-' + index;
     wrapper[0].appendChild(btn);
 
-    btn.addEventListener('click', function () {
+    btn.addEventListener('click', function (event) {
+      event.preventDefault();
       EditorPair.prototype.addSuggestion(jsonData, selectedSegment);
       targetDiv.parentNode.removeChild(targetDiv);
     });
