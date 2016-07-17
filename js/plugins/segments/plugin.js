@@ -176,7 +176,6 @@
       });
 
       editor.on('instanceReady', function () {
-        var segmentsDiv;
         var translationNameMatch = editor.name.match(/.*value-translation-value$/);
         // Get the editor id.
         var editorMatchId = editor.name.match(/\d+/);
@@ -189,12 +188,12 @@
           editor.setData(sourceEditor.getData());
 
           wrappers[editorId].setAttribute('data-tmgmt-segments-info-area', editorId);
-          segmentsDiv = document.createElement('div');
+          var segmentsDiv = document.createElement('div');
           segmentsDiv.className = 'tmgmt-segments';
           wrappers[editorId].appendChild(segmentsDiv);
 
           // Create an array of editor pairs.
-          editorPairs[editorId] = new EditorPair(editorId, sourceEditor, editor, segmentsDiv, null, null, null, null);
+          editorPairs[editorId] = new EditorPair(editorId, sourceEditor, editor, segmentsDiv, null, null, null, null, null);
         }
       });
 
@@ -240,7 +239,7 @@
   });
 
   // New structure per editor pair.
-  function EditorPair(id, leftEditor, rightEditor, areaBelow, activeEditorName, activeSegmentId, activeWord, counter) {
+  function EditorPair(id, leftEditor, rightEditor, areaBelow, activeEditorName, activeSegmentId, activeWord, activeTag, counter) {
     this.id = id;
     this.leftEditor = leftEditor;
     this.rightEditor = rightEditor;
@@ -248,6 +247,7 @@
     this.activeEditorName = activeEditorName;
     this.activeSegmentId = activeSegmentId;
     this.activeWord = activeWord;
+    this.activeTag = activeTag;
     this.completedCounter = counter;
   }
 
@@ -319,11 +319,21 @@
         activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
         activeSegmentData['segmentStrippedText'] = clickedSegment.getParent().getText();
         activeSegmentData['segmentHtmlText'] = clickedSegment.getParent().getHtml();
+
+        // Regex to get the text inside masked tag pairs.
+        var regexForTagPairs = new RegExp('<tmgmt-tag element=\"[a-z]+\".*>(.*)<tmgmt-tag element=\"\/[a-z]+\".*>', 'g');
+        var clickedTag = clickedSegment.getOuterHtml();
+        var textInsideTagPairs = regexForTagPairs.exec(clickedTag);
+        regexForTagPairs.lastIndex = 0; // Reset the last index of regex (null issue).
+        if (textInsideTagPairs) {
+          activeSegmentData['tagsStrippedText'] = regexForTagPairs.exec(clickedTag)[1];
+        }
       }
       else {
         activeSegmentData['segmentId'] = clickedSegment.getAttribute('id');
         activeSegmentData['segmentStrippedText'] = clickedSegment.getText();
         activeSegmentData['segmentHtmlText'] = clickedSegment.getHtml();
+        activeSegmentData['tagsStrippedText'] = null;
       }
       activeSegmentData['word'] = clickedSegment.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
@@ -334,6 +344,7 @@
       editorPairs[activeEditorId].activeWord = activeSegmentData['word'];
       editorPairs[activeEditorId].activeSegmentStrippedText = activeSegmentData['segmentStrippedText'];
       editorPairs[activeEditorId].activeSegmentHtmlText = activeSegmentData['segmentHtmlText'];
+      editorPairs[activeEditorId].activeTag = activeSegmentData['tagsStrippedText'];
       markSegment('active');
 
       // Return the word without extra characters.
@@ -354,6 +365,9 @@
     setCounterCompletedSegments();
     createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].areaBelow, 'active-segment');
     createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].areaBelow, 'active-word');
+    if (editorPairs[activeEditorId].activeTag) {
+      createNewParagraph('tmgmt-active-tag-div', 'Selected tag', editorPairs[activeEditorId].activeTag, editorPairs[activeEditorId].areaBelow, 'active-tag');
+    }
 
     wrappers[editorPairs[activeEditorId].id].appendChild(editorPairs[activeEditorId].areaBelow);
   }

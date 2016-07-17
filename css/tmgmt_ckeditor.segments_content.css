@@ -1,4 +1,4 @@
-.active-segment, .active-word, .suggested-translation {
+.active-segment, .active-word, .active-tag, .suggested-translation {
   font-weight: bold;
 }
 

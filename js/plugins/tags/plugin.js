@@ -53,7 +53,7 @@
           var sourceEditor = CKEDITOR.instances[i].name.match(/.*value-source-value$/);
           if (sourceEditor) {
             // If tags with elements are found, add the css to display the tags before.
-            var regex = new RegExp(/element=\"(\w+?)\"/g);
+            var regex = new RegExp(/element=\"(\/?\w+?)\"/g);
             tags = _.uniq(CKEDITOR.instances[i].getData().match(regex));
             for (var j in tags) {
               if (tags.hasOwnProperty(j)) {
