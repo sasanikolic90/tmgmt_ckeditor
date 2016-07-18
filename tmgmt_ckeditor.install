@@ -19,7 +19,7 @@ function tmgmt_ckeditor_install() {
     'title' => t('Segments test'),
     'body' => [
       'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="2">' . t('This is the second segment.') . '</tmgmt-segment>' . '<br />' .
+                 '<tmgmt-segment id="2">' . t('This is the second segment with single closing tags. <br /> <hr />') . '</tmgmt-segment>' . '<br />' .
                  '<tmgmt-segment id="3">' . t('This is the third segment. <b>This is a testing text inside a tag. The tag is properly closed.</b>') . '</tmgmt-segment>' . '<br />' .
                  '<tmgmt-segment id="4">' . t('This is the fourth segment. <b>This is a testing text inside a tag. The tag is not properly closed.') . '</tmgmt-segment>' . '<br />' .
                  '<tmgmt-segment id="5">' . t('This is the fifth segment. <img src="path" alt="test" title="This is a testing text inside an image tag with attributes" />') . '</tmgmt-segment>',
@@ -40,7 +40,7 @@ function tmgmt_ckeditor_install() {
 
   // Hardcoded dummy segments.
   $first_segment_text = 'This is the first segment.';
-  $second_segment_text = 'This is the second segment.';
+  $second_segment_text = 'This is the second segment with single closing tags. <br /> <hr />';
   // Send full html over request or just stripped text?
   $third_segment_text = 'This is the third segment. <tmgmt-tag element="b" raw="&lt;b&gt;">This is a testing text inside a tag. THe tag is properly closed.<tmgmt-tag element="/b" raw="&lt;%2Fb&gt;">';
   $fourth_segment_text = 'This is the fourth segment. <tmgmt-tag element="b" raw="&lt;b&gt;">This is a testing text inside a tag. The tag is not properly closed.';
@@ -94,8 +94,8 @@ function tmgmt_ckeditor_install() {
     'title' => 'Paragraph 1',
     'type' => 'text',
     'field_text_demo' => [
-      'value' => '<tmgmt-segment id="5">This is the first segment in a paragraph.</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="6">This is the second segment in a paragraph.</tmgmt-segment>',
+      'value' => '<tmgmt-segment id="6">This is the first segment in a paragraph.</tmgmt-segment>' . '<br />' .
+                 '<tmgmt-segment id="7">This is the second segment in a paragraph.</tmgmt-segment>',
       'format' => 'translation_html',
     ],
   ]);
@@ -105,7 +105,7 @@ function tmgmt_ckeditor_install() {
     'title' => 'Paragraph 2',
     'type' => 'text',
     'field_text_demo' => [
-      'value' => '<tmgmt-segment id="7">This is the third segment in a paragraph.</tmgmt-segment>',
+      'value' => '<tmgmt-segment id="8">This is the third segment in a paragraph.</tmgmt-segment>',
       'format' => 'translation_html',
     ],
   ]);
@@ -115,7 +115,7 @@ function tmgmt_ckeditor_install() {
     'title' => 'Paragraph 3',
     'type' => 'text',
     'field_text_demo' => [
-      'value' => '<tmgmt-segment id="7">This is the fourth segment in a paragraph.</tmgmt-segment>',
+      'value' => '<tmgmt-segment id="8">This is the fourth segment in a paragraph.</tmgmt-segment>',
       'format' => 'translation_html',
     ],
   ]);
@@ -155,23 +155,23 @@ function tmgmt_ckeditor_install() {
   $third_paragraph_segment_translation = 'This is the third translated segment in a paragraph.';
 
   // Adding the segments to tmgmt_memory.
-  $first_paragraph_source_usage_1 = $memory_manager->addUsage('en', $first_paragraph_segment, null, null, 5);
-  $first_paragraph_target_usage_1 = $memory_manager->addUsage('de', $first_paragraph_segment_translation_1, null, null, 5);
+  $first_paragraph_source_usage_1 = $memory_manager->addUsage('en', $first_paragraph_segment, null, null, 6);
+  $first_paragraph_target_usage_1 = $memory_manager->addUsage('de', $first_paragraph_segment_translation_1, null, null, 6);
   $memory_manager->addUsageTranslation($first_paragraph_source_usage_1, $first_paragraph_target_usage_1);
 
-  $first_paragraph_source_usage_2 = $memory_manager->addUsage('en', $first_paragraph_segment, null, null, 5);
-  $first_paragraph_target_usage_2 = $memory_manager->addUsage('de', $first_paragraph_segment_translation_2, null, null, 5);
+  $first_paragraph_source_usage_2 = $memory_manager->addUsage('en', $first_paragraph_segment, null, null, 6);
+  $first_paragraph_target_usage_2 = $memory_manager->addUsage('de', $first_paragraph_segment_translation_2, null, null, 6);
   $memory_manager->addUsageTranslation($first_paragraph_source_usage_2, $first_paragraph_target_usage_2);
 
-  $first_paragraph_source_usage_3 = $memory_manager->addUsage('en', $first_paragraph_segment, null, null, 5);
-  $first_paragraph_target_usage_3 = $memory_manager->addUsage('de', $first_paragraph_segment_translation_3, null, null, 5);
+  $first_paragraph_source_usage_3 = $memory_manager->addUsage('en', $first_paragraph_segment, null, null, 6);
+  $first_paragraph_target_usage_3 = $memory_manager->addUsage('de', $first_paragraph_segment_translation_3, null, null, 6);
   $memory_manager->addUsageTranslation($first_paragraph_source_usage_3, $first_paragraph_target_usage_3);
 
-  $second_paragraph_source_usage = $memory_manager->addUsage('en', $second_paragraph_segment, null, null, 6);
-  $second_paragraph_target_usage = $memory_manager->addUsage('de', $second_paragraph_segment_translation, null, null, 6);
+  $second_paragraph_source_usage = $memory_manager->addUsage('en', $second_paragraph_segment, null, null, 7);
+  $second_paragraph_target_usage = $memory_manager->addUsage('de', $second_paragraph_segment_translation, null, null, 7);
   $memory_manager->addUsageTranslation($second_paragraph_source_usage, $second_paragraph_target_usage);
 
-  $third_paragraph_source_usage = $memory_manager->addUsage('en', $third_paragraph_segment, null, null, 7);
-  $third_paragraph_target_usage = $memory_manager->addUsage('de', $third_paragraph_segment_translation, null, null, 7);
+  $third_paragraph_source_usage = $memory_manager->addUsage('en', $third_paragraph_segment, null, null, 8);
+  $third_paragraph_target_usage = $memory_manager->addUsage('de', $third_paragraph_segment_translation, null, null, 8);
   $memory_manager->addUsageTranslation($third_paragraph_source_usage, $third_paragraph_target_usage);
 }

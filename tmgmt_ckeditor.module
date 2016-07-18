@@ -65,14 +65,8 @@ function tmgmt_ckeditor_tmgmt_data_item_text_output_alter(&$text, $data_item, Jo
         continue;
       }
 
-      // Mask a br-HTML-tag.
-      if (substr($matches[2][$i], 0, 3) === 'br') {
-        $replacement = 'tmgmt-tag element="' . $matches[2][$i] . ' /" raw="' . htmlspecialchars($matches[0][$i]) . '"';
-      }
       // Mask any HTML-tag.
-      else {
-        $replacement = 'tmgmt-tag element="' . $matches[2][$i] . '" raw="' . htmlspecialchars($matches[0][$i]) . '"';
-      }
+      $replacement = 'tmgmt-tag element="' . $matches[2][$i] . '" raw="' . htmlspecialchars($matches[0][$i]) . '"';
       $unmasked_text = $matches[0][$i];
       $unmasked_text = str_replace($matches[1][$i], $replacement, $unmasked_text);
 
