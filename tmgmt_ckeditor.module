@@ -57,33 +57,66 @@ function tmgmt_ckeditor_form_tmgmt_job_item_edit_form_alter(&$form, FormStateInt
  * Implements hook_tmgmt_data_item_text_output_alter().
  */
 function tmgmt_ckeditor_tmgmt_data_item_text_output_alter(&$text, $data_item, JobItemInterface $job_item) {
-  if (preg_match_all('/<((\/?[a-z-]+).*?)\s?\/?>/', $text, $matches)) {
-
-    // Go through each HTML-tag match found.
-    for ($i = 0, $max = count($matches[0]); $i < $max; $i++) {
-      if (substr($matches[2][$i], 0, 5) === 'tmgmt' || substr($matches[2][$i], 0, 6) === '/tmgmt') {
-        continue;
-      }
-
-      // Mask any HTML-tag.
-      $replacement = 'tmgmt-tag element="' . $matches[2][$i] . '" raw="' . htmlspecialchars($matches[0][$i]) . '"';
-      $unmasked_text = $matches[0][$i];
-      $unmasked_text = str_replace($matches[1][$i], $replacement, $unmasked_text);
-
-      // Mask each HTML-tag one by one.
-      $text = str_replace($matches[0][$i], $unmasked_text, $text);
-    }
-  }
+  $text = tmgmt_ckeditor_html_mask($text);
 }
 
 /**
  * Implements hook_tmgmt_data_item_text_input_alter().
  */
 function tmgmt_ckeditor_tmgmt_data_item_text_input_alter(&$text, $data_item, JobItemInterface $job_item) {
+  $text = tmgmt_ckeditor_html_unmask($text);
+}
+
+
+/**
+ * Returns the text with masked tags.
+ *
+ * @param string $text
+ *   The unmasked text to be masked.
+ *
+ * @return string
+ *   The masked text.
+ */
+function tmgmt_ckeditor_html_mask($text) {
+  // Get every tags matches.
+  if (preg_match_all('/<((\/?[a-z-]+).*?)\s?\/?>/', $text, $matches)) {
+
+    // Go through each HTML-tag match found.
+    for ($i = 0, $max = count($matches[0]); $i < $max; $i++) {
+      // Skip all tmgmt-segment and tmgmt-tag tags.
+      if (substr($matches[2][$i], 0, 5) === 'tmgmt' || substr($matches[2][$i], 0, 6) === '/tmgmt') {
+        continue;
+      }
+
+      // Mask any HTML-tag.
+      $unmasked_text = $matches[0][$i];
+      $replacement = 'tmgmt-tag element="' . $matches[2][$i] . '" raw="' . htmlspecialchars($unmasked_text) . '"';
+      $masked_text = str_replace($matches[1][$i], $replacement, $unmasked_text);
+
+      // Mask each HTML-tag one by one.
+      $text = str_replace($unmasked_text, $masked_text, $text);
+    }
+  }
+
+  return $text;
+}
+
+/**
+ * Returns the text with unmasked tags.
+ *
+ * @param string $text
+ *   The masked text to be unmasked.
+ *
+ * @return string
+ *   The unmasked text.
+ */
+function tmgmt_ckeditor_html_unmask($text) {
+  // Get every tags matches.
   if (preg_match_all('/<((\/?[a-z-]+).*?)\s?\/?>/', $text, $matches)) {
 
     // Go through each TMGMT-tag match found.
     for ($i = 0, $max = count($matches[0]); $i < $max; $i++) {
+      // Skip all non tmgmt-tag tags.
       if (!(substr($matches[2][$i], 0, 9) === 'tmgmt-tag' || substr($matches[2][$i], 0, 10) === '/tmgmt-tag')) {
         continue;
       }
@@ -91,12 +124,13 @@ function tmgmt_ckeditor_tmgmt_data_item_text_input_alter(&$text, $data_item, Job
       // Unmask any TMGMT-tag.
       $masked_text = $matches[0][$i];
       // Get the raw property.
-      if (preg_match_all('/<\/?[^\&]+(.*?)\"\s?\/?>/', $masked_text, $raw)) {
-        $masked_text = str_replace($matches[0][$i], htmlspecialchars_decode($raw[1][0]), $masked_text);
-      }
+      preg_match_all('/<\/?[^\&]+(.*?)\"\s?\/?>/', $masked_text, $raw);
+      $unmasked_text = str_replace($matches[0][$i], htmlspecialchars_decode($raw[1][0]), $masked_text);
 
       // Unmask each TMGMT-tag one by one.
-      $text = str_replace($matches[0][$i], $masked_text, $text);
+      $text = str_replace($masked_text, $unmasked_text, $text);
     }
   }
+
+  return $text;
 }
