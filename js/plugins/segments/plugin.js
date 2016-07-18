@@ -291,7 +291,7 @@
     };
     xmlhttp.open('GET', drupalSettings.path.baseUrl +
       'tmgmt_ckeditor/get.json?segmentStrippedText=' + selectedContent['segmentStrippedText'] +
-      '&segmentHtmlText=' + selectedContent['segmentHtmlText'] +
+      '&segmentHtmlText=' + encodeURIComponent(selectedContent['segmentHtmlText']) +
       '&lang_source=' + selectedContent['sourceLanguage'] +
       '&lang_target=' + selectedContent['targetLanguage'], true);
     xmlhttp.send();
@@ -318,7 +318,7 @@
       if (clickedSegment.getName() === tmgmtTagInsideSegments) {
         activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
         activeSegmentData['segmentStrippedText'] = clickedSegment.getParent().getText();
-        activeSegmentData['segmentHtmlText'] = clickedSegment.getParent().getHtml();
+        // activeSegmentData['segmentHtmlText'] = clickedSegment.getParent().getHtml();
 
         // Regex to get the text inside masked tag pairs.
         var regexForTagPairs = new RegExp('<tmgmt-tag element=\"[a-z]+\".*>(.*)<tmgmt-tag element=\"\/[a-z]+\".*>', 'g');
@@ -332,9 +332,16 @@
       else {
         activeSegmentData['segmentId'] = clickedSegment.getAttribute('id');
         activeSegmentData['segmentStrippedText'] = clickedSegment.getText();
-        activeSegmentData['segmentHtmlText'] = clickedSegment.getHtml();
+        // activeSegmentData['segmentHtmlText'] = clickedSegment.getHtml();
         activeSegmentData['tagsStrippedText'] = null;
       }
+
+      var editorData = CKEDITOR.currentInstance.getData();
+      var clickedSegmentId = activeSegmentData['segmentId'];
+      var regexForSegmentHtmlText = new RegExp('<tmgmt-segment.*? id=\"' + clickedSegmentId + '\">(.*?)<\/tmgmt-segment>');
+      // regexForSegmentHtmlText.lastIndex = 0; // Reset the last index of regex (null issue).
+      activeSegmentData['segmentHtmlText'] = regexForSegmentHtmlText.exec(editorData)[1];
+
       activeSegmentData['word'] = clickedSegment.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
       activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
@@ -406,7 +413,7 @@
   // Makes a dummy suggestion for the selected segment translation.
   function suggestTranslation(jsonData, index, selectedSegment, targetDiv) {
     var wrapperClass = 'tmgmt-suggested-translation-div-editor-' + editorPairs[activeEditorId].id + '-index-' + index;
-    createNewParagraph(wrapperClass, 'Suggested translation', jsonData.trSegmentHtmlText, targetDiv, 'suggested-translation-text');
+    createNewParagraph(wrapperClass, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
 
     var wrapper = document.getElementsByClassName(wrapperClass);
     var btn = document.createElement('button');
