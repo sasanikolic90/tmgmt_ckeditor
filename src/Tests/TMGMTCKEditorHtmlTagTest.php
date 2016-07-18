@@ -63,14 +63,14 @@ class TMGMTCKEditorHtmlTagTest extends EntityTestBase {
     // Node text values.
     $title = 'Segments test';
 
-    $masked_body = '<tmgmt-segment id="1">This is the first segment.</tmgmt-segment><tmgmt-tag element="br /" raw="&lt;br /&gt;" />';
-    $masked_body .= '<tmgmt-segment id="2">This is the second segment.</tmgmt-segment><tmgmt-tag element="br /" raw="&lt;br /&gt;" />';
-    $masked_body .= '<tmgmt-segment id="3">This is the third segment. <tmgmt-tag element="b" raw="&lt;b&gt;">This is a testing text inside a tag. The tag is properly closed.<tmgmt-tag element="/b" raw="&lt;/b&gt;"></tmgmt-segment><tmgmt-tag element="br /" raw="&lt;br /&gt;" />';
-    $masked_body .= '<tmgmt-segment id="4">This is the fourth segment. <tmgmt-tag element="b" raw="&lt;b&gt;">This is a testing text inside a tag. The tag is not properly closed.</tmgmt-segment><tmgmt-tag element="br /" raw="&lt;br /&gt;" />';
+    $masked_body = '<tmgmt-segment id="1">This is the first segment.</tmgmt-segment><tmgmt-tag element="br" raw="&lt;br /&gt;" />';
+    $masked_body .= '<tmgmt-segment id="2">This is the second segment with single closing tags. <tmgmt-tag element="br" raw="&lt;br /&gt;" /> <tmgmt-tag element="hr" raw="&lt;hr /&gt;" /></tmgmt-segment><tmgmt-tag element="br" raw="&lt;br /&gt;" />';
+    $masked_body .= '<tmgmt-segment id="3">This is the third segment. <tmgmt-tag element="b" raw="&lt;b&gt;">This is a testing text inside a tag. The tag is properly closed.<tmgmt-tag element="/b" raw="&lt;/b&gt;"></tmgmt-segment><tmgmt-tag element="br" raw="&lt;br /&gt;" />';
+    $masked_body .= '<tmgmt-segment id="4">This is the fourth segment. <tmgmt-tag element="b" raw="&lt;b&gt;">This is a testing text inside a tag. The tag is not properly closed.</tmgmt-segment><tmgmt-tag element="br" raw="&lt;br /&gt;" />';
     $masked_body .= '<tmgmt-segment id="5">This is the fifth segment. <tmgmt-tag element="img" raw="&lt;img src=&quot;path&quot; alt=&quot;test&quot; title=&quot;This is a testing text inside an image tag with attributes&quot; /&gt;" /></tmgmt-segment>';
 
     $unmasked_body = '<tmgmt-segment id="1">This is the first segment.</tmgmt-segment><br />';
-    $unmasked_body .= '<tmgmt-segment id="2">This is the second segment.</tmgmt-segment><br />';
+    $unmasked_body .= '<tmgmt-segment id="2">This is the second segment with single closing tags. <br /> <hr /></tmgmt-segment><br />';
     $unmasked_body .= '<tmgmt-segment id="3">This is the third segment. <b>This is a testing text inside a tag. The tag is properly closed.</b></tmgmt-segment><br />';
     $unmasked_body .= '<tmgmt-segment id="4">This is the fourth segment. <b>This is a testing text inside a tag. The tag is not properly closed.</tmgmt-segment><br />';
     $unmasked_body .= '<tmgmt-segment id="5">This is the fifth segment. <img src="path" alt="test" title="This is a testing text inside an image tag with attributes" /></tmgmt-segment>';
