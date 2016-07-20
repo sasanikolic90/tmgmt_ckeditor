@@ -53,12 +53,16 @@
 
         // Display the segments' content below the translate editor if the
         // plugin is enabled.
-        if (this.state === 1) {
+        if (showSegments) {
           // Set the active editor name.
           editorPairs[activeEditorId].activeEditorName = editor.name;
 
           // Set the flag for the keystrokes listeners to enabled.
           enableListener = true;
+          clearTimeout(editorTimer);
+
+          // Check for tag validation.
+          EditorPair.prototype.tagValidation();
 
           // This check is because when clicking "Use suggestion", the editors
           // refresh, but the status is still active and it adds a new div.
@@ -229,7 +233,7 @@
         }
         editorTimer = setTimeout(function () {
           refreshActiveContent();
-        }, 1000);
+        }, 3000);
       });
 
       function onFocusBlur() {
@@ -250,6 +254,28 @@
     this.activeTag = activeTag;
     this.completedCounter = counter;
   }
+
+  // Get the difference in the number of tags.
+  EditorPair.prototype.tagValidation = function () {
+    // alert('called tagValidation!');
+    var segmentsLeft = editorPairs[activeEditorId].leftEditor.document.$.getElementsByTagName(tmgmtSegmentsTag);
+    var segmentsRight = editorPairs[activeEditorId].rightEditor.document.$.getElementsByTagName(tmgmtSegmentsTag);
+    var numberOfTagsPerSegmentLeft;
+    var numberOfTagsPerSegmentRight;
+    // var segmentsId;
+
+    if (segmentsLeft.length === segmentsRight.length) {
+      for (var i = 0; i < segmentsLeft.length; i++) {
+        numberOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments).length;
+        numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments).length;
+        if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
+          // Do we want to display the segments id here or the index?
+          // segmentsId = segmentsLeft[i].id;
+          createNewParagraph('tmgmt-segment-validation-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+        }
+      }
+    }
+  };
 
   // Things to do after the content is selected.
   function refreshActiveContent() {
@@ -291,7 +317,7 @@
     };
     xmlhttp.open('GET', drupalSettings.path.baseUrl +
       'tmgmt_ckeditor/get.json?segmentStrippedText=' + selectedContent['segmentStrippedText'] +
-      '&segmentHtmlText=' + selectedContent['segmentHtmlText'] +
+      '&segmentHtmlText=' + encodeURIComponent(selectedContent['segmentHtmlText']) +
       '&lang_source=' + selectedContent['sourceLanguage'] +
       '&lang_target=' + selectedContent['targetLanguage'], true);
     xmlhttp.send();
@@ -318,7 +344,7 @@
       if (clickedSegment.getName() === tmgmtTagInsideSegments) {
         activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
         activeSegmentData['segmentStrippedText'] = clickedSegment.getParent().getText();
-        activeSegmentData['segmentHtmlText'] = clickedSegment.getParent().getHtml();
+        // activeSegmentData['segmentHtmlText'] = clickedSegment.getParent().getHtml();
 
         // Regex to get the text inside masked tag pairs.
         var regexForTagPairs = new RegExp('<tmgmt-tag element=\"[a-z]+\".*>(.*)<tmgmt-tag element=\"\/[a-z]+\".*>', 'g');
@@ -332,9 +358,16 @@
       else {
         activeSegmentData['segmentId'] = clickedSegment.getAttribute('id');
         activeSegmentData['segmentStrippedText'] = clickedSegment.getText();
-        activeSegmentData['segmentHtmlText'] = clickedSegment.getHtml();
+        // activeSegmentData['segmentHtmlText'] = clickedSegment.getHtml();
         activeSegmentData['tagsStrippedText'] = null;
       }
+
+      var editorData = CKEDITOR.currentInstance.getData();
+      var clickedSegmentId = activeSegmentData['segmentId'];
+      var regexForSegmentHtmlText = new RegExp('<tmgmt-segment.*? id=\"' + clickedSegmentId + '\">(.*?)<\/tmgmt-segment>');
+      // regexForSegmentHtmlText.lastIndex = 0; // Reset the last index of regex (null issue).
+      activeSegmentData['segmentHtmlText'] = regexForSegmentHtmlText.exec(editorData)[1];
+
       activeSegmentData['word'] = clickedSegment.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
       activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
@@ -406,7 +439,7 @@
   // Makes a dummy suggestion for the selected segment translation.
   function suggestTranslation(jsonData, index, selectedSegment, targetDiv) {
     var wrapperClass = 'tmgmt-suggested-translation-div-editor-' + editorPairs[activeEditorId].id + '-index-' + index;
-    createNewParagraph(wrapperClass, 'Suggested translation', jsonData.trSegmentHtmlText, targetDiv, 'suggested-translation-text');
+    createNewParagraph(wrapperClass, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
 
     var wrapper = document.getElementsByClassName(wrapperClass);
     var btn = document.createElement('button');
@@ -428,11 +461,13 @@
     var editor = CKEDITOR.currentInstance;
     var editorData = editor.getData();
     var replaced_text = editorData.replace(selectedSegment, jsonData.trSegmentHtmlText);
-    editor.setData(replaced_text);
-    var sourceSegment = editor.document.$.getElementById(jsonData.sourceSegmentId);
-    sourceSegment.setAttribute(attrSource, 'memory');
-    sourceSegment.setAttribute(attrQuality, jsonData.quality);
-    enableListener = false;
+
+    var suggestionFallback = function () {
+      var sourceSegment = editor.document.getById(jsonData.sourceSegmentId);
+      sourceSegment.setAttribute(attrSource, 'memory');
+      sourceSegment.setAttribute(attrQuality, jsonData.quality);
+    };
+    editor.setData(replaced_text, suggestionFallback);
   }
 
   // Resets the active segments in the editor, so that there is only 1 active.

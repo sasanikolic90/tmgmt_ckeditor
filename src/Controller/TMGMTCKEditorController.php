@@ -24,6 +24,7 @@ class TMGMTCKEditorController extends ControllerBase {
   public function get(Request $request) {
     $strippedContent = $request->query->get('segmentStrippedText');
     $fullContent = $request->query->get('segmentHtmlText');
+    $unmasked_html = tmgmt_ckeditor_html_unmask($fullContent);
     $sourceLanguage = $request->query->get('lang_source');
     $targetLanguage = $request->query->get('lang_target');
     $json_segment = array();
@@ -32,11 +33,12 @@ class TMGMTCKEditorController extends ControllerBase {
        * @var \Drupal\tmgmt_memory\MemoryManager $memory_manager
        */
       $memory_manager = \Drupal::service('tmgmt_memory.memory_manager');
-      $translated_segments = $memory_manager->getUsageTranslations($sourceLanguage, $fullContent, $targetLanguage);
+      $translated_segments = $memory_manager->getUsageTranslations($sourceLanguage, $unmasked_html, $targetLanguage);
       if ($translated_segments) {
         foreach($translated_segments as $key => $segment) {
           $json_segment[]  = array(
-            "trSegmentHtmlText" => $segment->getTarget()->getData(),
+            "trSegmentHtmlText" => tmgmt_ckeditor_html_mask($segment->getTarget()->getData()),
+            "trSegmentStrippedText" => strip_tags($segment->getTarget()->getData()),
             'quality' => $segment->getQuality(),
             'sourceSegmentId' => $segment->getSource()->getSegmentDelta(),
             'targetSegmentId' => $segment->getTarget()->getSegmentDelta(),
