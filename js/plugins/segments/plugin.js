@@ -60,6 +60,9 @@
           // Set the flag for the keystrokes listeners to enabled.
           enableListener = true;
 
+          // Check for tag validation.
+          EditorPair.prototype.tagValidation();
+
           // This check is because when clicking "Use suggestion", the editors
           // refresh, but the status is still active and it adds a new div.
           editorPairs[activeEditorId].areaBelow = document.getElementsByClassName('tmgmt-segments')[editorPairs[activeEditorId].id];
@@ -250,6 +253,28 @@
     this.activeTag = activeTag;
     this.completedCounter = counter;
   }
+
+  // Get the difference in the number of tags.
+  EditorPair.prototype.tagValidation = function () {
+    // alert('called tagValidation!');
+    var segmentsLeft = editorPairs[activeEditorId].leftEditor.document.$.getElementsByTagName(tmgmtSegmentsTag);
+    var segmentsRight = editorPairs[activeEditorId].rightEditor.document.$.getElementsByTagName(tmgmtSegmentsTag);
+    var numberOfTagsPerSegmentLeft;
+    var numberOfTagsPerSegmentRight;
+    // var segmentsId;
+
+    if (segmentsLeft.length === segmentsRight.length) {
+      for (var i = 0; i < segmentsLeft.length; i++) {
+        numberOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments).length;
+        numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments).length;
+        if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
+          // Do we want to display the segments id here or the index?
+          // segmentsId = segmentsLeft[i].id;
+          createNewParagraph('tmgmt-segment-validation-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+        }
+      }
+    }
+  };
 
   // Things to do after the content is selected.
   function refreshActiveContent() {

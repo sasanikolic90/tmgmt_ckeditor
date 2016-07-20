@@ -49,7 +49,9 @@ function tmgmt_ckeditor_install() {
   $first_segment_translation_1 = 'This is the first translated segment 1.';
   $first_segment_translation_2 = 'This is the first translated segment 2.';
   $first_segment_translation_3 = 'This is the first translated segment 3.';
-  $second_segment_translation = 'This is the second translated segment with single closing tags. <br /> <hr />';
+  // This translation is without <br> and <hr> tags, to test the counter of
+  // missing tags.
+  $second_segment_translation = 'This is the second translated segment with single closing tags.';
   $third_segment_translation = 'This is the third translated segment. <b>This is a translated text inside a tag. The tag is properly closed.</b>';
   $fourth_segment_translation = 'This is the fourth translated segment. <b>This is a translated text inside a tag. The tag is not properly closed.';
   $fifth_segment_translation = 'This is the fifth translated segment. <img src="path" alt="test" title="This is a translated text inside an image tag with attributes" />';
