@@ -53,12 +53,13 @@
 
         // Display the segments' content below the translate editor if the
         // plugin is enabled.
-        if (this.state === 1) {
+        if (showSegments) {
           // Set the active editor name.
           editorPairs[activeEditorId].activeEditorName = editor.name;
 
           // Set the flag for the keystrokes listeners to enabled.
           enableListener = true;
+          clearTimeout(editorTimer);
 
           // Check for tag validation.
           EditorPair.prototype.tagValidation();
@@ -232,7 +233,7 @@
         }
         editorTimer = setTimeout(function () {
           refreshActiveContent();
-        }, 1000);
+        }, 3000);
       });
 
       function onFocusBlur() {
@@ -460,11 +461,13 @@
     var editor = CKEDITOR.currentInstance;
     var editorData = editor.getData();
     var replaced_text = editorData.replace(selectedSegment, jsonData.trSegmentHtmlText);
-    editor.setData(replaced_text);
-    var sourceSegment = editor.document.$.getElementById(jsonData.sourceSegmentId);
-    sourceSegment.setAttribute(attrSource, 'memory');
-    sourceSegment.setAttribute(attrQuality, jsonData.quality);
-    enableListener = false;
+
+    var suggestionFallback = function () {
+      var sourceSegment = editor.document.getById(jsonData.sourceSegmentId);
+      sourceSegment.setAttribute(attrSource, 'memory');
+      sourceSegment.setAttribute(attrQuality, jsonData.quality);
+    };
+    editor.setData(replaced_text, suggestionFallback);
   }
 
   // Resets the active segments in the editor, so that there is only 1 active.
