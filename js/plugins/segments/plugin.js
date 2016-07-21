@@ -59,14 +59,10 @@
 
           // Set the flag for the keystrokes listeners to enabled.
           enableListener = true;
-          clearTimeout(editorTimer);
-
-          // Check for tag validation.
-          EditorPair.prototype.tagValidation();
 
           // This check is because when clicking "Use suggestion", the editors
           // refresh, but the status is still active and it adds a new div.
-          editorPairs[activeEditorId].areaBelow = document.getElementsByClassName('tmgmt-segments')[editorPairs[activeEditorId].id];
+          // editorPairs[activeEditorId].areaBelow = document.getElementsByClassName('tmgmt-segments')[editorPairs[activeEditorId].id];
           if (editorPairs[activeEditorId].areaBelow.innerHTML === '') {
             if (editor.addMenuItem) {
               // A group menu is required.
@@ -80,6 +76,9 @@
                 group: 'setStatusGroup'
               });
             }
+
+            // Check for tag validation.
+            EditorPair.prototype.tagValidation();
           }
 
           var editable = editor.editable();
@@ -184,17 +183,18 @@
         // Get the editor id.
         var editorMatchId = editor.name.match(/\d+/);
         var editorId = parseInt(editorMatchId[0], 10);
+        var sourceEditor = getRelatedEditor(editor);
 
         // When the data is loaded and the translation editor is empty, populate
         // the content with the corresponding source content.
-        if (translationNameMatch != null && !editor.getData()) {
-          var sourceEditor = getRelatedEditor(editor);
-          editor.setData(sourceEditor.getData());
-
-          wrappers[editorId].setAttribute('data-tmgmt-segments-info-area', editorId);
+        if (translationNameMatch != null) {
           var segmentsDiv = document.createElement('div');
-          segmentsDiv.className = 'tmgmt-segments';
+          segmentsDiv.className = 'tmgmt-segments segment-pair-' + editorId;
           wrappers[editorId].appendChild(segmentsDiv);
+          if (!editor.getData()) {
+            editor.setData(sourceEditor.getData());
+            wrappers[editorId].setAttribute('data-tmgmt-segments-info-area', editorId);
+          }
 
           // Create an array of editor pairs.
           editorPairs[editorId] = new EditorPair(editorId, sourceEditor, editor, segmentsDiv, null, null, null, null, null);
@@ -233,7 +233,7 @@
         }
         editorTimer = setTimeout(function () {
           refreshActiveContent();
-        }, 3000);
+        }, 1000);
       });
 
       function onFocusBlur() {
