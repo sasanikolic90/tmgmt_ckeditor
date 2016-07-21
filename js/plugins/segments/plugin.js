@@ -257,21 +257,39 @@
 
   // Get the difference in the number of tags.
   EditorPair.prototype.tagValidation = function () {
-    // alert('called tagValidation!');
     var segmentsLeft = editorPairs[activeEditorId].leftEditor.document.$.getElementsByTagName(tmgmtSegmentsTag);
     var segmentsRight = editorPairs[activeEditorId].rightEditor.document.$.getElementsByTagName(tmgmtSegmentsTag);
     var numberOfTagsPerSegmentLeft;
     var numberOfTagsPerSegmentRight;
+    var arrayOfTagsPerSegmentLeft = [];
+    var arrayOfTagsPerSegmentRight = [];
+    var differences = [];
+    var differentTags = [];
     // var segmentsId;
 
     if (segmentsLeft.length === segmentsRight.length) {
       for (var i = 0; i < segmentsLeft.length; i++) {
         numberOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments).length;
         numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments).length;
+
         if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
+          arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
+          arrayOfTagsPerSegmentRight = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
+
+          differences = _.difference(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
+          for (var j = 0; j < differences.length; j++) {
+            differentTags.push(differences[j].getAttribute('element'));
+          }
+
           // Do we want to display the segments id here or the index?
           // segmentsId = segmentsLeft[i].id;
-          createNewParagraph('tmgmt-segment-validation-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+          createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-counter');
+          if (differences.length === 1) {
+            createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+          }
+          else {
+            createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+          }
         }
       }
     }
@@ -395,6 +413,7 @@
       editorPairs[activeEditorId].areaBelow.innerHTML = '';
     }
 
+    EditorPair.prototype.tagValidation();
     setCounterCompletedSegments();
     createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].areaBelow, 'active-segment');
     createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].areaBelow, 'active-word');
