@@ -107,6 +107,7 @@
     lang: 'en',
     icons: 'showsegments',
     hidpi: true,
+
     onLoad: function () {
       var cssStd, cssImgLeft, cssImgRight;
 
