@@ -43,15 +43,17 @@
 
     // The plugin initialization logic goes inside this method.
     beforeInit: function (editor) {
-      // Configure CKEditor DTD for custom drupal-entity element.
+      // Configure CKEditor DTD for custom element.
       // @see https://www.drupal.org/node/2448449#comment-9717735
       var dtd = CKEDITOR.dtd, tagName;
       dtd['tmgmt-segment'] = {'#': 1};
       dtd['tmgmt-segment']['tmgmt-tag'] = 1;
       dtd['tmgmt-tag'] = {'#': 1};
       dtd.$empty['tmgmt-tag'] = 1;
-      // Register drupal-entity element as allowed child, in each tag that can
-      // contain a div element.
+      // dtd.$editable['tmgmt-segment'] = 1;
+      // dtd.$inline['tmgmt-tag'] = 1;
+      // Register tmgmt-segment and tmgmt-tag element as allowed child, in each
+      // tag that can contain a div element.
       for (tagName in dtd) {
         if (dtd[tagName].div) {
           dtd[tagName]['tmgmt-segment'] = 1;
@@ -59,11 +61,12 @@
         }
       }
 
-      // Register the URL embed widget.
+      // Register the tags widget.
       editor.widgets.add('tmgmt_tags', {
         // Minimum HTML which is required by this widget to work.
         allowedContent: 'tmgmt-tag[element,raw]',
         requiredContent: 'tmgmt-tag[element,raw]',
+        // inline: true,
 
         // Simply recognize the element as our own. The inner markup if fetched
         // and inserted the init() callback, since it requires the actual DOM

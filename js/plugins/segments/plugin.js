@@ -233,6 +233,8 @@
           clearTimeout(editorTimer);
         }
         editorTimer = setTimeout(function () {
+          // Check for tag validation.
+          EditorPair.prototype.tagValidation();
           refreshActiveContent();
         }, 1000);
       });
