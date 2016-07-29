@@ -7,6 +7,11 @@ One would convert text parts into segments to easily segment the content into sm
 
 The second plugin is to mask HTML tags inside segments. This would help is to understand the structure better and cleanly show which opening/closing tags are missing inside a segment.
 
+This module currently depends on three other modules. Before installing, make sure you have these modules downloaded:
+- Translation Management Tool
+- Paragraphs
+- Translation Memory (found here: https://www.drupal.org/sandbox/edurenye/2715815)
+
 To enable the display segments, do the following:
 - Enable tmgmt_ckeditor module (this enables tmgmt_demo and paragraphs_demo for testing)
 - It automatically adds a new HTML format
