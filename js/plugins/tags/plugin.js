@@ -52,25 +52,32 @@
       dtd.$empty['tmgmt-tag'] = 1;
       // dtd.$editable['tmgmt-segment'] = 1;
       dtd.$inline['tmgmt-tag'] = 1;
+      dtd.$editable['tmgmt-segment'] = 1;
+      dtd.$editable['tmgmt-tag'] = 1;
       // Register tmgmt-segment and tmgmt-tag element as allowed child, in each
       // tag that can contain a div element.
       for (tagName in dtd) {
         if (dtd[tagName].div) {
           dtd[tagName]['tmgmt-segment'] = 1;
+          // dtd[tagName]['tmgmt-tag'] = 1;
+        }
+        if (dtd[tagName].img) {
           dtd[tagName]['tmgmt-tag'] = 1;
         }
       }
 
-      // Register the tags widget.
+      // Register the segments widget.
       editor.widgets.add('tmgmt_segments', {
         // Minimum HTML which is required by this widget to work.
-        allowedContent: 'tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality] tmgmt-tag[element,raw]',
-        requiredContent: 'tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality]',
+        // allowedContent: 'tmgmt-tag[element,raw]',
         draggable: false,
-        
-        // Simply recognize the element as our own. The inner markup if fetched
-        // and inserted the init() callback, since it requires the actual DOM
-        // element.
+
+        editables: {
+          content: {
+            selector: 'tmgmt-segments.content'
+          }
+        },
+
         upcast: function (element) {
           return element.name === 'tmgmt-segment';
         }
@@ -79,13 +86,15 @@
       // Register the tags widget.
       editor.widgets.add('tmgmt_tags', {
         // Minimum HTML which is required by this widget to work.
-        allowedContent: 'tmgmt-tag[element,raw]',
-        requiredContent: 'tmgmt-tag[element,raw]',
+        // allowedContent: '',
         inline: true,
 
-        // Simply recognize the element as our own. The inner markup if fetched
-        // and inserted the init() callback, since it requires the actual DOM
-        // element.
+        editables: {
+          content: {
+            selector: 'tmgmt-tag'
+          }
+        },
+
         upcast: function (element) {
           return element.name === 'tmgmt-tag';
         }
