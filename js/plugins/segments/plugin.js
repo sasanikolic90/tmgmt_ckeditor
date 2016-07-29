@@ -232,6 +232,8 @@
           clearTimeout(editorTimer);
         }
         editorTimer = setTimeout(function () {
+          // Check for tag validation.
+          EditorPair.prototype.tagValidation();
           refreshActiveContent();
         }, 1000);
       });
@@ -273,22 +275,27 @@
         numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments).length;
 
         if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
-          arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
-          arrayOfTagsPerSegmentRight = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
 
-          differences = _.difference(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
-          for (var j = 0; j < differences.length; j++) {
-            differentTags.push(differences[j].getAttribute('element'));
-          }
-
-          // Do we want to display the segments id here or the index?
-          // segmentsId = segmentsLeft[i].id;
-          createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-counter');
-          if (differences.length === 1) {
-            createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+          if (!editorPairs[activeEditorId].activeSegmentId) {
+            createNewParagraph('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-global-counter');
           }
           else {
-            createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+            arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
+            arrayOfTagsPerSegmentRight = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
+
+            differences = _.difference(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
+            for (var j = 0; j < differences.length; j++) {
+              differentTags.push(differences[j].getAttribute('element'));
+            }
+            // Do we want to display the segments id here or the index?
+            // segmentsId = segmentsLeft[i].id;
+            createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-counter');
+            if (differences.length === 1) {
+              createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+            }
+            else {
+              createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+            }
           }
         }
       }
@@ -401,7 +408,12 @@
       // Return the word without extra characters.
       return activeSegmentData;
     }
-    // Selection starts at the 0 index of the text node and/or there's no previous text node in contents.
+    // If we clicked outside of the segment, we reset the active segments and tags.
+    editorPairs[activeEditorId].activeSegmentId = null;
+    editorPairs[activeEditorId].activeWord = null;
+    editorPairs[activeEditorId].activeSegmentStrippedText = null;
+    editorPairs[activeEditorId].activeSegmentHtmlText = null;
+    editorPairs[activeEditorId].activeTag = null;
     return null;
   }
 

@@ -23,6 +23,6 @@
   margin: 1em 0 0 0;
 }
 
-.tmgmt-segment-validation-counter-div, .tmgmt-segment-validation-tags-div {
+.tmgmt-segment-validation-global-counter-div, .tmgmt-segment-validation-counter-div, .tmgmt-segment-validation-tags-div {
   color: #cc0000;
 }
