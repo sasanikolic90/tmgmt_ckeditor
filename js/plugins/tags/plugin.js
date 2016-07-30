@@ -111,6 +111,15 @@
         }
       });
 
+      // Refresh the editor when the plugin is enabled.
+      // This is mainly because after toggling Source in the editor the segments
+      // are not displayed.
+      editor.on('mode', function () {
+        if (command.state === CKEDITOR.TRISTATE_ON) {
+          command.refresh(editor);
+        }
+      });
+
       // Refresh the command on setData.
       editor.on('instanceReady', function () {
         CKEDITOR.dtd.$empty['tmgmt-tag'] = 1;
