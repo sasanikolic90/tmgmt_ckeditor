@@ -214,12 +214,14 @@
         }
       });
 
-      /*// Refresh the editor when the plugin is enabled.
+      // Refresh the editor when the plugin is enabled.
+      // This is mainly because after toggling Source in the editor the segments
+      // are not displayed.
       editor.on('mode', function () {
-        if (command.state !== CKEDITOR.TRISTATE_DISABLED) {
+        if (command.state === CKEDITOR.TRISTATE_ON) {
           command.refresh(editor);
         }
-      });*/
+      });
 
       // Set the source data attribute to user if the user changes it manually.
       editor.on('change', function (evt) {
@@ -232,9 +234,9 @@
           clearTimeout(editorTimer);
         }
         editorTimer = setTimeout(function () {
+          refreshActiveContent();
           // Check for tag validation.
           EditorPair.prototype.tagValidation();
-          refreshActiveContent();
         }, 1000);
       });
 
