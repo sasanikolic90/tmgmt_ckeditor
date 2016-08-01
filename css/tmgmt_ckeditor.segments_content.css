@@ -23,7 +23,9 @@
   margin: 1em 0 0 0;
 }
 
-.tmgmt-segment-validation-global-counter-div, .tmgmt-segment-validation-counter-div, .tmgmt-segment-validation-tags-div {
+.tmgmt-segment-validation-global-counter-div .segment-validation-missing-tags-global-counter,
+.tmgmt-segment-validation-counter-div .segment-validation-missing-tags-counter,
+.tmgmt-segment-validation-tags-div .segment-validation-missing-tags {
   color: #cc0000;
 }
 
