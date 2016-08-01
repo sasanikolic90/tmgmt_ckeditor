@@ -295,18 +295,18 @@
 
           sidebar.style.backgroundColor = '#fcf4f2';
           sidebar.style.borderColor = '#f9c9bf';
+          if (document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0]) {
+            document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0].remove();
+            document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0].remove();
+          }
+          if (document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
+            document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
+          }
 
           if (!editorPairs[activeEditorId].activeSegmentId) {
             createNewParagraph('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, sidebar, 'segment-validation-missing-tags-global-counter');
-            if (document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0]) {
-              document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0].remove();
-              document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0].remove();
-            }
           }
           else {
-            if (document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
-              document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
-            }
             arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
             arrayOfTagsPerSegmentRight = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
 
