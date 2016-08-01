@@ -76,9 +76,6 @@
                 group: 'setStatusGroup'
               });
             }
-
-            // Check for tag validation.
-            EditorPair.prototype.tagValidation();
           }
 
           var editable = editor.editable();
@@ -91,6 +88,20 @@
             // Set the editorPairs[activeEditorId].id to the newly clicked editor's id.
             refreshActiveContent();
           });
+
+          if (document.getElementById('sidebar')) {
+            document.getElementById('sidebar').style.display = 'block';
+          }
+          else {
+            var stickyDiv = document.createElement('div');
+            stickyDiv.id = 'sidebar';
+            document.getElementsByClassName('region-content')[0].appendChild(stickyDiv);
+          }
+
+          // Set the counter in the sidebar.
+          setCounterCompletedSegments();
+          // Check for tag validation.
+          EditorPair.prototype.tagValidation();
         }
         // Remove the segments display area below the editor when we disable
         // the plugin.
@@ -98,6 +109,9 @@
           editorPairs[activeEditorId].areaBelow.innerHTML = '';
           // Remove the context menu item.
           editor.removeMenuItem('setStatusItem');
+          if (document.getElementById('sidebar')) {
+            document.getElementById('sidebar').style.display = 'none';
+          }
         }
       }
     }
@@ -270,6 +284,7 @@
     var differences = [];
     var differentTags = [];
     // var segmentsId;
+    var sidebar = document.getElementById('sidebar');
 
     if (segmentsLeft.length === segmentsRight.length) {
       for (var i = 0; i < segmentsLeft.length; i++) {
@@ -278,10 +293,18 @@
 
         if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
 
+          sidebar.style.backgroundColor = '#fcf4f2';
+          sidebar.style.borderColor = '#f9c9bf';
+
           if (!editorPairs[activeEditorId].activeSegmentId) {
-            createNewParagraph('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-global-counter');
+            createNewParagraph('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, sidebar, 'segment-validation-missing-tags-global-counter');
+            if (document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0]) {
+              document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0].remove();
+              document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0].remove();
+            }
           }
           else {
+            document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
             arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
             arrayOfTagsPerSegmentRight = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
 
@@ -291,12 +314,12 @@
             }
             // Do we want to display the segments id here or the index?
             // segmentsId = segmentsLeft[i].id;
-            createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-counter');
+            createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, sidebar, 'segment-validation-missing-tags-counter');
             if (differences.length === 1) {
-              createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+              createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differentTags.toString(), sidebar, 'segment-validation-missing-tags');
             }
             else {
-              createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+              createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differentTags.toString(), sidebar, 'segment-validation-missing-tags');
             }
           }
         }
@@ -428,7 +451,6 @@
     }
 
     EditorPair.prototype.tagValidation();
-    setCounterCompletedSegments();
     createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].areaBelow, 'active-segment');
     createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].areaBelow, 'active-word');
     if (editorPairs[activeEditorId].activeTag) {
@@ -447,7 +469,7 @@
 
     if (!document.getElementsByClassName('segment-status-counter')[0]) {
       var segmentStatusCounter = count.toString() + '/' + countAll;
-      createNewParagraph('tmgmt-segment-counter-div','Number of completed segments', segmentStatusCounter, editorPairs[activeEditorId].areaBelow, 'segment-status-counter');
+      createNewParagraph('tmgmt-segment-counter-div','Completed segments', segmentStatusCounter, document.getElementById('sidebar'), 'segment-status-counter');
     }
     else {
       document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;

@@ -26,3 +26,16 @@
 .tmgmt-segment-validation-global-counter-div, .tmgmt-segment-validation-counter-div, .tmgmt-segment-validation-tags-div {
   color: #cc0000;
 }
+
+#sidebar {
+  background-color: #f3faef;
+  border: 1px solid #c9e1bd;
+  position: fixed;
+  top: 80px;
+  right: 30px;
+  width: 170px;
+  padding: 10px;
+  min-height: 150px;
+  z-index: 100;
+  margin-left: -75px; /* Negative half of width. */
+}
