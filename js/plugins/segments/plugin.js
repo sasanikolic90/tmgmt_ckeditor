@@ -304,7 +304,9 @@
             }
           }
           else {
-            document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
+            if (document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
+              document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
+            }
             arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
             arrayOfTagsPerSegmentRight = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
 
