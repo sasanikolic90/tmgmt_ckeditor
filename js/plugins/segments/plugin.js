@@ -377,9 +377,16 @@
         suggestedTranslations.className = 'suggested-translations';
         editorPairs[activeEditorId].areaBelow.appendChild(suggestedTranslations);
 
-        jsonData.forEach(function (object, index) {
-          suggestTranslation(object, index, selectedContent['segmentHtmlText'], suggestedTranslations);
-        });
+        var p1 = document.createElement('P');
+        p1.className = 'tmgmt-active-segment-wrapper';
+        p1.appendChild(document.createTextNode('Translations of '));
+        var span = document.createElement('span');
+        span.className = 'tmgmt-active-segment';
+        span.appendChild(document.createTextNode('"' + editorPairs[activeEditorId].activeSegmentStrippedText + '"'));
+        p1.appendChild(span);
+        suggestedTranslations.appendChild(p1);
+
+        createTable(jsonData);
       }
     };
     xmlhttp.open('GET', drupalSettings.path.baseUrl +
@@ -468,11 +475,11 @@
     }
 
     EditorPair.prototype.tagValidation();
-    createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].areaBelow, 'active-segment');
-    createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].areaBelow, 'active-word');
-    if (editorPairs[activeEditorId].activeTag) {
-      createNewParagraph('tmgmt-active-tag-div', 'Selected tag', editorPairs[activeEditorId].activeTag, editorPairs[activeEditorId].areaBelow, 'active-tag');
-    }
+    // createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].areaBelow, 'active-segment');
+    // createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].areaBelow, 'active-word');
+    //if (editorPairs[activeEditorId].activeTag) {
+    //  createNewParagraph('tmgmt-active-tag-div', 'Selected tag', editorPairs[activeEditorId].activeTag, editorPairs[activeEditorId].areaBelow, 'active-tag');
+    //}
 
     wrappers[editorPairs[activeEditorId].id].appendChild(editorPairs[activeEditorId].areaBelow);
   }
@@ -508,24 +515,73 @@
     targetDiv.appendChild(wrapper);
   }
 
-  // Makes a dummy suggestion for the selected segment translation.
-  function suggestTranslation(jsonData, index, selectedSegment, targetDiv) {
-    var wrapperClass = 'tmgmt-suggested-translation-div-editor-' + editorPairs[activeEditorId].id + '-index-' + index;
-    createNewParagraph(wrapperClass, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
+  // Creates a table in the area below the editor.
+  // @todo We have lots of hardcoded stuff for now. Needs work and discussion.
+  function createTable(jsonData) {
+    var table = document.createElement('table');
+    table.className = 'tmgmt-translation-suggestions';
+    var headings = ['Quality', 'Source', 'Translation', 'Use suggestion'];
 
-    var wrapper = document.getElementsByClassName(wrapperClass);
-    var btn = document.createElement('button');
-    var t = document.createTextNode('Use suggestion');
-    btn.appendChild(t);
-    btn.className = 'button';
-    btn.setAttribute('type', 'button');
-    btn.id = 'btn-use-suggestion-' + index;
-    wrapper[0].appendChild(btn);
+    var tr = document.createElement('tr');
+    for (var i = 0; i < headings.length; i++) {
+      var th = document.createElement('th');
+      th.appendChild(document.createTextNode(headings[i]));
+      tr.appendChild(th);
+    }
+    table.appendChild(tr);
 
-    btn.addEventListener('click', function () {
-      addSuggestion(jsonData, selectedSegment);
-      targetDiv.parentNode.removeChild(targetDiv);
+    jsonData.forEach(function (object, index) {
+      var tr = document.createElement('tr');
+      for (var i = 0; i < headings.length; i++) {
+        var td = document.createElement('td');
+        if (i == 0) {
+          // For the purpose of the mockup!
+          // @todo remove these checks and use real values from the memory
+          var qualityDiv = document.createElement('meter');
+          if (index == 0) {
+            qualityDiv.setAttribute('max', '1.0');
+            qualityDiv.setAttribute('min', '0.0');
+            qualityDiv.setAttribute('value', '1.0');
+            td.appendChild(qualityDiv);
+          }
+          else if (index == 1) {
+            qualityDiv.setAttribute('max', '1.0');
+            qualityDiv.setAttribute('min', '0.0');
+            qualityDiv.setAttribute('value', '0.5');
+            td.appendChild(qualityDiv);
+          }
+          else if (index == 2) {
+            qualityDiv.setAttribute('max', '1.0');
+            qualityDiv.setAttribute('min', '0.0');
+            qualityDiv.setAttribute('value', '0.1');
+            td.appendChild(qualityDiv);
+          }
+        }
+        else if (i == 1) {
+          td.appendChild(document.createTextNode('Human'));
+        }
+        else if (i == 2) {
+          td.appendChild(document.createTextNode(object.trSegmentStrippedText));
+        }
+        else {
+          var btn = document.createElement('button');
+          var t = document.createTextNode('Use suggestion');
+          btn.appendChild(t);
+          btn.className = 'button';
+          btn.setAttribute('type', 'button');
+          btn.id = 'btn-use-suggestion-' + index;
+
+          btn.addEventListener('click', function (evt) {
+            addSuggestion(jsonData[index], editorPairs[activeEditorId].activeSegmentHtmlText);
+            table.removeChild(tr);
+          });
+          td.appendChild(btn);
+        }
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
     });
+    editorPairs[activeEditorId].areaBelow.appendChild(table);
   }
 
   // Adds the suggestion in the translation editor.
