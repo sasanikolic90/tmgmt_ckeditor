@@ -6,18 +6,6 @@
   color: green;
 }
 
-.suggested-translations div {
-  overflow: hidden;
-}
-
-.suggested-translations div .tmgmt-segments-title {
-  clear: both;
-}
-
-.suggested-translations div .suggested-translation-text {
-  float: left;
-}
-
 .suggested-translations div button {
   float: right;
   margin: 1em 0 0 0;
@@ -40,4 +28,16 @@
   min-height: 150px;
   z-index: 100;
   margin-left: -75px; /* Negative half of width. */
+}
+
+.tmgmt-segments {
+  width: 60%;
+}
+
+.tmgmt-active-segment-wrapper {
+  color: #777;
+}
+
+.tmgmt-active-segment {
+  color: #222;
 }
