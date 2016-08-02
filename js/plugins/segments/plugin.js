@@ -269,6 +269,8 @@
     var arrayOfTagsPerSegmentRight = [];
     var differences = [];
     var differentTags = [];
+    var globalCounter = 0;
+    var segmentsWithMissingTags = [];
     // var segmentsId;
 
     if (segmentsLeft.length === segmentsRight.length) {
@@ -277,26 +279,39 @@
         numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments).length;
 
         if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
+          segmentsWithMissingTags.push(segmentsLeft[i].id);
 
-          if (!editorPairs[activeEditorId].activeSegmentId || (editorPairs[activeEditorId].activeSegmentId !== segmentsLeft[i].id)) {
-            createNewParagraph('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-global-counter');
-          }
-          else {
-            arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
-            arrayOfTagsPerSegmentRight = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
-
-            differences = _.difference(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
-            for (var j = 0; j < differences.length; j++) {
-              differentTags.push(differences[j].getAttribute('element'));
-            }
-            // Do we want to display the segments id here or the index?
-            // segmentsId = segmentsLeft[i].id;
-            createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-counter');
-            if (differences.length === 1) {
-              createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+          if (!editorPairs[activeEditorId].activeSegmentId || !_.contains(segmentsWithMissingTags, editorPairs[activeEditorId].activeSegmentId)) {
+            globalCounter += numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight;
+            if (!document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
+              createNewParagraph('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', globalCounter, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-global-counter');
             }
             else {
-              createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+              document.getElementsByClassName('segment-validation-missing-tags-global-counter')[0].innerHTML = globalCounter;
+            }
+          }
+          else {
+            if (editorPairs[activeEditorId].activeSegmentId === segmentsLeft[i].id) {
+              arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
+              arrayOfTagsPerSegmentRight = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
+
+              differences = _.difference(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
+              for (var j = 0; j < differences.length; j++) {
+                differentTags.push(differences[j].getAttribute('element'));
+              }
+              // Do we want to display the segments id here or the index?
+              // segmentsId = segmentsLeft[i].id;
+              createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-counter');
+              if (differences.length === 1) {
+                createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+              }
+              else {
+                createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+              }
+
+              if (document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
+                document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
+              }
             }
           }
         }
