@@ -278,7 +278,7 @@
 
         if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
 
-          if (!editorPairs[activeEditorId].activeSegmentId) {
+          if (!editorPairs[activeEditorId].activeSegmentId || (editorPairs[activeEditorId].activeSegmentId !== segmentsLeft[i].id)) {
             createNewParagraph('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-global-counter');
           }
           else {
