@@ -11,9 +11,13 @@
   margin: 1em 0 0 0;
 }
 
-.tmgmt-segment-validation-global-counter-div .segment-validation-missing-tags-global-counter,
-.tmgmt-segment-validation-counter-div .segment-validation-missing-tags-counter,
-.tmgmt-segment-validation-tags-div .segment-validation-missing-tags {
+.tmgmt-segment-validation-div p {
+  display: inline-block;
+  margin: 0;
+}
+
+.tmgmt-segment-validation-div span {
+  padding-left: 5px;
   color: #cc0000;
 }
 
@@ -23,11 +27,22 @@
   position: fixed;
   top: 80px;
   right: 30px;
-  width: 170px;
   padding: 10px;
-  min-height: 150px;
+  min-height: 130px;
   z-index: 100;
   margin-left: -75px; /* Negative half of width. */
+}
+
+.tmgmt-segment-counter-div {
+  text-align: center;
+}
+
+.tmgmt-segment-counter-div span {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .tmgmt-segments {

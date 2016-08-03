@@ -286,7 +286,6 @@
     var globalCounter = 0;
     var segmentsWithMissingTags = [];
     // var segmentsId;
-    var sidebar = document.getElementById('sidebar');
 
     if (segmentsLeft.length === segmentsRight.length) {
       for (var i = 0; i < segmentsLeft.length; i++) {
@@ -294,27 +293,29 @@
         numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments).length;
 
         if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
+          var validationWrapper = document.createElement('div');
+          validationWrapper.className = 'tmgmt-segment-validation-div messages messages--error';
+
           segmentsWithMissingTags.push(segmentsLeft[i].id);
 
-          sidebar.style.backgroundColor = '#fcf4f2';
-          sidebar.style.borderColor = '#f9c9bf';
-
           if (!editorPairs[activeEditorId].activeSegmentId || !_.contains(segmentsWithMissingTags, editorPairs[activeEditorId].activeSegmentId)) {
-            if (document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0]) {
-              document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0].remove();
-              document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0].remove();
-            }
-            if (document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
-              document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
-            }
+/*            if (document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0]) {
+             document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0].remove();
+             document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0].remove();
+             }
+             if (document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
+             document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
+             }*/
 
             globalCounter += numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight;
             if (!document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
-              createNewParagraph('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', globalCounter, sidebar, 'segment-validation-missing-tags-global-counter');
+              createNewParagraph('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', globalCounter, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-global-counter');
             }
             else {
               document.getElementsByClassName('segment-validation-missing-tags-global-counter')[0].innerHTML = globalCounter;
             }
+
+            validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]);
           }
           else {
             if (editorPairs[activeEditorId].activeSegmentId === segmentsLeft[i].id) {
@@ -327,19 +328,23 @@
               }
               // Do we want to display the segments id here or the index?
               // segmentsId = segmentsLeft[i].id;
-              createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, sidebar, 'segment-validation-missing-tags-counter');
+              createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-counter');
               if (differences.length === 1) {
-                createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differentTags.toString(), sidebar, 'segment-validation-missing-tags');
+                createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
               }
               else {
-                createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differentTags.toString(), sidebar, 'segment-validation-missing-tags');
+                createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
               }
 
-              if (document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
+/*              if (document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
                 document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
-              }
+              }*/
+
+              validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0]);
+              validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0]);
             }
           }
+          editorPairs[activeEditorId].areaBelow.appendChild(validationWrapper);
         }
       }
     }
@@ -505,14 +510,13 @@
   function createNewParagraph(parentDiv, title, text, targetDiv, paragraphClassName) {
     var wrapper = document.createElement('div');
     wrapper.className = parentDiv;
-    var p1 = document.createElement('P');
-    p1.className = 'tmgmt-segments-title';
-    p1.appendChild(document.createTextNode(title + ':'));
-    wrapper.appendChild(p1);
-    var p2 = document.createElement('P');
-    p2.className = paragraphClassName;
-    p2.appendChild(document.createTextNode(text));
-    wrapper.appendChild(p2);
+    var p = document.createElement('P');
+    p.appendChild(document.createTextNode(title + ':'));
+    wrapper.appendChild(p);
+    var span = document.createElement('span');
+    span.className = paragraphClassName;
+    span.appendChild(document.createTextNode(text));
+    wrapper.appendChild(span);
     targetDiv.appendChild(wrapper);
   }
 
