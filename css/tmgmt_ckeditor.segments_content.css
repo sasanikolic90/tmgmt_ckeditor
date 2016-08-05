@@ -45,6 +45,18 @@
   transform: translate(-50%, -50%);
 }
 
+.segment-validation-missing-tags {
+  cursor: pointer;
+}
+
+.segment-validation-missing-tags:first-child {
+  padding-left: 5px;
+}
+
+.segment-validation-missing-tags:not(:last-child):after {
+  content: ", ";
+}
+
 .tmgmt-segments {
   width: 60%;
 }
