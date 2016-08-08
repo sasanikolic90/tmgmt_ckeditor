@@ -121,7 +121,8 @@
     lang: 'en',
     icons: 'showsegments',
     hidpi: true,
-    allowedContent: 'tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality]; tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality] tmgmt-tag[!element,!raw]; tmgmt-tag[element,raw]',
+    allowedContent: 'tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality]; tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality] tmgmt-tag[!element,!raw];',
+    requires: 'widget',
     onLoad: function () {
       var cssStd, cssImgLeft, cssImgRight;
 
@@ -140,21 +141,27 @@
     },
 
     beforeInit: function (editor) {
-      CKEDITOR.dtd.$block['tmgmt-segment'] = 1;  // Make the segments blocks.
-      CKEDITOR.dtd.body['tmgmt-segment'] = 1;  // Body may contain tmgmt-segment.
-      CKEDITOR.dtd['tmgmt-segment'] = CKEDITOR.dtd['div'];  // tmgmt-segment should behaves and accepts
-      CKEDITOR.dtd['tmgmt-segment']['tmgmt-tag'] = 1;
+      var dtd = CKEDITOR.dtd, tagName;
+      dtd.$block['tmgmt-segment'] = 1;  // Make the segments blocks.
+      dtd.body['tmgmt-segment'] = 1;  // Body may contain tmgmt-segment.
+      dtd['tmgmt-segment'] = CKEDITOR.dtd['div'];  // tmgmt-segment should behaves and accepts
+      dtd['tmgmt-segment']['tmgmt-tag'] = 1;
+      dtd.$editable['tmgmt-segment'] = 1;
+/*      dtd['tmgmt-segment'] = {'#': 1};
+      dtd['tmgmt-tag'] = {'#': 1};*/
 
-      CKEDITOR.dtd['tmgmt-tag'] = {};
-      CKEDITOR.dtd.$object['tmgmt-tag'] = 1;
-      CKEDITOR.dtd.$empty['tmgmt-tag'] = 1;
-      CKEDITOR.dtd.$inline['tmgmt-tag'] = 1;
-      // editor.filter.allow('tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality]', 'tmgmt-tag[!element,!raw]');
+      dtd['tmgmt-tag'] = {};
+      dtd.$object['tmgmt-tag'] = 1;
+      dtd.$empty['tmgmt-tag'] = 1;
+      dtd.$inline['tmgmt-tag'] = 1;
+      // editor.filter.allow('tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality] tmgmt-tag[!element,!raw]');
 
       editor.widgets.add('tmgmt_tags', {
         // Minimum HTML which is required by this widget to work.
         // allowedContent: '',
         inline: true,
+        allowedContent: 'tmgmt-tag[element,raw]',
+        requiredContent: 'tmgmt-tag[element,raw]',
 
         editables: {
           content: {
@@ -380,7 +387,7 @@
     }
   };
 
-  /** SUBTRACT ARRAYS **/
+  // Get the difference between the active segment in both editors.
   function getDifferences(array1, array2) {
     var diff = [];
     if (array2.length === 0) {
