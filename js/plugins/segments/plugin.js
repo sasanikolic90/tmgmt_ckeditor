@@ -141,10 +141,10 @@
     },
 
     beforeInit: function (editor) {
-      var dtd = CKEDITOR.dtd, tagName;
+      var dtd = CKEDITOR.dtd;
       dtd.$block['tmgmt-segment'] = 1;  // Make the segments blocks.
       dtd.body['tmgmt-segment'] = 1;  // Body may contain tmgmt-segment.
-      dtd['tmgmt-segment'] = CKEDITOR.dtd['div'];  // tmgmt-segment should behaves and accepts
+      dtd['tmgmt-segment'] = CKEDITOR.dtd['div'];  // tmgmt-segment should behaves as a div.
       dtd['tmgmt-segment']['tmgmt-tag'] = 1;
       dtd.$editable['tmgmt-segment'] = 1;
 /*      dtd['tmgmt-segment'] = {'#': 1};
