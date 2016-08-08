@@ -3,7 +3,7 @@
  * CKEditor plugin to display TMGMT segments.
  */
 
-(function ($, Drupal, CKEDITOR) {
+(function ($, Drupal, debounce, CKEDITOR) {
   'use strict';
 
   var tmgmtSegmentsTag = 'tmgmt-segment';
@@ -275,21 +275,16 @@
       });
 
       // Set the source data attribute to user if the user changes it manually.
-      editor.on('change', function (evt) {
+      editor.on('change', debounce(function () {
         // Exit from function when the flag is true. This is set when adding a
         // segment from the memory (clicking the button).
         if (enableListener == false) {
           return;
         }
-        if (editorTimer != null && editorTimer.length) {
-          clearTimeout(editorTimer);
-        }
-        editorTimer = setTimeout(function () {
-          refreshActiveContent();
-          // Check for tag validation.
-          EditorPair.prototype.tagValidation();
-        }, 1200);
-      });
+        refreshActiveContent();
+        // Check for tag validation.
+        EditorPair.prototype.tagValidation();
+      }, 1200));
 
       function onFocusBlur() {
         command.refresh(editor);
@@ -733,7 +728,7 @@
     return CKEDITOR.instances[relatedEditorName];
   }
 
-})(jQuery, Drupal, CKEDITOR);
+})(jQuery, Drupal, Drupal.debounce, CKEDITOR);
 
 /**
  * If we want to automatically enable the showsegments command when the editor loads.
