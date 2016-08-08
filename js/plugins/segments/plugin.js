@@ -139,7 +139,7 @@
       CKEDITOR.addCss(cssStd.concat(cssImgLeft, cssImgRight));
     },
 
-/*    beforeInit: function (editor) {
+    beforeInit: function (editor) {
       CKEDITOR.dtd.$block['tmgmt-segment'] = 1;  // Make the segments blocks.
       CKEDITOR.dtd.body['tmgmt-segment'] = 1;  // Body may contain tmgmt-segment.
       CKEDITOR.dtd['tmgmt-segment'] = CKEDITOR.dtd['div'];  // tmgmt-segment should behaves and accepts
@@ -150,7 +150,23 @@
       CKEDITOR.dtd.$empty['tmgmt-tag'] = 1;
       CKEDITOR.dtd.$inline['tmgmt-tag'] = 1;
       // editor.filter.allow('tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality]', 'tmgmt-tag[!element,!raw]');
-    },*/
+
+      editor.widgets.add('tmgmt_tags', {
+        // Minimum HTML which is required by this widget to work.
+        // allowedContent: '',
+        inline: true,
+
+        editables: {
+          content: {
+            selector: 'tmgmt-tag'
+          }
+        },
+
+        upcast: function (element) {
+          return element.name === 'tmgmt-tag';
+        }
+      });
+    },
 
     init: function (editor) {
       if (editor.blockless) {
@@ -562,15 +578,17 @@
             a.addEventListener('click', function () {
               // InsertHtml seems buggy. (I get cannot read property tmgmt-tag of undefined.)
               // Using the solution from http://ckeditor.com/forums/CKEditor-3.x/insertHtml-and-focus-problem-webkit-browswer for now.
-              var final_html = 'mediaembedInsertData|---' + escape(maskedTag) + '---|mediaembedInsertData';
+              /*var final_html = 'mediaembedInsertData|---' + escape(maskedTag) + '---|mediaembedInsertData';
               CKEDITOR.currentInstance.insertHtml(final_html);
               var updated_editor_data = CKEDITOR.currentInstance.getData();
               var clean_editor_data = updated_editor_data.replace(final_html, maskedTag);
-              CKEDITOR.currentInstance.setData(clean_editor_data);
+              CKEDITOR.currentInstance.setData(clean_editor_data);*/
 
               // Problem with wrapping <p> tags around inserted tag.
               // This also requires setting the elements as block and inline.
-              // CKEDITOR.currentInstance.insertHtml(maskedTag);
+              var htmlTag = CKEDITOR.dom.element.createFromHtml(maskedTag);
+              CKEDITOR.currentInstance.insertElement(htmlTag);
+              CKEDITOR.currentInstance.widgets.initOn(htmlTag, 'tmgmt_tags');
             });
           })(a);
         }
