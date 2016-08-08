@@ -282,8 +282,6 @@
           return;
         }
         refreshActiveContent();
-        // Check for tag validation.
-        EditorPair.prototype.tagValidation();
       }, 1200));
 
       function onFocusBlur() {
@@ -318,6 +316,8 @@
     var globalCounter = 0;
     var segmentsWithMissingTags = [];
     // var segmentsId;
+    var validationWrapper = document.createElement('div');
+    validationWrapper.className = 'tmgmt-segment-validation-div messages messages--error';
 
     if (segmentsLeft.length === segmentsRight.length) {
       for (var i = 0; i < segmentsLeft.length; i++) {
@@ -325,8 +325,6 @@
         numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments).length;
 
         if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
-          var validationWrapper = document.createElement('div');
-          validationWrapper.className = 'tmgmt-segment-validation-div messages messages--error';
 
           segmentsWithMissingTags.push(segmentsLeft[i].id);
 
@@ -380,6 +378,10 @@
         }
       }
     }
+    else {
+      createNewParagraph('tmgmt-segment-validation-segments-mismatch-div', 'The number of segments in both editors does not match', '', editorPairs[activeEditorId].areaBelow, 'segment-validation-segments-mismatch');
+      validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-segments-mismatch-div')[0]);
+    }
   };
 
   // Get the difference between the active segment in both editors.
@@ -421,6 +423,9 @@
     else {
       editorPairs[activeEditorId].areaBelow.innerHTML = '';
     }
+
+    // Check for tag validation.
+    EditorPair.prototype.tagValidation();
   }
 
   function getDataFromMemory(selectedContent) {
@@ -530,7 +535,6 @@
       editorPairs[activeEditorId].areaBelow.innerHTML = '';
     }
 
-    EditorPair.prototype.tagValidation();
     // createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].areaBelow, 'active-segment');
     // createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].areaBelow, 'active-word');
     //if (editorPairs[activeEditorId].activeTag) {
