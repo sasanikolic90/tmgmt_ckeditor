@@ -288,7 +288,7 @@
           refreshActiveContent();
           // Check for tag validation.
           EditorPair.prototype.tagValidation();
-        }, 1000);
+        }, 1200);
       });
 
       function onFocusBlur() {
