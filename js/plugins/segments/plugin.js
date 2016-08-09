@@ -631,26 +631,17 @@
       for (var i = 0; i < headings.length; i++) {
         var td = document.createElement('td');
         if (i == 0) {
-          // For the purpose of the mockup!
-          // @todo remove these checks and use real values from the memory
-          var qualityDiv = document.createElement('meter');
-          if (index == 0) {
+          if (jsonData[index].quality) {
+            var qualityDiv = document.createElement('meter');
+            var quality = jsonData[index].quality * 2 / 10;
             qualityDiv.setAttribute('max', '1.0');
             qualityDiv.setAttribute('min', '0.0');
-            qualityDiv.setAttribute('value', '1.0');
+            qualityDiv.setAttribute('value', quality);
             td.appendChild(qualityDiv);
           }
-          else if (index == 1) {
-            qualityDiv.setAttribute('max', '1.0');
-            qualityDiv.setAttribute('min', '0.0');
-            qualityDiv.setAttribute('value', '0.5');
-            td.appendChild(qualityDiv);
-          }
-          else if (index == 2) {
-            qualityDiv.setAttribute('max', '1.0');
-            qualityDiv.setAttribute('min', '0.0');
-            qualityDiv.setAttribute('value', '0.1');
-            td.appendChild(qualityDiv);
+          else {
+            var noQuality = document.createTextNode('/');
+            td.appendChild(noQuality);
           }
         }
         else if (i == 1) {
