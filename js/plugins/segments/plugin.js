@@ -313,10 +313,8 @@
     var arrayOfTagsPerSegmentLeft = [];
     var arrayOfTagsPerSegmentRight = [];
     var differences = [];
-    var differentTags = [];
     var globalCounter = 0;
     var segmentsWithMissingTags = [];
-    // var segmentsId;
     var validationWrapper = document.createElement('div');
     validationWrapper.className = 'tmgmt-segment-validation-div messages messages--error';
 
@@ -330,14 +328,6 @@
           segmentsWithMissingTags.push(segmentsLeft[i].id);
 
           if (!editorPairs[activeEditorId].activeSegmentId || !_.contains(segmentsWithMissingTags, editorPairs[activeEditorId].activeSegmentId)) {
-/*            if (document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0]) {
-             document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0].remove();
-             document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0].remove();
-             }
-             if (document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
-             document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
-             }*/
-
             globalCounter += numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight;
             if (!document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
               createNewParagraph('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', globalCounter, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-global-counter');
@@ -354,12 +344,10 @@
               arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
               arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments);
 
-              // differences = _.difference(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
+              differences = _.difference(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
 
-              differences = getDifferences(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
+              // differences = getDifferences(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
 
-              // Do we want to display the segments id here or the index?
-              // segmentsId = segmentsLeft[i].id;
               createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-counter');
               if (differences.length === 1) {
                 createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differences, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
@@ -367,10 +355,6 @@
               else {
                 createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differences, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
               }
-
-/*              if (document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
-                document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
-              }*/
 
               validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0]);
               validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0]);
