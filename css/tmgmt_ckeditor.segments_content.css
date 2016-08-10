@@ -55,7 +55,7 @@
 }
 
 .tmgmt-translation-suggestions tr td:last-child {
-  width: 156px;
+  text-align: center;
 }
 
 /* Validation */

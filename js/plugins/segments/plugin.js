@@ -60,7 +60,7 @@
           // Set the flag for the keystrokes listeners to enabled.
           enableListener = true;
 
-          // This check is because when clicking "Use suggestion", the editors
+          // This check is because when clicking "Use", the editors
           // refresh, but the status is still active and it adds a new div.
           // editorPairs[activeEditorId].areaBelow = document.getElementsByClassName('tmgmt-segments')[editorPairs[activeEditorId].id];
           if (editorPairs[activeEditorId].areaBelow.innerHTML === '') {
@@ -615,8 +615,10 @@
   // @todo We have lots of hardcoded stuff for now. Needs work and discussion.
   function createTable(jsonData) {
     var table = document.createElement('table');
+    var thead = document.createElement('thead');
+    var tbody = document.createElement('tbody');
     table.className = 'tmgmt-translation-suggestions';
-    var headings = ['Quality', 'Source', 'Translation', 'Use suggestion'];
+    var headings = ['Quality', 'Source', 'Translation', ''];
 
     var tr = document.createElement('tr');
     for (var i = 0; i < headings.length; i++) {
@@ -624,7 +626,8 @@
       th.appendChild(document.createTextNode(headings[i]));
       tr.appendChild(th);
     }
-    table.appendChild(tr);
+    thead.appendChild(tr);
+    table.appendChild(thead);
 
     jsonData.forEach(function (object, index) {
       var tr = document.createElement('tr');
@@ -633,9 +636,9 @@
         if (i == 0) {
           if (jsonData[index].quality) {
             var qualityDiv = document.createElement('meter');
-            var quality = jsonData[index].quality * 2 / 10;
-            qualityDiv.setAttribute('max', '1.0');
-            qualityDiv.setAttribute('min', '0.0');
+            var quality = jsonData[index].quality;
+            qualityDiv.setAttribute('max', '5');
+            qualityDiv.setAttribute('min', '0');
             qualityDiv.setAttribute('value', quality);
             td.appendChild(qualityDiv);
           }
@@ -652,7 +655,7 @@
         }
         else {
           var btn = document.createElement('button');
-          var t = document.createTextNode('Use suggestion');
+          var t = document.createTextNode('Use');
           btn.appendChild(t);
           btn.className = 'button';
           btn.setAttribute('type', 'button');
@@ -666,8 +669,9 @@
         }
         tr.appendChild(td);
       }
-      table.appendChild(tr);
+      tbody.appendChild(tr);
     });
+    table.appendChild(tbody);
     editorPairs[activeEditorId].areaBelow.appendChild(table);
   }
 
