@@ -61,10 +61,9 @@
 /* Validation */
 .segment-validation-missing-tags {
   cursor: pointer;
-  padding-left: 5px;
 }
 
-.tmgmt-segment-validation-tags-div a:first-child {
+.tmgmt-segment-validation-tags-div a:not(:first-child) {
   padding-left: 5px;
 }
 

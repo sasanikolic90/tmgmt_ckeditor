@@ -346,15 +346,12 @@
 
               differences = getDifferences(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
 
-              createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-counter');
               if (differences.length === 1) {
-                createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differences, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+                createNewParagraph('tmgmt-segment-validation-tags-div', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' missing tag for the selected segment:', differences , editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
               }
               else {
-                createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differences, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+                createNewParagraph('tmgmt-segment-validation-tags-div', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' missing tags for the selected segment:', differences , editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
               }
-
-              validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-counter-div')[0]);
               validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0]);
             }
           }
@@ -363,7 +360,7 @@
       }
     }
     else {
-      createNewParagraph('tmgmt-segment-validation-segments-mismatch-div', 'The number of segments in both editors does not match', '', editorPairs[activeEditorId].areaBelow, 'segment-validation-segments-mismatch');
+      createNewParagraph('tmgmt-segment-validation-segments-mismatch-div', 'The number of segments in both editors does not match.', '', editorPairs[activeEditorId].areaBelow, 'segment-validation-segments-mismatch');
       validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-segments-mismatch-div')[0]);
     }
   };
@@ -547,7 +544,7 @@
 
     if (!document.getElementsByClassName('segment-status-counter')[0]) {
       var segmentStatusCounter = count.toString() + '/' + countAll;
-      createNewParagraph('tmgmt-segment-counter-div','Completed segments', segmentStatusCounter, document.getElementById('sidebar'), 'segment-status-counter');
+      createNewParagraph('tmgmt-segment-counter-div','Completed segments:', segmentStatusCounter, document.getElementById('sidebar'), 'segment-status-counter');
     }
     else {
       document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;
@@ -559,33 +556,20 @@
     var wrapper = document.createElement('div');
     wrapper.className = parentDiv;
     var p = document.createElement('P');
-    p.appendChild(document.createTextNode(title + ':'));
+    p.appendChild(document.createTextNode(title));
     wrapper.appendChild(p);
     if (elementClassName === 'segment-validation-missing-tags') {
+      var missingTagsWrapper = document.createElement('div');
+      missingTagsWrapper.className = 'tmgmt-missing-tags-wrapper';
       for (var j = 0; j < text.length; j++) {
         var a = document.createElement('a');
         a.className = elementClassName;
         a.setAttribute('nohref', '');
         a.setAttribute('title', 'Click to add this missing tag on cursor position.');
         var maskedTag = text[j].outerHTML;
-        // a.setAttribute('onclick', 'insertTag(' + '"' + maskedTag + '"' + ');return false;');
-/*        a.onclick = function (maskedTag) {
-          console.log(maskedTag);
-          CKEDITOR.currentInstance.insertElement(maskedTag);
-        };*/
         if (typeof window.addEventListener === 'function') {
           (function () {
             a.addEventListener('click', function () {
-              // InsertHtml seems buggy. (I get cannot read property tmgmt-tag of undefined.)
-              // Using the solution from http://ckeditor.com/forums/CKEditor-3.x/insertHtml-and-focus-problem-webkit-browswer for now.
-              /*var final_html = 'mediaembedInsertData|---' + escape(maskedTag) + '---|mediaembedInsertData';
-              CKEDITOR.currentInstance.insertHtml(final_html);
-              var updated_editor_data = CKEDITOR.currentInstance.getData();
-              var clean_editor_data = updated_editor_data.replace(final_html, maskedTag);
-              CKEDITOR.currentInstance.setData(clean_editor_data);*/
-
-              // Problem with wrapping <p> tags around inserted tag.
-              // This also requires setting the elements as block and inline.
               var htmlTag = CKEDITOR.dom.element.createFromHtml(maskedTag);
               CKEDITOR.currentInstance.insertElement(htmlTag);
               CKEDITOR.currentInstance.widgets.initOn(htmlTag, 'tmgmt_tags');
@@ -593,7 +577,8 @@
           })(a);
         }
         a.appendChild(document.createTextNode(text[j].getAttribute('element')));
-        wrapper.appendChild(a);
+        missingTagsWrapper.appendChild(a);
+        wrapper.appendChild(missingTagsWrapper);
       }
     }
     else {
