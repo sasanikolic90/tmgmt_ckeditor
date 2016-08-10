@@ -344,9 +344,7 @@
               arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
               arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments);
 
-              differences = _.difference(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
-
-              // differences = getDifferences(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
+              differences = getDifferences(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
 
               createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-counter');
               if (differences.length === 1) {
