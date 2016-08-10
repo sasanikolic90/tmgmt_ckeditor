@@ -36,6 +36,7 @@ function tmgmt_ckeditor_install() {
   $role->grantPermission('use text format translation_html');
   $role->save();
 
+  /** @var \Drupal\tmgmt_memory\MemoryManager $memory_manager */
   $memory_manager = \Drupal::service('tmgmt_memory.memory_manager');
 
   // Hardcoded dummy segments that will be saved in the translation memory.
@@ -56,23 +57,17 @@ function tmgmt_ckeditor_install() {
   $fourth_segment_translation = 'This is the fourth translated segment. <b>This is a translated text inside a tag. The tag is not properly closed.';
   $fifth_segment_translation = 'This is the fifth translated segment. <img src="path" alt="test" title="This is a translated text inside an image tag with attributes" />';
 
-  // Adding the segments to tmgmt_memory.
-  $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
-  $memory_manager->addUsage('en', $second_segment_text, null, null, 2);
-
   // Adding the translations of the dummy segments to tmgmt_memory.
   // Adding the segments to tmgmt_memory.
   $first_source_usage_1 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
   $first_target_usage_1 = $memory_manager->addUsage('de', $first_segment_translation_1, null, null, 1);
   $memory_manager->addUsageTranslation($first_source_usage_1, $first_target_usage_1);
 
-  $first_source_usage_2 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
   $first_target_usage_2 = $memory_manager->addUsage('de', $first_segment_translation_2, null, null, 1);
-  $memory_manager->addUsageTranslation($first_source_usage_2, $first_target_usage_2);
+  $memory_manager->addUsageTranslation($first_source_usage_1, $first_target_usage_2);
 
-  $first_source_usage_3 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
   $first_target_usage_3 = $memory_manager->addUsage('de', $first_segment_translation_3, null, null, 1);
-  $memory_manager->addUsageTranslation($first_source_usage_3, $first_target_usage_3);
+  $memory_manager->addUsageTranslation($first_source_usage_1, $first_target_usage_3);
 
   $second_source_usage = $memory_manager->addUsage('en', $second_segment_text, null, null, 2);
   $second_target_usage = $memory_manager->addUsage('de', $second_segment_translation, null, null, 2);
@@ -160,13 +155,11 @@ function tmgmt_ckeditor_install() {
   $first_paragraph_target_usage_1 = $memory_manager->addUsage('de', $first_paragraph_segment_translation_1, null, null, 6);
   $memory_manager->addUsageTranslation($first_paragraph_source_usage_1, $first_paragraph_target_usage_1);
 
-  $first_paragraph_source_usage_2 = $memory_manager->addUsage('en', $first_paragraph_segment, null, null, 6);
   $first_paragraph_target_usage_2 = $memory_manager->addUsage('de', $first_paragraph_segment_translation_2, null, null, 6);
-  $memory_manager->addUsageTranslation($first_paragraph_source_usage_2, $first_paragraph_target_usage_2);
+  $memory_manager->addUsageTranslation($first_paragraph_source_usage_1, $first_paragraph_target_usage_2);
 
-  $first_paragraph_source_usage_3 = $memory_manager->addUsage('en', $first_paragraph_segment, null, null, 6);
   $first_paragraph_target_usage_3 = $memory_manager->addUsage('de', $first_paragraph_segment_translation_3, null, null, 6);
-  $memory_manager->addUsageTranslation($first_paragraph_source_usage_3, $first_paragraph_target_usage_3);
+  $memory_manager->addUsageTranslation($first_paragraph_source_usage_1, $first_paragraph_target_usage_3);
 
   $second_paragraph_source_usage = $memory_manager->addUsage('en', $second_paragraph_segment, null, null, 7);
   $second_paragraph_target_usage = $memory_manager->addUsage('de', $second_paragraph_segment_translation, null, null, 7);
