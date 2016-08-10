@@ -12,6 +12,7 @@
   var attrStatusActive = 'data-tmgmt-segment-active-status';
   var attrSource = 'data-tmgmt-segment-source';
   var attrQuality = 'data-tmgmt-segment-quality';
+  var attrHasMissingTags = 'data-tmgmt-segment-missing-tags';
   var editorTimer = null;
   var enableListener = false;
   var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1, 3);
@@ -349,6 +350,7 @@
           }
           else {
             if (editorPairs[activeEditorId].activeSegmentId === segmentsLeft[i].id) {
+              markSegment('has-missing-tags');
               arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
               arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments);
 
@@ -663,7 +665,7 @@
 
           btn.addEventListener('click', function (evt) {
             addSuggestion(jsonData[index], editorPairs[activeEditorId].activeSegmentHtmlText);
-            table.removeChild(tr);
+            tbody.removeChild(tr);
           });
           td.appendChild(btn);
         }
@@ -697,6 +699,11 @@
     var relatedSegment = relatedEditor.document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
     translationSegment.removeAttribute(attrStatusActive);
     relatedSegment.removeAttribute(attrStatusActive);
+
+    if (translationSegment.hasAttribute(attrHasMissingTags)) {
+      translationSegment.removeAttribute(attrHasMissingTags);
+      relatedSegment.removeAttribute(attrHasMissingTags);
+    }
   }
 
   // Marks active and completed segments in the editor.
@@ -712,6 +719,10 @@
     else if (status === 'completed') {
       translationSegment.setAttribute(attrStatusCompleted, '');
       relatedSegment.setAttribute(attrStatusCompleted, '');
+    }
+    else if (status === 'has-missing-tags') {
+      translationSegment.setAttribute(attrHasMissingTags, '');
+      relatedSegment.setAttribute(attrHasMissingTags, '');
     }
   }
 
