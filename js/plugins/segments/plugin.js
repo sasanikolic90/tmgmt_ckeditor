@@ -433,6 +433,16 @@
 
         createTable(jsonData);
       }
+      else if (xmlhttp.readyState == 4 && xmlhttp.status == 204) {
+        var noSuggestionsWrapper = document.createElement('div');
+        noSuggestionsWrapper.className = 'no-suggested-translations-wrapper';
+        editorPairs[activeEditorId].areaBelow.appendChild(noSuggestionsWrapper);
+
+        var text = document.createElement('P');
+        text.className = 'no-suggested-translations';
+        text.appendChild(document.createTextNode('There are no translations for this segment in the translation memory.'));
+        noSuggestionsWrapper.appendChild(text);
+      }
     };
     xmlhttp.open('GET', drupalSettings.path.baseUrl +
       'tmgmt_ckeditor/get.json?segmentStrippedText=' + selectedContent['segmentStrippedText'] +
