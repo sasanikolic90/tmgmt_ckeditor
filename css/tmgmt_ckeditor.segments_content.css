@@ -67,14 +67,6 @@
   cursor: pointer;
 }
 
-.tmgmt-segment-validation-tags-div a:not(:first-child) {
-  padding-left: 5px;
-}
-
-.segment-validation-missing-tags:not(:last-child):after {
-  content: ",";
-}
-
 .tmgmt-segment-validation-div p {
   display: inline-block;
   margin: 0;
@@ -83,6 +75,32 @@
 .tmgmt-segment-validation-div span {
   padding-left: 5px;
   color: #cc0000;
+}
+
+.tmgmt-missing-tags-wrapper {
+  padding-top: 5px;
+}
+
+.segment-validation-missing-tags {
+  background: #bbb;
+  background: -moz-linear-gradient(top, #efefef 0%, #bbb 100%);
+  background: -o-linear-gradient(top, #efefef 0%, #bbb 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #efefef), color-stop(100%, #bbb));
+  background: -webkit-linear-gradient(top, #efefef 0%, #bbb 100%);
+  background: linear-gradient(top, #efefef 0%, #bbb 100%);
+  border: 1px solid #aaa;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  display: inline-block;
+  padding: 0 10px;
+  position: relative;
+  text-decoration: none;
+  color: #222;
+}
+
+.tmgmt-segment-validation-tags-div a:not(:first-child) {
+  margin: 0 5px 0 5px;
 }
 
 
