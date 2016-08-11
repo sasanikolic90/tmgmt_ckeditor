@@ -1,6 +1,8 @@
 /* Fix for the editors width. */
-.tmgmt-ui-review {
-  table-layout: fixed;
+@media screen and (min-width: 1008px) {
+  .tmgmt-ui-review {
+    table-layout: fixed;
+  }
 }
 
 /* Sidebar */
@@ -33,8 +35,10 @@
 }
 
 /* Area below */
-.tmgmt-segments {
-  width: 70%;
+@media screen and (min-width: 1200px) {
+  .tmgmt-segments {
+    width: 70%;
+  }
 }
 
 .tmgmt-active-segment-wrapper {
