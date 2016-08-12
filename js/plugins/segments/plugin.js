@@ -84,8 +84,10 @@
 
           // Things to do when a word/segment is clicked.
           editable.attachListener(editable, 'click', function (evt) {
-            // Remove segmentsDiv when changing editor.
-            editorPairs[activeEditorId].areaBelow.innerHTML = '';
+            if (activeEditorId !== editorPairs[activeEditorId].id) {
+              // Remove the area below when changing editor.
+              editorPairs[activeEditorId].areaBelow.innerHTML = '';
+            }
             // Set the editorPairs[activeEditorId].id to the newly clicked editor's id.
             refreshActiveContent();
           });
@@ -393,7 +395,7 @@
 
     var selectedContent = getActiveContent();
     // If the segment is clicked, display it.
-    if (selectedContent) {
+    if (selectedContent && selectedContent['sameSegment'] === 'FALSE') {
       // Display the segment as active.
       displayContent();
 
@@ -401,7 +403,7 @@
       getDataFromMemory(selectedContent);
     }
     // If something else is clicked, remove the previous displayed segment.
-    else {
+    else if (selectedContent === null) {
       editorPairs[activeEditorId].areaBelow.innerHTML = '';
     }
 
@@ -490,6 +492,15 @@
 
       var editorData = CKEDITOR.currentInstance.getData();
       var clickedSegmentId = activeSegmentData['segmentId'];
+
+      // Return if the user clicked the same segment again.
+      if (clickedSegmentId === editorPairs[activeEditorId].activeSegmentId) {
+        activeSegmentData['sameSegment'] = 'TRUE';
+      }
+      else {
+        activeSegmentData['sameSegment'] = 'FALSE';
+      }
+
       var regexForSegmentHtmlText = new RegExp('<tmgmt-segment.*? id=\"' + clickedSegmentId + '\">(.*?)<\/tmgmt-segment>');
       // regexForSegmentHtmlText.lastIndex = 0; // Reset the last index of regex (null issue).
       activeSegmentData['segmentHtmlText'] = regexForSegmentHtmlText.exec(editorData)[1];
