@@ -2,6 +2,10 @@
   color: orange;
 }
 
+[data-tmgmt-segment-missing-tags]:before, [data-tmgmt-segment-missing-tags]:after {
+  color: #e62600 !important;
+}
+
 [data-tmgmt-segment-completed-status]:before, [data-tmgmt-segment-completed-status]:after {
   color: green;
 }

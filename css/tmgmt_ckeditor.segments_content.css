@@ -1,21 +1,56 @@
-.active-segment, .active-word, .active-tag, .suggested-translation {
-  font-weight: bold;
+/* Fix for the editors width. */
+@media screen and (min-width: 1008px) {
+  .tmgmt-ui-review {
+    table-layout: fixed;
+  }
+}
+
+/* Sidebar */
+#sidebar {
+  background-color: #f3faef;
+  border: 1px solid #c9e1bd;
+  position: fixed;
+  top: 80px;
+  right: 30px;
+  padding: 10px;
+  min-height: 130px;
+  z-index: 100;
+  margin-left: -75px; /* Negative half of width. */
+}
+
+.tmgmt-segment-counter-div {
+  text-align: center;
+}
+
+.tmgmt-segment-counter-div span {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .segment-status-counter {
   color: green;
 }
 
-.suggested-translations div {
-  overflow: hidden;
+/* Area below */
+@media screen and (min-width: 1200px) {
+  .tmgmt-segments {
+    width: 70%;
+  }
 }
 
-.suggested-translations div .tmgmt-segments-title {
-  clear: both;
+.tmgmt-active-segment-wrapper {
+  color: #777;
 }
 
-.suggested-translations div .suggested-translation-text {
-  float: left;
+.tmgmt-active-segment {
+  color: #222;
+}
+
+.active-segment, .active-word, .active-tag, .suggested-translation {
+  font-weight: bold;
 }
 
 .suggested-translations div button {
@@ -23,6 +58,49 @@
   margin: 1em 0 0 0;
 }
 
-.tmgmt-segment-validation-global-counter-div, .tmgmt-segment-validation-counter-div, .tmgmt-segment-validation-tags-div {
+.tmgmt-translation-suggestions tr td:last-child {
+  text-align: center;
+}
+
+/* Validation */
+.segment-validation-missing-tags {
+  cursor: pointer;
+}
+
+.tmgmt-segment-validation-div p {
+  display: inline-block;
+  margin: 0;
+}
+
+.tmgmt-segment-validation-div span {
+  padding-left: 5px;
   color: #cc0000;
 }
+
+.tmgmt-missing-tags-wrapper {
+  padding-top: 5px;
+}
+
+.segment-validation-missing-tags {
+  background: #bbb;
+  background: -moz-linear-gradient(top, #efefef 0%, #bbb 100%);
+  background: -o-linear-gradient(top, #efefef 0%, #bbb 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #efefef), color-stop(100%, #bbb));
+  background: -webkit-linear-gradient(top, #efefef 0%, #bbb 100%);
+  background: linear-gradient(top, #efefef 0%, #bbb 100%);
+  border: 1px solid #aaa;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  display: inline-block;
+  padding: 0 10px;
+  position: relative;
+  text-decoration: none;
+  color: #222;
+}
+
+.tmgmt-segment-validation-tags-div a:not(:first-child) {
+  margin: 0 5px 0 5px;
+}
+
+

@@ -3,7 +3,7 @@
  * CKEditor plugin to display TMGMT segments.
  */
 
-(function ($, Drupal, CKEDITOR) {
+(function ($, Drupal, debounce, CKEDITOR) {
   'use strict';
 
   var tmgmtSegmentsTag = 'tmgmt-segment';
@@ -12,6 +12,7 @@
   var attrStatusActive = 'data-tmgmt-segment-active-status';
   var attrSource = 'data-tmgmt-segment-source';
   var attrQuality = 'data-tmgmt-segment-quality';
+  var attrHasMissingTags = 'data-tmgmt-segment-missing-tags';
   var editorTimer = null;
   var enableListener = false;
   var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1, 3);
@@ -60,7 +61,7 @@
           // Set the flag for the keystrokes listeners to enabled.
           enableListener = true;
 
-          // This check is because when clicking "Use suggestion", the editors
+          // This check is because when clicking "Use", the editors
           // refresh, but the status is still active and it adds a new div.
           // editorPairs[activeEditorId].areaBelow = document.getElementsByClassName('tmgmt-segments')[editorPairs[activeEditorId].id];
           if (editorPairs[activeEditorId].areaBelow.innerHTML === '') {
@@ -76,9 +77,6 @@
                 group: 'setStatusGroup'
               });
             }
-
-            // Check for tag validation.
-            EditorPair.prototype.tagValidation();
           }
 
           var editable = editor.editable();
@@ -86,11 +84,27 @@
 
           // Things to do when a word/segment is clicked.
           editable.attachListener(editable, 'click', function (evt) {
-            // Remove segmentsDiv when changing editor.
-            editorPairs[activeEditorId].areaBelow.innerHTML = '';
+            if (activeEditorId !== editorPairs[activeEditorId].id) {
+              // Remove the area below when changing editor.
+              editorPairs[activeEditorId].areaBelow.innerHTML = '';
+            }
             // Set the editorPairs[activeEditorId].id to the newly clicked editor's id.
             refreshActiveContent();
           });
+
+          if (document.getElementById('sidebar')) {
+            document.getElementById('sidebar').style.display = 'block';
+          }
+          else {
+            var stickyDiv = document.createElement('div');
+            stickyDiv.id = 'sidebar';
+            document.getElementsByClassName('region-content')[0].appendChild(stickyDiv);
+          }
+
+          // Set the counter in the sidebar.
+          setCounterCompletedSegments();
+          // Check for tag validation.
+          EditorPair.prototype.tagValidation();
         }
         // Remove the segments display area below the editor when we disable
         // the plugin.
@@ -98,6 +112,9 @@
           editorPairs[activeEditorId].areaBelow.innerHTML = '';
           // Remove the context menu item.
           editor.removeMenuItem('setStatusItem');
+          if (document.getElementById('sidebar')) {
+            document.getElementById('sidebar').style.display = 'none';
+          }
         }
       }
     }
@@ -107,6 +124,8 @@
     lang: 'en',
     icons: 'showsegments',
     hidpi: true,
+    allowedContent: 'tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality]; tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality] tmgmt-tag[!element,!raw];',
+    requires: 'widget',
     onLoad: function () {
       var cssStd, cssImgLeft, cssImgRight;
 
@@ -122,6 +141,41 @@
         '}';
 
       CKEDITOR.addCss(cssStd.concat(cssImgLeft, cssImgRight));
+    },
+
+    beforeInit: function (editor) {
+      var dtd = CKEDITOR.dtd;
+      dtd.$block['tmgmt-segment'] = 1;  // Make the segments blocks.
+      dtd.body['tmgmt-segment'] = 1;  // Body may contain tmgmt-segment.
+      dtd['tmgmt-segment'] = CKEDITOR.dtd['div'];  // tmgmt-segment should behaves as a div.
+      dtd['tmgmt-segment']['tmgmt-tag'] = 1;
+      dtd.$editable['tmgmt-segment'] = 1;
+/*      dtd['tmgmt-segment'] = {'#': 1};
+      dtd['tmgmt-tag'] = {'#': 1};*/
+
+      dtd['tmgmt-tag'] = {};
+      dtd.$object['tmgmt-tag'] = 1;
+      dtd.$empty['tmgmt-tag'] = 1;
+      dtd.$inline['tmgmt-tag'] = 1;
+      // editor.filter.allow('tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality] tmgmt-tag[!element,!raw]');
+
+      editor.widgets.add('tmgmt_tags', {
+        // Minimum HTML which is required by this widget to work.
+        // allowedContent: '',
+        inline: true,
+        allowedContent: 'tmgmt-tag[element,raw]',
+        requiredContent: 'tmgmt-tag[element,raw]',
+
+        editables: {
+          content: {
+            selector: 'tmgmt-tag'
+          }
+        },
+
+        upcast: function (element) {
+          return element.name === 'tmgmt-tag';
+        }
+      });
     },
 
     init: function (editor) {
@@ -224,21 +278,14 @@
       });
 
       // Set the source data attribute to user if the user changes it manually.
-      editor.on('change', function (evt) {
+      editor.on('change', debounce(function () {
         // Exit from function when the flag is true. This is set when adding a
         // segment from the memory (clicking the button).
         if (enableListener == false) {
           return;
         }
-        if (editorTimer != null && editorTimer.length) {
-          clearTimeout(editorTimer);
-        }
-        editorTimer = setTimeout(function () {
-          refreshActiveContent();
-          // Check for tag validation.
-          EditorPair.prototype.tagValidation();
-        }, 1000);
-      });
+        refreshActiveContent();
+      }, 1200));
 
       function onFocusBlur() {
         command.refresh(editor);
@@ -268,10 +315,10 @@
     var arrayOfTagsPerSegmentLeft = [];
     var arrayOfTagsPerSegmentRight = [];
     var differences = [];
-    var differentTags = [];
     var globalCounter = 0;
     var segmentsWithMissingTags = [];
-    // var segmentsId;
+    var validationWrapper = document.createElement('div');
+    validationWrapper.className = 'tmgmt-segment-validation-div messages messages--error';
 
     if (segmentsLeft.length === segmentsRight.length) {
       for (var i = 0; i < segmentsLeft.length; i++) {
@@ -279,6 +326,7 @@
         numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments).length;
 
         if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
+
           segmentsWithMissingTags.push(segmentsLeft[i].id);
 
           if (!editorPairs[activeEditorId].activeSegmentId || !_.contains(segmentsWithMissingTags, editorPairs[activeEditorId].activeSegmentId)) {
@@ -289,35 +337,53 @@
             else {
               document.getElementsByClassName('segment-validation-missing-tags-global-counter')[0].innerHTML = globalCounter;
             }
+
+            validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]);
           }
           else {
             if (editorPairs[activeEditorId].activeSegmentId === segmentsLeft[i].id) {
+              markSegment('has-missing-tags');
               arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
-              arrayOfTagsPerSegmentRight = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
+              arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments);
 
-              differences = _.difference(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
-              for (var j = 0; j < differences.length; j++) {
-                differentTags.push(differences[j].getAttribute('element'));
-              }
-              // Do we want to display the segments id here or the index?
-              // segmentsId = segmentsLeft[i].id;
-              createNewParagraph('tmgmt-segment-validation-counter-div', 'Number of missing tags for the ' + [i + 1] + '. ' + 'segment is', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-counter');
+              differences = getDifferences(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
+
               if (differences.length === 1) {
-                createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tag for the ' + [i + 1] + '. ' + 'segment is', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+                createNewParagraph('tmgmt-segment-validation-tags-div', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' missing tag for the selected segment:', differences , editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
               }
               else {
-                createNewParagraph('tmgmt-segment-validation-tags-div', 'The missing tags for the ' + [i + 1] + '. ' + 'segment are', differentTags.toString(), editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+                createNewParagraph('tmgmt-segment-validation-tags-div', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' missing tags for the selected segment:', differences , editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
               }
-
-              if (document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
-                document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0].remove();
-              }
+              validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0]);
             }
+          }
+          editorPairs[activeEditorId].areaBelow.appendChild(validationWrapper);
+        }
+      }
+    }
+    else {
+      createNewParagraph('tmgmt-segment-validation-segments-mismatch-div', 'The number of segments in both editors does not match.', '', editorPairs[activeEditorId].areaBelow, 'segment-validation-segments-mismatch');
+      validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-segments-mismatch-div')[0]);
+    }
+  };
+
+  // Get the difference between the active segment in both editors.
+  function getDifferences(array1, array2) {
+    var diff = [];
+    if (array2.length === 0) {
+      diff = array1;
+    }
+    else {
+      for (var i = 0; i < array1.length; i++) {
+        for (var j = 0; j < array2.length; j++) {
+          if (!array1[i].isEqualNode(array2[j])) {
+            diff.push(array1[i]);
           }
         }
       }
     }
-  };
+    return diff;
+  }
 
   // Things to do after the content is selected.
   function refreshActiveContent() {
@@ -329,7 +395,7 @@
 
     var selectedContent = getActiveContent();
     // If the segment is clicked, display it.
-    if (selectedContent) {
+    if (selectedContent && selectedContent['sameSegment'] === 'FALSE') {
       // Display the segment as active.
       displayContent();
 
@@ -337,9 +403,12 @@
       getDataFromMemory(selectedContent);
     }
     // If something else is clicked, remove the previous displayed segment.
-    else {
+    else if (selectedContent === null) {
       editorPairs[activeEditorId].areaBelow.innerHTML = '';
     }
+
+    // Check for tag validation.
+    EditorPair.prototype.tagValidation();
   }
 
   function getDataFromMemory(selectedContent) {
@@ -352,9 +421,26 @@
         suggestedTranslations.className = 'suggested-translations';
         editorPairs[activeEditorId].areaBelow.appendChild(suggestedTranslations);
 
-        jsonData.forEach(function (object, index) {
-          suggestTranslation(object, index, selectedContent['segmentHtmlText'], suggestedTranslations);
-        });
+        var p1 = document.createElement('P');
+        p1.className = 'tmgmt-active-segment-wrapper';
+        p1.appendChild(document.createTextNode('Translations of '));
+        var span = document.createElement('span');
+        span.className = 'tmgmt-active-segment';
+        span.appendChild(document.createTextNode('"' + editorPairs[activeEditorId].activeSegmentStrippedText + '"'));
+        p1.appendChild(span);
+        suggestedTranslations.appendChild(p1);
+
+        createTable(jsonData);
+      }
+      else if (xmlhttp.readyState == 4 && xmlhttp.status == 204) {
+        var noSuggestionsWrapper = document.createElement('div');
+        noSuggestionsWrapper.className = 'no-suggested-translations-wrapper';
+        editorPairs[activeEditorId].areaBelow.appendChild(noSuggestionsWrapper);
+
+        var text = document.createElement('P');
+        text.className = 'no-suggested-translations';
+        text.appendChild(document.createTextNode('There are no translations for this segment in the translation memory.'));
+        noSuggestionsWrapper.appendChild(text);
       }
     };
     xmlhttp.open('GET', drupalSettings.path.baseUrl +
@@ -406,6 +492,15 @@
 
       var editorData = CKEDITOR.currentInstance.getData();
       var clickedSegmentId = activeSegmentData['segmentId'];
+
+      // Return if the user clicked the same segment again.
+      if (clickedSegmentId === editorPairs[activeEditorId].activeSegmentId) {
+        activeSegmentData['sameSegment'] = 'TRUE';
+      }
+      else {
+        activeSegmentData['sameSegment'] = 'FALSE';
+      }
+
       var regexForSegmentHtmlText = new RegExp('<tmgmt-segment.*? id=\"' + clickedSegmentId + '\">(.*?)<\/tmgmt-segment>');
       // regexForSegmentHtmlText.lastIndex = 0; // Reset the last index of regex (null issue).
       activeSegmentData['segmentHtmlText'] = regexForSegmentHtmlText.exec(editorData)[1];
@@ -442,13 +537,11 @@
       editorPairs[activeEditorId].areaBelow.innerHTML = '';
     }
 
-    EditorPair.prototype.tagValidation();
-    setCounterCompletedSegments();
-    createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].areaBelow, 'active-segment');
-    createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].areaBelow, 'active-word');
-    if (editorPairs[activeEditorId].activeTag) {
-      createNewParagraph('tmgmt-active-tag-div', 'Selected tag', editorPairs[activeEditorId].activeTag, editorPairs[activeEditorId].areaBelow, 'active-tag');
-    }
+    // createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].areaBelow, 'active-segment');
+    // createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].areaBelow, 'active-word');
+    //if (editorPairs[activeEditorId].activeTag) {
+    //  createNewParagraph('tmgmt-active-tag-div', 'Selected tag', editorPairs[activeEditorId].activeTag, editorPairs[activeEditorId].areaBelow, 'active-tag');
+    //}
 
     wrappers[editorPairs[activeEditorId].id].appendChild(editorPairs[activeEditorId].areaBelow);
   }
@@ -462,7 +555,7 @@
 
     if (!document.getElementsByClassName('segment-status-counter')[0]) {
       var segmentStatusCounter = count.toString() + '/' + countAll;
-      createNewParagraph('tmgmt-segment-counter-div','Number of completed segments', segmentStatusCounter, editorPairs[activeEditorId].areaBelow, 'segment-status-counter');
+      createNewParagraph('tmgmt-segment-counter-div','Completed segments:', segmentStatusCounter, document.getElementById('sidebar'), 'segment-status-counter');
     }
     else {
       document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;
@@ -470,38 +563,106 @@
   }
 
   // Helper function for creating new paragraph in the area below.
-  function createNewParagraph(parentDiv, title, text, targetDiv, paragraphClassName) {
+  function createNewParagraph(parentDiv, title, text, targetDiv, elementClassName) {
     var wrapper = document.createElement('div');
     wrapper.className = parentDiv;
-    var p1 = document.createElement('P');
-    p1.className = 'tmgmt-segments-title';
-    p1.appendChild(document.createTextNode(title + ':'));
-    wrapper.appendChild(p1);
-    var p2 = document.createElement('P');
-    p2.className = paragraphClassName;
-    p2.appendChild(document.createTextNode(text));
-    wrapper.appendChild(p2);
+    var p = document.createElement('P');
+    p.appendChild(document.createTextNode(title));
+    wrapper.appendChild(p);
+    if (elementClassName === 'segment-validation-missing-tags') {
+      var missingTagsWrapper = document.createElement('div');
+      missingTagsWrapper.className = 'tmgmt-missing-tags-wrapper';
+      for (var j = 0; j < text.length; j++) {
+        var a = document.createElement('a');
+        a.className = elementClassName;
+        a.setAttribute('nohref', '');
+        a.setAttribute('title', 'Click to add this missing tag on cursor position.');
+        var maskedTag = text[j].outerHTML;
+        if (typeof window.addEventListener === 'function') {
+          (function () {
+            a.addEventListener('click', function () {
+              var htmlTag = CKEDITOR.dom.element.createFromHtml(maskedTag);
+              CKEDITOR.currentInstance.insertElement(htmlTag);
+              CKEDITOR.currentInstance.widgets.initOn(htmlTag, 'tmgmt_tags');
+            });
+          })(a);
+        }
+        a.appendChild(document.createTextNode(text[j].getAttribute('element')));
+        missingTagsWrapper.appendChild(a);
+        wrapper.appendChild(missingTagsWrapper);
+      }
+    }
+    else {
+      var span = document.createElement('span');
+      span.className = elementClassName;
+      span.appendChild(document.createTextNode(text));
+      wrapper.appendChild(span);
+    }
     targetDiv.appendChild(wrapper);
   }
 
-  // Makes a dummy suggestion for the selected segment translation.
-  function suggestTranslation(jsonData, index, selectedSegment, targetDiv) {
-    var wrapperClass = 'tmgmt-suggested-translation-div-editor-' + editorPairs[activeEditorId].id + '-index-' + index;
-    createNewParagraph(wrapperClass, 'Suggested translation', jsonData.trSegmentStrippedText, targetDiv, 'suggested-translation-text');
+  // Creates a table in the area below the editor.
+  // @todo We have lots of hardcoded stuff for now. Needs work and discussion.
+  function createTable(jsonData) {
+    var table = document.createElement('table');
+    var thead = document.createElement('thead');
+    var tbody = document.createElement('tbody');
+    table.className = 'tmgmt-translation-suggestions';
+    var headings = ['Quality', 'Source', 'Translation', ''];
 
-    var wrapper = document.getElementsByClassName(wrapperClass);
-    var btn = document.createElement('button');
-    var t = document.createTextNode('Use suggestion');
-    btn.appendChild(t);
-    btn.className = 'button';
-    btn.setAttribute('type', 'button');
-    btn.id = 'btn-use-suggestion-' + index;
-    wrapper[0].appendChild(btn);
+    var tr = document.createElement('tr');
+    for (var i = 0; i < headings.length; i++) {
+      var th = document.createElement('th');
+      th.appendChild(document.createTextNode(headings[i]));
+      tr.appendChild(th);
+    }
+    thead.appendChild(tr);
+    table.appendChild(thead);
 
-    btn.addEventListener('click', function () {
-      addSuggestion(jsonData, selectedSegment);
-      targetDiv.parentNode.removeChild(targetDiv);
+    jsonData.forEach(function (object, index) {
+      var tr = document.createElement('tr');
+      for (var i = 0; i < headings.length; i++) {
+        var td = document.createElement('td');
+        if (i == 0) {
+          if (jsonData[index].quality) {
+            var qualityDiv = document.createElement('meter');
+            var quality = jsonData[index].quality;
+            qualityDiv.setAttribute('max', '5');
+            qualityDiv.setAttribute('min', '0');
+            qualityDiv.setAttribute('value', quality);
+            td.appendChild(qualityDiv);
+          }
+          else {
+            var noQuality = document.createTextNode('/');
+            td.appendChild(noQuality);
+          }
+        }
+        else if (i == 1) {
+          td.appendChild(document.createTextNode('Human'));
+        }
+        else if (i == 2) {
+          td.appendChild(document.createTextNode(object.trSegmentStrippedText));
+        }
+        else {
+          var btn = document.createElement('button');
+          var t = document.createTextNode('Use');
+          btn.appendChild(t);
+          btn.className = 'button';
+          btn.setAttribute('type', 'button');
+          btn.id = 'btn-use-suggestion-' + index;
+
+          btn.addEventListener('click', function (evt) {
+            addSuggestion(jsonData[index], editorPairs[activeEditorId].activeSegmentHtmlText);
+            tbody.removeChild(tr);
+          });
+          td.appendChild(btn);
+        }
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
     });
+    table.appendChild(tbody);
+    editorPairs[activeEditorId].areaBelow.appendChild(table);
   }
 
   // Adds the suggestion in the translation editor.
@@ -526,6 +687,11 @@
     var relatedSegment = relatedEditor.document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
     translationSegment.removeAttribute(attrStatusActive);
     relatedSegment.removeAttribute(attrStatusActive);
+
+    if (translationSegment.hasAttribute(attrHasMissingTags)) {
+      translationSegment.removeAttribute(attrHasMissingTags);
+      relatedSegment.removeAttribute(attrHasMissingTags);
+    }
   }
 
   // Marks active and completed segments in the editor.
@@ -542,6 +708,10 @@
       translationSegment.setAttribute(attrStatusCompleted, '');
       relatedSegment.setAttribute(attrStatusCompleted, '');
     }
+    else if (status === 'has-missing-tags') {
+      translationSegment.setAttribute(attrHasMissingTags, '');
+      relatedSegment.setAttribute(attrHasMissingTags, '');
+    }
   }
 
   function getRelatedEditor(editor) {
@@ -556,7 +726,7 @@
     return CKEDITOR.instances[relatedEditorName];
   }
 
-})(jQuery, Drupal, CKEDITOR);
+})(jQuery, Drupal, Drupal.debounce, CKEDITOR);
 
 /**
  * If we want to automatically enable the showsegments command when the editor loads.

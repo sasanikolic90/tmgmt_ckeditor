@@ -18,10 +18,10 @@ function tmgmt_ckeditor_install() {
     'type' => 'translatable_node',
     'title' => t('Segments test'),
     'body' => [
-      'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="2">' . t('This is the second segment with single closing tags. <br /> <hr />') . '</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="3">' . t('This is the third segment. <b>This is a testing text inside a tag. The tag is properly closed.</b>') . '</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="4">' . t('This is the fourth segment. <b>This is a testing text inside a tag. The tag is not properly closed.') . '</tmgmt-segment>' . '<br />' .
+      'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' .
+                 '<tmgmt-segment id="2">' . t('This is the second segment with single closing tags. <br /> <hr />') . '</tmgmt-segment>' .
+                 '<tmgmt-segment id="3">' . t('This is the third segment. <b>This is a testing text inside a tag. The tag is properly closed.</b>') . '</tmgmt-segment>' .
+                 '<tmgmt-segment id="4">' . t('This is the fourth segment. <b>This is a testing text inside a tag. The tag is not properly closed.') . '</tmgmt-segment>' .
                  '<tmgmt-segment id="5">' . t('This is the fifth segment. <img src="path" alt="test" title="This is a testing text inside an image tag with attributes" />') . '</tmgmt-segment>',
       'format' => 'translation_html',
     ],
@@ -41,7 +41,7 @@ function tmgmt_ckeditor_install() {
   // Hardcoded dummy segments that will be saved in the translation memory.
   $first_segment_text = 'This is the first segment.';
   $second_segment_text = 'This is the second segment with single closing tags. <br /> <hr />';
-  $third_segment_text = 'This is the third segment. <b>This is a testing text inside a tag. The tag is properly closed..</b>';
+  $third_segment_text = 'This is the third segment. <b>This is a testing text inside a tag. The tag is properly closed.</b>';
   $fourth_segment_text = 'This is the fourth segment. <b>This is a testing text inside a tag. The tag is not properly closed.';
   $fifth_segment_text = 'This is the fifth segment. <img src="path" alt="test" title="This is a testing text inside an image tag with attributes" />';
 
@@ -64,23 +64,23 @@ function tmgmt_ckeditor_install() {
   // Adding the segments to tmgmt_memory.
   $first_source_usage_1 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
   $first_target_usage_1 = $memory_manager->addUsage('de', $first_segment_translation_1, null, null, 1);
-  $memory_manager->addUsageTranslation($first_source_usage_1, $first_target_usage_1);
+  $memory_manager->addUsageTranslation($first_source_usage_1, $first_target_usage_1, 5);
 
   $first_source_usage_2 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
   $first_target_usage_2 = $memory_manager->addUsage('de', $first_segment_translation_2, null, null, 1);
-  $memory_manager->addUsageTranslation($first_source_usage_2, $first_target_usage_2);
+  $memory_manager->addUsageTranslation($first_source_usage_2, $first_target_usage_2, 3);
 
   $first_source_usage_3 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
   $first_target_usage_3 = $memory_manager->addUsage('de', $first_segment_translation_3, null, null, 1);
-  $memory_manager->addUsageTranslation($first_source_usage_3, $first_target_usage_3);
+  $memory_manager->addUsageTranslation($first_source_usage_3, $first_target_usage_3, 1);
 
   $second_source_usage = $memory_manager->addUsage('en', $second_segment_text, null, null, 2);
   $second_target_usage = $memory_manager->addUsage('de', $second_segment_translation, null, null, 2);
-  $memory_manager->addUsageTranslation($second_source_usage, $second_target_usage);
+  $memory_manager->addUsageTranslation($second_source_usage, $second_target_usage, 5);
 
   $third_source_usage = $memory_manager->addUsage('en', $third_segment_text, null, null, 3);
   $third_target_usage = $memory_manager->addUsage('de', $third_segment_translation, null, null, 3);
-  $memory_manager->addUsageTranslation($third_source_usage, $third_target_usage);
+  $memory_manager->addUsageTranslation($third_source_usage, $third_target_usage, 0);
 
   $fourth_source_usage = $memory_manager->addUsage('en', $fourth_segment_text, null, null, 4);
   $fourth_target_usage = $memory_manager->addUsage('de', $fourth_segment_translation, null, null, 4);
