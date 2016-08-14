@@ -131,6 +131,15 @@
     }
   });
 
+  /**
+   * Get the related editor.
+   *
+   * @param {CKEDITOR.editor} editor
+   *   The current CKEDITOR instance.
+   *
+   * @return {CKEDITOR.editor} editor
+   *   The related CKEDITOR instance.
+   */
   function getRelatedEditor(editor) {
     var currentEditorName = editor.name;
     var relatedEditorName;

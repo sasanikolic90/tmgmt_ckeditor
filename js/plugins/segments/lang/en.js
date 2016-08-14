@@ -4,5 +4,6 @@
  *
  */
 CKEDITOR.plugins.setLang('tmgmt_segments', 'en', {
-	buttonTitle: 'Display segments'
+	buttonTitle: 'Display segments',
+	suggestedTranslationsTitle: 'Translations of '
 });

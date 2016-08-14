@@ -13,7 +13,6 @@
   var attrSource = 'data-tmgmt-segment-source';
   var attrQuality = 'data-tmgmt-segment-quality';
   var attrHasMissingTags = 'data-tmgmt-segment-missing-tags';
-  var editorTimer = null;
   var enableListener = false;
   var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1, 3);
   var editorPairs = [];
@@ -63,7 +62,6 @@
 
           // This check is because when clicking "Use", the editors
           // refresh, but the status is still active and it adds a new div.
-          // editorPairs[activeEditorId].areaBelow = document.getElementsByClassName('tmgmt-segments')[editorPairs[activeEditorId].id];
           if (editorPairs[activeEditorId].areaBelow.innerHTML === '') {
             if (editor.addMenuItem) {
               // A group menu is required.
@@ -293,7 +291,29 @@
     }
   });
 
-  // New structure per editor pair.
+  /**
+   * Structure for the EditorPair object.
+   *
+   * @param id
+   *   Id of the current editor.
+   * @param leftEditor
+   *   The left editor of the editor pair.
+   * @param rightEditor
+   *   The right editor of the editor pair.
+   * @param areaBelow
+   *   The area below the current editor pair.
+   * @param activeEditorName
+   *   The active editor's name.
+   * @param activeSegmentId
+   *   The active segment's id.
+   * @param activeWord
+   *   The active word.
+   * @param activeTag
+   *   The active tag.
+   * @param counter
+   *   The counter of completed segments.
+   * @constructor
+   */
   function EditorPair(id, leftEditor, rightEditor, areaBelow, activeEditorName, activeSegmentId, activeWord, activeTag, counter) {
     this.id = id;
     this.leftEditor = leftEditor;
@@ -306,7 +326,9 @@
     this.completedCounter = counter;
   }
 
-  // Get the difference in the number of tags.
+  /**
+   * Get the difference in the number of tags for a selected segment.
+   */
   EditorPair.prototype.tagValidation = function () {
     var segmentsLeft = editorPairs[activeEditorId].leftEditor.document.$.getElementsByTagName(tmgmtSegmentsTag);
     var segmentsRight = editorPairs[activeEditorId].rightEditor.document.$.getElementsByTagName(tmgmtSegmentsTag);
@@ -367,7 +389,16 @@
     }
   };
 
-  // Get the difference between the active segment in both editors.
+  /**
+   * Get the difference between the active segment in both editors.
+   *
+   * @param {Array} array1
+   *   Array of tags in the left editor's active segment.
+   * @param {Array} array2
+   *   Array of tags in the left editor's active segment.
+   * @return {Array}
+   *   Array of different tags.
+   */
   function getDifferences(array1, array2) {
     var diff = [];
     if (array2.length === 0) {
@@ -385,7 +416,9 @@
     return diff;
   }
 
-  // Things to do after the content is selected.
+  /**
+   * Refresh the active content after the segment is selected.
+   */
   function refreshActiveContent() {
     // We only display the clicked texts when the plugin is enabled/clicked -
     // the area below exists (depends on the state).
@@ -396,13 +429,14 @@
     var selectedContent = getActiveContent();
     // If the segment is clicked, display it.
     if (selectedContent && selectedContent['sameSegment'] === 'FALSE') {
-      // Display the segment as active.
-      displayContent();
+      // Append the area below the current editor.
+      appendAreaBelow();
 
       // Do the http request to the memory.
       getDataFromMemory(selectedContent);
     }
     // If something else is clicked, remove the previous displayed segment.
+    // do this in appendAreaBelow()?
     else if (selectedContent === null) {
       editorPairs[activeEditorId].areaBelow.innerHTML = '';
     }
@@ -411,6 +445,12 @@
     EditorPair.prototype.tagValidation();
   }
 
+  /**
+   * Get the suggested translations from the tmgmt-memory.
+   *
+   * @param {Array} selectedContent
+   *   Array of info about the selected segment.
+   */
   function getDataFromMemory(selectedContent) {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
@@ -423,7 +463,7 @@
 
         var p1 = document.createElement('P');
         p1.className = 'tmgmt-active-segment-wrapper';
-        p1.appendChild(document.createTextNode('Translations of '));
+        p1.appendChild(document.createTextNode(CKEDITOR.currentInstance.lang.tmgmt_segments.suggestedTranslationsTitle));
         var span = document.createElement('span');
         span.className = 'tmgmt-active-segment';
         span.appendChild(document.createTextNode('"' + editorPairs[activeEditorId].activeSegmentStrippedText + '"'));
@@ -451,7 +491,12 @@
     xmlhttp.send();
   }
 
-  // Gets the selected segment and word.
+  /**
+   * Get the selected segment, word and tag.
+   *
+   * @return {Array} activeSegmentData
+   *   Array of info about the selected segment, word and tag.
+   */
   function getActiveContent() {
     var range = CKEDITOR.currentInstance.getSelection().getRanges()[0];
     var clickedSegment = range.startContainer.getParent();
@@ -529,24 +574,21 @@
     return null;
   }
 
-  // Displays the selected segment and word in the area below the editor.
-  function displayContent() {
+  /**
+   * Display the selected segment and word in the area below the editor.
+   */
+  function appendAreaBelow() {
     // Remove the previous segment, if it exists.
     var activeSegment = document.getElementsByClassName('active-segment-text');
     if (activeSegment) {
       editorPairs[activeEditorId].areaBelow.innerHTML = '';
     }
-
-    // createNewParagraph('tmgmt-active-segment-div', 'Selected segment', editorPairs[activeEditorId].activeSegmentStrippedText, editorPairs[activeEditorId].areaBelow, 'active-segment');
-    // createNewParagraph('tmgmt-active-word-div', 'Selected word', editorPairs[activeEditorId].activeWord, editorPairs[activeEditorId].areaBelow, 'active-word');
-    //if (editorPairs[activeEditorId].activeTag) {
-    //  createNewParagraph('tmgmt-active-tag-div', 'Selected tag', editorPairs[activeEditorId].activeTag, editorPairs[activeEditorId].areaBelow, 'active-tag');
-    //}
-
     wrappers[editorPairs[activeEditorId].id].appendChild(editorPairs[activeEditorId].areaBelow);
   }
 
-  // Helper function to create and update the counter of completed segments.
+  /**
+   * Create and update the counter of completed segments.
+   */
   function setCounterCompletedSegments() {
     var htmldata = CKEDITOR.currentInstance.getData();
     var regex = new RegExp(attrStatusCompleted, 'g');
@@ -562,7 +604,20 @@
     }
   }
 
-  // Helper function for creating new paragraph in the area below.
+  /**
+   * Display the specified text in the specific area.
+   *
+   * @param {string} parentDiv
+   *   The wrapping div's class for the text.
+   * @param {string} title
+   *   The title.
+   * @param {string} text
+   *   The content.
+   * @param {string} targetDiv
+   *   Where we want to put our content (the area below or the sticky area).
+   * @param {string} elementClassName
+   *   The class for the content.
+   */
   function createNewParagraph(parentDiv, title, text, targetDiv, elementClassName) {
     var wrapper = document.createElement('div');
     wrapper.className = parentDiv;
@@ -601,8 +656,13 @@
     targetDiv.appendChild(wrapper);
   }
 
-  // Creates a table in the area below the editor.
-  // @todo We have lots of hardcoded stuff for now. Needs work and discussion.
+  /**
+   * Creates a table in the area below the editor.
+   *
+   * @param {object} jsonData
+   *   JSON object that was returned by the query in the memory.
+   */
+  // @todo Source is still hardcoded.
   function createTable(jsonData) {
     var table = document.createElement('table');
     var thead = document.createElement('thead');
@@ -665,22 +725,30 @@
     editorPairs[activeEditorId].areaBelow.appendChild(table);
   }
 
-  // Adds the suggestion in the translation editor.
+  /**
+   * Add the suggestion in the translation editor.
+   *
+   * @param {object} jsonData
+   *   JSON object that was returned by the query in the memory.
+   * @param {string} selectedSegment
+   *   The selected segment.
+   */
   function addSuggestion(jsonData, selectedSegment) {
     var editor = CKEDITOR.currentInstance;
     var editorData = editor.getData();
-    var replaced_text = editorData.replace(selectedSegment, jsonData.trSegmentHtmlText);
+    var replacedText = editorData.replace(selectedSegment, jsonData.trSegmentHtmlText);
 
     var suggestionFallback = function () {
       var sourceSegment = editor.document.getById(jsonData.sourceSegmentId);
       sourceSegment.setAttribute(attrSource, 'memory');
       sourceSegment.setAttribute(attrQuality, jsonData.quality);
     };
-    editor.setData(replaced_text, suggestionFallback);
+    editor.setData(replacedText, suggestionFallback);
   }
 
-  // Resets the active segments in the editor, so that there is only 1 active.
-  // @todo No iteration, hardcode the editors for now or make them work in pairs.
+  /**
+   * Resets the active segments in the editor, so that there is only 1 active.
+   */
   function resetActiveSegment() {
     var translationSegment = CKEDITOR.instances[editorPairs[activeEditorId].activeEditorName].document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
     var relatedEditor = getRelatedEditor(CKEDITOR.instances[editorPairs[activeEditorId].activeEditorName]);
@@ -694,8 +762,12 @@
     }
   }
 
-  // Marks active and completed segments in the editor.
-  // @todo This marker should be added only when editing.
+  /**
+   * Marks active and completed segments in the editor.
+   *
+   * @param {string} status
+   *   The status of the segment (active, completed or has-missing-tags).
+   */
   function markSegment(status) {
     var translationSegment = CKEDITOR.currentInstance.document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
     var relatedEditor = getRelatedEditor(CKEDITOR.currentInstance);
@@ -714,6 +786,15 @@
     }
   }
 
+  /**
+   * Get the related editor.
+   *
+   * @param {CKEDITOR.editor} editor
+   *   The current CKEDITOR instance.
+   *
+   * @return {CKEDITOR.editor} editor
+   *   The related CKEDITOR instance.
+   */
   function getRelatedEditor(editor) {
     var currentEditorName = editor.name;
     var relatedEditorName;
