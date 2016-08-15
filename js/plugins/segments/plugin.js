@@ -6,6 +6,8 @@
 (function ($, Drupal, debounce, CKEDITOR) {
   'use strict';
 
+  // Create object with constants
+  // var constansts = { ... }
   var tmgmtSegmentsTag = 'tmgmt-segment';
   var tmgmtTagInsideSegments = 'tmgmt-tag';
   var attrStatusCompleted = 'data-tmgmt-segment-completed-status';
@@ -17,11 +19,6 @@
   var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1, 3);
   var editorPairs = [];
   var activeEditorId;
-
-  if (window.XMLHttpRequest) {
-    // code for IE7+, Firefox, Chrome, Opera, Safari
-    var xmlhttp = new XMLHttpRequest();
-  }
 
   var commandDefinition = {
     readOnly: 1,
@@ -241,6 +238,7 @@
         // the content with the corresponding source content.
         if (translationNameMatch != null) {
           var segmentsDiv = document.createElement('div');
+          // remove the second class with the id
           segmentsDiv.className = 'tmgmt-segments segment-pair-' + editorId;
           wrappers[editorId].appendChild(segmentsDiv);
           if (!editor.getData()) {
@@ -249,7 +247,7 @@
           }
 
           // Create an array of editor pairs.
-          editorPairs[editorId] = new EditorPair(editorId, sourceEditor, editor, segmentsDiv, null, null, null, null, null);
+          editorPairs[editorId] = new EditorPair(editorId, sourceEditor, editor, segmentsDiv);
         }
       });
 
@@ -326,6 +324,10 @@
     this.completedCounter = counter;
   }
 
+/*  function AreaBelow(segmentsDiv) {
+    this.div = segmentsDiv;
+  }*/
+
   /**
    * Get the difference in the number of tags for a selected segment.
    */
@@ -354,7 +356,7 @@
           if (!editorPairs[activeEditorId].activeSegmentId || !_.contains(segmentsWithMissingTags, editorPairs[activeEditorId].activeSegmentId)) {
             globalCounter += numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight;
             if (!document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
-              createNewParagraph('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', globalCounter, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-global-counter');
+              appendText('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', globalCounter, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-global-counter');
             }
             else {
               document.getElementsByClassName('segment-validation-missing-tags-global-counter')[0].innerHTML = globalCounter;
@@ -371,10 +373,10 @@
               differences = getDifferences(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
 
               if (differences.length === 1) {
-                createNewParagraph('tmgmt-segment-validation-tags-div', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' missing tag for the selected segment:', differences , editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+                appendText('tmgmt-segment-validation-tags-div', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' missing tag for the selected segment:', differences , editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
               }
               else {
-                createNewParagraph('tmgmt-segment-validation-tags-div', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' missing tags for the selected segment:', differences , editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+                appendText('tmgmt-segment-validation-tags-div', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' missing tags for the selected segment:', differences , editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
               }
               validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0]);
             }
@@ -384,7 +386,7 @@
       }
     }
     else {
-      createNewParagraph('tmgmt-segment-validation-segments-mismatch-div', 'The number of segments in both editors does not match.', '', editorPairs[activeEditorId].areaBelow, 'segment-validation-segments-mismatch');
+      appendText('tmgmt-segment-validation-segments-mismatch-div', 'The number of segments in both editors does not match.', '', editorPairs[activeEditorId].areaBelow, 'segment-validation-segments-mismatch');
       validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-segments-mismatch-div')[0]);
     }
   };
@@ -428,7 +430,7 @@
 
     var selectedContent = getActiveContent();
     // If the segment is clicked, display it.
-    if (selectedContent && selectedContent['sameSegment'] === 'FALSE') {
+    if (selectedContent && selectedContent['sameSegment'] !== true) {
       // Append the area below the current editor.
       appendAreaBelow();
 
@@ -449,27 +451,15 @@
    * Get the suggested translations from the tmgmt-memory.
    *
    * @param {Array} selectedContent
-   *   Array of info about the selected segment.
+   *   Array of data about the selected segment.
    */
   function getDataFromMemory(selectedContent) {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
       if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        displayActiveSegmentText();
+
         var jsonData = JSON.parse(xmlhttp.responseText);
-        // Make a wrapper for suggested translations.
-        var suggestedTranslations = document.createElement('div');
-        suggestedTranslations.className = 'suggested-translations';
-        editorPairs[activeEditorId].areaBelow.appendChild(suggestedTranslations);
-
-        var p1 = document.createElement('P');
-        p1.className = 'tmgmt-active-segment-wrapper';
-        p1.appendChild(document.createTextNode(CKEDITOR.currentInstance.lang.tmgmt_segments.suggestedTranslationsTitle));
-        var span = document.createElement('span');
-        span.className = 'tmgmt-active-segment';
-        span.appendChild(document.createTextNode('"' + editorPairs[activeEditorId].activeSegmentStrippedText + '"'));
-        p1.appendChild(span);
-        suggestedTranslations.appendChild(p1);
-
         createTable(jsonData);
       }
       else if (xmlhttp.readyState == 4 && xmlhttp.status == 204) {
@@ -483,6 +473,37 @@
         noSuggestionsWrapper.appendChild(text);
       }
     };
+    sendHttpRequest(xmlhttp, selectedContent);
+  }
+
+  /**
+   * Display the selected segment in the area below.
+   */
+  function displayActiveSegmentText() {
+    // Make a wrapper for suggested translations.
+    var suggestedTranslations = document.createElement('div');
+    suggestedTranslations.className = 'suggested-translations';
+    editorPairs[activeEditorId].areaBelow.appendChild(suggestedTranslations);
+
+    var p1 = document.createElement('P');
+    p1.className = 'tmgmt-active-segment-wrapper';
+    p1.appendChild(document.createTextNode(CKEDITOR.currentInstance.lang.tmgmt_segments.suggestedTranslationsTitle));
+    var span = document.createElement('span');
+    span.className = 'tmgmt-active-segment';
+    span.appendChild(document.createTextNode('"' + editorPairs[activeEditorId].activeSegmentStrippedText + '"'));
+    p1.appendChild(span);
+    suggestedTranslations.appendChild(p1);
+  }
+
+  /**
+   * Send the http request to the translation memory.
+   *
+   * @param {XMLHttpRequest} xmlhttp
+   *   The XMLHttpRequest object.
+   * @param {Array} selectedContent
+   *   The array containing data about the selected content.
+   */
+  function sendHttpRequest(xmlhttp, selectedContent) {
     xmlhttp.open('GET', drupalSettings.path.baseUrl +
       'tmgmt_ckeditor/get.json?segmentStrippedText=' + selectedContent['segmentStrippedText'] +
       '&segmentHtmlText=' + encodeURIComponent(selectedContent['segmentHtmlText']) +
@@ -495,7 +516,7 @@
    * Get the selected segment, word and tag.
    *
    * @return {Array} activeSegmentData
-   *   Array of info about the selected segment, word and tag.
+   *   Array of data about the selected segment, word and tag.
    */
   function getActiveContent() {
     var range = CKEDITOR.currentInstance.getSelection().getRanges()[0];
@@ -503,14 +524,8 @@
 
     // If we clicked the segment or the tag inside.
     if (range.startOffset && (clickedSegment.getName() === tmgmtSegmentsTag || clickedSegment.getParent().getName() === tmgmtSegmentsTag)) {
-      var indexPrevSpace = clickedSegment.getText().lastIndexOf(' ', range.startOffset) + 1;
-      var indexNextSpace = clickedSegment.getText().indexOf(' ', range.startOffset);
-      if (indexPrevSpace === -1) {
-        indexPrevSpace = 0;
-      }
-      if (indexNextSpace === -1) {
-        indexNextSpace = clickedSegment.getText().length;
-      }
+
+      var indexes = getClickedIndexes(range, clickedSegment);
 
       // If the clicked element was the tag, we need to get the parent
       var activeSegmentData = [];
@@ -535,43 +550,87 @@
         activeSegmentData['tagsStrippedText'] = null;
       }
 
+      // Set flag if the user clicked the same segment again.
+      setSameSegmentFlag(activeSegmentData);
+
       var editorData = CKEDITOR.currentInstance.getData();
       var clickedSegmentId = activeSegmentData['segmentId'];
-
-      // Return if the user clicked the same segment again.
-      if (clickedSegmentId === editorPairs[activeEditorId].activeSegmentId) {
-        activeSegmentData['sameSegment'] = 'TRUE';
-      }
-      else {
-        activeSegmentData['sameSegment'] = 'FALSE';
-      }
-
       var regexForSegmentHtmlText = new RegExp('<tmgmt-segment.*? id=\"' + clickedSegmentId + '\">(.*?)<\/tmgmt-segment>');
       // regexForSegmentHtmlText.lastIndex = 0; // Reset the last index of regex (null issue).
       activeSegmentData['segmentHtmlText'] = regexForSegmentHtmlText.exec(editorData)[1];
 
-      activeSegmentData['word'] = clickedSegment.getText().substring(indexPrevSpace, indexNextSpace).replace(/[.,:;!?]$/,'');
+      activeSegmentData['word'] = clickedSegment.getText().substring(indexes.indexPrevSpace, indexes.indexNextSpace).replace(/[.,:;!?]$/,'');
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
       activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
 
-      editorPairs[activeEditorId].activeSegmentId = activeSegmentData['segmentId'];
-      editorPairs[activeEditorId].activeEditorName = CKEDITOR.currentInstance.name;
-      editorPairs[activeEditorId].activeWord = activeSegmentData['word'];
-      editorPairs[activeEditorId].activeSegmentStrippedText = activeSegmentData['segmentStrippedText'];
-      editorPairs[activeEditorId].activeSegmentHtmlText = activeSegmentData['segmentHtmlText'];
-      editorPairs[activeEditorId].activeTag = activeSegmentData['tagsStrippedText'];
+      // create a function for setting these
+      setEditorPairData(activeSegmentData);
       markSegment('active');
 
       // Return the word without extra characters.
       return activeSegmentData;
     }
     // If we clicked outside of the segment, we reset the active segments and tags.
-    editorPairs[activeEditorId].activeSegmentId = null;
-    editorPairs[activeEditorId].activeWord = null;
-    editorPairs[activeEditorId].activeSegmentStrippedText = null;
-    editorPairs[activeEditorId].activeSegmentHtmlText = null;
-    editorPairs[activeEditorId].activeTag = null;
+    setEditorPairData(null);
     return null;
+  }
+
+  /**
+   * Get the indexes of the clicked segment.
+   *
+   * @param {CKEDITOR.dom.range} range
+   *   Range of the clicked element.
+   *
+   * @param {CKEDITOR.dom.element} clickedSegment
+   *   The clicked segment.
+   *
+   * @return {{indexPrevSpace: number, indexNextSpace: Number}}
+   *   Return the object with the previous and next indexes.
+   */
+  function getClickedIndexes(range, clickedSegment) {
+    var indexPrevSpace = clickedSegment.getText().lastIndexOf(' ', range.startOffset) + 1;
+    var indexNextSpace = clickedSegment.getText().indexOf(' ', range.startOffset);
+    if (indexPrevSpace === -1) {
+      indexPrevSpace = 0;
+    }
+    if (indexNextSpace === -1) {
+      indexNextSpace = clickedSegment.getText().length;
+    }
+    return {indexPrevSpace: indexPrevSpace, indexNextSpace: indexNextSpace};
+  }
+
+  /**
+   * Set the data for the active editor pair.
+   *
+   * @param {Array|null} data
+   *   Data to be put in the active EditorPair object.
+   */
+  function setEditorPairData(data) {
+    if (data) {
+      editorPairs[activeEditorId].activeSegmentId = data['segmentId'];
+      editorPairs[activeEditorId].activeEditorName = CKEDITOR.currentInstance.name;
+      editorPairs[activeEditorId].activeWord = data['word'];
+      editorPairs[activeEditorId].activeSegmentStrippedText = data['segmentStrippedText'];
+      editorPairs[activeEditorId].activeSegmentHtmlText = data['segmentHtmlText'];
+      editorPairs[activeEditorId].activeTag = data['tagsStrippedText'];
+    }
+    else {
+      editorPairs[activeEditorId].activeSegmentId = null;
+      editorPairs[activeEditorId].activeWord = null;
+      editorPairs[activeEditorId].activeSegmentStrippedText = null;
+      editorPairs[activeEditorId].activeSegmentHtmlText = null;
+      editorPairs[activeEditorId].activeTag = null;
+    }
+  }
+
+  function setSameSegmentFlag(activeSegmentData) {
+    if (activeSegmentData['segmentId'] === editorPairs[activeEditorId].activeSegmentId) {
+      activeSegmentData['sameSegment'] = true;
+    }
+    else {
+      activeSegmentData['sameSegment'] = false;
+    }
+    return activeSegmentData['sameSegment'];
   }
 
   /**
@@ -597,7 +656,7 @@
 
     if (!document.getElementsByClassName('segment-status-counter')[0]) {
       var segmentStatusCounter = count.toString() + '/' + countAll;
-      createNewParagraph('tmgmt-segment-counter-div','Completed segments:', segmentStatusCounter, document.getElementById('sidebar'), 'segment-status-counter');
+      appendText('tmgmt-segment-counter-div','Completed segments:', segmentStatusCounter, document.getElementById('sidebar'), 'segment-status-counter');
     }
     else {
       document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;
@@ -618,7 +677,7 @@
    * @param {string} elementClassName
    *   The class for the content.
    */
-  function createNewParagraph(parentDiv, title, text, targetDiv, elementClassName) {
+  function appendText(parentDiv, title, text, targetDiv, elementClassName) {
     var wrapper = document.createElement('div');
     wrapper.className = parentDiv;
     var p = document.createElement('P');
@@ -633,15 +692,10 @@
         a.setAttribute('nohref', '');
         a.setAttribute('title', 'Click to add this missing tag on cursor position.');
         var maskedTag = text[j].outerHTML;
-        if (typeof window.addEventListener === 'function') {
-          (function () {
-            a.addEventListener('click', function () {
-              var htmlTag = CKEDITOR.dom.element.createFromHtml(maskedTag);
-              CKEDITOR.currentInstance.insertElement(htmlTag);
-              CKEDITOR.currentInstance.widgets.initOn(htmlTag, 'tmgmt_tags');
-            });
-          })(a);
-        }
+
+        // To solve the closure issue inside the loop.
+        bind_event(a, maskedTag);
+
         a.appendChild(document.createTextNode(text[j].getAttribute('element')));
         missingTagsWrapper.appendChild(a);
         wrapper.appendChild(missingTagsWrapper);
@@ -654,6 +708,16 @@
       wrapper.appendChild(span);
     }
     targetDiv.appendChild(wrapper);
+
+    function bind_event(a, maskedTag) {
+      if (typeof window.addEventListener === 'function') {
+        a.addEventListener('click', function () {
+          var htmlTag = CKEDITOR.dom.element.createFromHtml(maskedTag);
+          CKEDITOR.currentInstance.insertElement(htmlTag);
+          CKEDITOR.currentInstance.widgets.initOn(htmlTag, 'tmgmt_tags');
+        });
+      }
+    }
   }
 
   /**
