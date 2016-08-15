@@ -7,17 +7,19 @@
   'use strict';
 
   // Create object with constants
-  // var constansts = { ... }
-  var tmgmtSegmentsTag = 'tmgmt-segment';
-  var tmgmtTagInsideSegments = 'tmgmt-tag';
-  var attrStatusCompleted = 'data-tmgmt-segment-completed-status';
-  var attrStatusActive = 'data-tmgmt-segment-active-status';
-  var attrSource = 'data-tmgmt-segment-source';
-  var attrQuality = 'data-tmgmt-segment-quality';
-  var attrHasMissingTags = 'data-tmgmt-segment-missing-tags';
+  var constants = {
+    tmgmtSegmentsTag: 'tmgmt-segment',
+    tmgmtTagInsideSegments: 'tmgmt-tag',
+    attrStatusCompleted: 'data-tmgmt-segment-completed-status',
+    attrStatusActive: 'data-tmgmt-segment-active-status',
+    attrSource: 'data-tmgmt-segment-source',
+    attrQuality: 'data-tmgmt-segment-quality',
+    attrHasMissingTags: 'data-tmgmt-segment-missing-tags'
+  };
+
   var enableListener = false;
-  var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1, 3);
   var editorPairs = [];
+  var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1, 3);
   var activeEditorId;
 
   var commandDefinition = {
@@ -126,12 +128,12 @@
 
       cssStd = cssImgLeft = cssImgRight = '';
 
-      cssStd += '.cke_show_segments ' + tmgmtSegmentsTag + '{' +
+      cssStd += '.cke_show_segments ' + constants.tmgmtSegmentsTag + '{' +
         '}';
-      cssImgLeft += '.cke_show_segments ' + tmgmtSegmentsTag + '::before{' +
+      cssImgLeft += '.cke_show_segments ' + constants.tmgmtSegmentsTag + '::before{' +
         'content:' + '"\u25B6"' + ';' + 'padding-right: 0.5em;' +
         '}';
-      cssImgRight += '.cke_show_segments ' + tmgmtSegmentsTag + '::after{' +
+      cssImgRight += '.cke_show_segments ' + constants.tmgmtSegmentsTag + '::after{' +
         'content:' + '"\u25C0"' + ';' + 'padding-left: 0.5em;' +
         '}';
 
@@ -200,7 +202,7 @@
 
       if (editor.contextMenu) {
         editor.contextMenu.addListener(function (element) {
-          if (element.getAscendant(tmgmtSegmentsTag, true)) {
+          if (element.getAscendant(constants.tmgmtSegmentsTag, true)) {
             return {
               setStatusItem: CKEDITOR.TRISTATE_ON
             };
@@ -212,13 +214,13 @@
       editor.addCommand('setStatusCompleted', {
         exec: function (editor) {
           var element = editor.getSelection().getStartElement();
-          element.setAttribute(attrStatusCompleted, 'completed');
+          element.setAttribute(constants.attrStatusCompleted, 'completed');
           // If the clicked element is the segment, set the id.
-          if (element.getName() === tmgmtSegmentsTag) {
+          if (element.getName() === constants.tmgmtSegmentsTag) {
             editorPairs[activeEditorId].activeSegmentId = element.getId();
           }
           // If the clicked element is the tag, get the id from the parent.
-          else if (element.getName() === tmgmtTagInsideSegments) {
+          else if (element.getName() === constants.tmgmtTagInsideSegments) {
             editorPairs[activeEditorId].activeSegmentId = element.getParent().getId();
           }
           markSegment('completed');
@@ -332,8 +334,8 @@
    * Get the difference in the number of tags for a selected segment.
    */
   EditorPair.prototype.tagValidation = function () {
-    var segmentsLeft = editorPairs[activeEditorId].leftEditor.document.$.getElementsByTagName(tmgmtSegmentsTag);
-    var segmentsRight = editorPairs[activeEditorId].rightEditor.document.$.getElementsByTagName(tmgmtSegmentsTag);
+    var segmentsLeft = editorPairs[activeEditorId].leftEditor.document.$.getElementsByTagName(constants.tmgmtSegmentsTag);
+    var segmentsRight = editorPairs[activeEditorId].rightEditor.document.$.getElementsByTagName(constants.tmgmtSegmentsTag);
     var numberOfTagsPerSegmentLeft;
     var numberOfTagsPerSegmentRight;
     var arrayOfTagsPerSegmentLeft = [];
@@ -346,8 +348,8 @@
 
     if (segmentsLeft.length === segmentsRight.length) {
       for (var i = 0; i < segmentsLeft.length; i++) {
-        numberOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments).length;
-        numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments).length;
+        numberOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.tmgmtTagInsideSegments).length;
+        numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.tmgmtTagInsideSegments).length;
 
         if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
 
@@ -367,8 +369,8 @@
           else {
             if (editorPairs[activeEditorId].activeSegmentId === segmentsLeft[i].id) {
               markSegment('has-missing-tags');
-              arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(tmgmtTagInsideSegments);
-              arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(tmgmtTagInsideSegments);
+              arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.tmgmtTagInsideSegments);
+              arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.tmgmtTagInsideSegments);
 
               differences = getDifferences(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
 
@@ -523,13 +525,13 @@
     var clickedSegment = range.startContainer.getParent();
 
     // If we clicked the segment or the tag inside.
-    if (range.startOffset && (clickedSegment.getName() === tmgmtSegmentsTag || clickedSegment.getParent().getName() === tmgmtSegmentsTag)) {
+    if (range.startOffset && (clickedSegment.getName() === constants.tmgmtSegmentsTag || clickedSegment.getParent().getName() === constants.tmgmtSegmentsTag)) {
 
       var indexes = getClickedIndexes(range, clickedSegment);
 
       // If the clicked element was the tag, we need to get the parent.
       var activeSegmentData = [];
-      if (clickedSegment.getName() === tmgmtTagInsideSegments) {
+      if (clickedSegment.getName() === constants.tmgmtTagInsideSegments) {
         activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
         activeSegmentData['segmentStrippedText'] = clickedSegment.getParent().getText();
         // activeSegmentData['segmentHtmlText'] = clickedSegment.getParent().getHtml();
@@ -649,7 +651,7 @@
    */
   function setCounterCompletedSegments() {
     var htmldata = CKEDITOR.currentInstance.getData();
-    var regex = new RegExp(attrStatusCompleted, 'g');
+    var regex = new RegExp(constants.attrStatusCompleted, 'g');
     var count = (htmldata.match(regex) || []).length;
     var countAll = (htmldata.match(/<\/tmgmt-segment>/g) || []).length;
 
@@ -803,8 +805,8 @@
 
     var suggestionFallback = function () {
       var sourceSegment = editor.document.getById(jsonData.sourceSegmentId);
-      sourceSegment.setAttribute(attrSource, 'memory');
-      sourceSegment.setAttribute(attrQuality, jsonData.quality);
+      sourceSegment.setAttribute(constants.attrSource, 'memory');
+      sourceSegment.setAttribute(constants.attrQuality, jsonData.quality);
     };
     editor.setData(replacedText, suggestionFallback);
   }
@@ -816,12 +818,12 @@
     var translationSegment = CKEDITOR.instances[editorPairs[activeEditorId].activeEditorName].document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
     var relatedEditor = getRelatedEditor(CKEDITOR.instances[editorPairs[activeEditorId].activeEditorName]);
     var relatedSegment = relatedEditor.document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
-    translationSegment.removeAttribute(attrStatusActive);
-    relatedSegment.removeAttribute(attrStatusActive);
+    translationSegment.removeAttribute(constants.attrStatusActive);
+    relatedSegment.removeAttribute(constants.attrStatusActive);
 
-    if (translationSegment.hasAttribute(attrHasMissingTags)) {
-      translationSegment.removeAttribute(attrHasMissingTags);
-      relatedSegment.removeAttribute(attrHasMissingTags);
+    if (translationSegment.hasAttribute(constants.attrHasMissingTags)) {
+      translationSegment.removeAttribute(constants.attrHasMissingTags);
+      relatedSegment.removeAttribute(constants.attrHasMissingTags);
     }
   }
 
@@ -836,16 +838,16 @@
     var relatedEditor = getRelatedEditor(CKEDITOR.currentInstance);
     var relatedSegment = relatedEditor.document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
     if (status === 'active') {
-      translationSegment.setAttribute(attrStatusActive, '');
-      relatedSegment.setAttribute(attrStatusActive, '');
+      translationSegment.setAttribute(constants.attrStatusActive, '');
+      relatedSegment.setAttribute(constants.attrStatusActive, '');
     }
     else if (status === 'completed') {
-      translationSegment.setAttribute(attrStatusCompleted, '');
-      relatedSegment.setAttribute(attrStatusCompleted, '');
+      translationSegment.setAttribute(constants.attrStatusCompleted, '');
+      relatedSegment.setAttribute(constants.attrStatusCompleted, '');
     }
     else if (status === 'has-missing-tags') {
-      translationSegment.setAttribute(attrHasMissingTags, '');
-      relatedSegment.setAttribute(attrHasMissingTags, '');
+      translationSegment.setAttribute(constants.attrHasMissingTags, '');
+      relatedSegment.setAttribute(constants.attrHasMissingTags, '');
     }
   }
 
