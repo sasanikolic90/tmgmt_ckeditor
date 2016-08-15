@@ -6,7 +6,6 @@
 (function ($, Drupal, debounce, CKEDITOR) {
   'use strict';
 
-  // Create object with constants
   var constants = {
     tmgmtSegmentsTag: 'tmgmt-segment',
     tmgmtTagInsideSegments: 'tmgmt-tag',
