@@ -527,7 +527,7 @@
 
       var indexes = getClickedIndexes(range, clickedSegment);
 
-      // If the clicked element was the tag, we need to get the parent
+      // If the clicked element was the tag, we need to get the parent.
       var activeSegmentData = [];
       if (clickedSegment.getName() === tmgmtTagInsideSegments) {
         activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
@@ -563,7 +563,6 @@
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
       activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
 
-      // create a function for setting these
       setEditorPairData(activeSegmentData);
       markSegment('active');
 
