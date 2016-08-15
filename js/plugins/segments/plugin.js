@@ -438,15 +438,17 @@
 
       // Do the http request to the memory.
       getDataFromMemory(selectedContent);
+
+      // Check for tag validation.
+      EditorPair.prototype.tagValidation();
     }
     // If something else is clicked, remove the previous displayed segment.
     // do this in appendAreaBelow()?
     else if (selectedContent === null) {
       editorPairs[activeEditorId].areaBelow.innerHTML = '';
+      // Check for tag validation.
+      EditorPair.prototype.tagValidation();
     }
-
-    // Check for tag validation.
-    EditorPair.prototype.tagValidation();
   }
 
   /**
