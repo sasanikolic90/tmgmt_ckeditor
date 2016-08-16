@@ -8,7 +8,7 @@
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\editor\Entity\Editor;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\tmgmt\JobItemInterface;
+use \Drupal\Core\Render\Element;
 
 /**
  * Implements hook_help().
@@ -51,6 +51,19 @@ function tmgmt_ckeditor_form_tmgmt_job_item_edit_form_alter(&$form, FormStateInt
   $job_item = $form_state->getFormObject()->getEntity();
   $form['#attached']['drupalSettings']['sourceLanguage'] = $job_item->getJob()->getSourceLangcode();
   $form['#attached']['drupalSettings']['targetLanguage'] = $job_item->getJob()->getTargetLangcode();
+
+  foreach (Element::children($form['review']) as $group_key) {
+    foreach (Element::children($form['review'][$group_key]) as $parent_key) {
+      foreach ($form['review'][$group_key][$parent_key] as $key => $data) {
+        if (!empty($data)) {
+          if (array_key_exists('#allowed_formats', $data['source']) && $data['source']['#allowed_formats'][0] !== 'translation_html') {
+            $form['review'][$group_key][$parent_key][$key]['source']['#allowed_formats'][0] = 'translation_html';
+            $form['review'][$group_key][$parent_key][$key]['translation']['#allowed_formats'][0] = 'translation_html';
+          }
+        }
+      }
+    }
+  }
 }
 
 /**
