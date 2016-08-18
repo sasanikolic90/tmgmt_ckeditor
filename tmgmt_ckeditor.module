@@ -70,6 +70,7 @@ function tmgmt_ckeditor_form_tmgmt_job_item_edit_form_alter(&$form, FormStateInt
  * Implements hook_tmgmt_data_item_text_output_alter().
  */
 function tmgmt_ckeditor_tmgmt_data_item_text_output_alter(&$source_text, &$translation_text, array $context) {
+  // @todo Use segmented-text instead of text when the segmentation will work.
   $source_text = tmgmt_ckeditor_html_mask($context['data_item']['#text']);
   $translation_text = tmgmt_ckeditor_html_mask($translation_text);
 }
