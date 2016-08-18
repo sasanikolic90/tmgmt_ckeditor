@@ -16,7 +16,7 @@ use Drupal\user\RoleInterface;
 function tmgmt_ckeditor_install() {
   $node = Node::create(array(
     'type' => 'translatable_node',
-    'title' => t('Segments test'),
+    'title' => t('Segments test for CKEditor plugins'),
     'body' => [
       'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' .
                  '<tmgmt-segment id="2">' . t('This is the second segment with single closing tags. <br /> <hr />') . '</tmgmt-segment>' .
@@ -95,8 +95,8 @@ function tmgmt_ckeditor_install() {
     'title' => 'Paragraph 1',
     'type' => 'text',
     'field_text_demo' => [
-      'value' => '<tmgmt-segment id="6">This is the first segment in a paragraph.</tmgmt-segment>' . '<br />' .
-                 '<tmgmt-segment id="7">This is the second segment in a paragraph.</tmgmt-segment>',
+      'value' => '<tmgmt-segment id="6">This is the first segment in a paragraph. <br /></tmgmt-segment>' .
+                 '<tmgmt-segment id="7">This is the second segment in a paragraph. <hr /> </tmgmt-segment>',
       'format' => 'translation_html',
     ],
   ]);
@@ -106,7 +106,7 @@ function tmgmt_ckeditor_install() {
     'title' => 'Paragraph 2',
     'type' => 'text',
     'field_text_demo' => [
-      'value' => '<tmgmt-segment id="8">This is the third segment in a paragraph.</tmgmt-segment>',
+      'value' => '<tmgmt-segment id="8">This is the third segment in a <b>paragraph.</b></tmgmt-segment>',
       'format' => 'translation_html',
     ],
   ]);
@@ -116,7 +116,7 @@ function tmgmt_ckeditor_install() {
     'title' => 'Paragraph 3',
     'type' => 'text',
     'field_text_demo' => [
-      'value' => '<tmgmt-segment id="8">This is the fourth segment in a paragraph.</tmgmt-segment>',
+      'value' => '<tmgmt-segment id="9">This is the fourth segment in a paragraph.</tmgmt-segment>',
       'format' => 'translation_html',
     ],
   ]);
@@ -124,7 +124,7 @@ function tmgmt_ckeditor_install() {
 
   $node2 = Node::create(array(
     'type' => 'paragraphed_content_demo',
-    'title' => 'Paragraphs test for CKEditor segments plugin',
+    'title' => 'Paragraphs test for CKEditor plugins',
     'uid' => '0',
     'status' => 1,
     'field_paragraphs_demo' => array(
@@ -144,16 +144,16 @@ function tmgmt_ckeditor_install() {
   ));
   $node2->save();
 
-  $first_paragraph_segment = 'This is the first segment in a paragraph.';
-  $second_paragraph_segment = 'This is the second segment in a paragraph.';
-  $third_paragraph_segment = 'This is the third segment in a paragraph.';
+  $first_paragraph_segment = 'This is the first segment in a paragraph. <br />';
+  $second_paragraph_segment = 'This is the second segment in a paragraph. <hr />';
+  $third_paragraph_segment = 'This is the third segment in a <b>paragraph.</b>';
 
   // Hardcoded translations of the dummy segments.
-  $first_paragraph_segment_translation_1 = 'This is the first translated segment in a paragraph 1.';
-  $first_paragraph_segment_translation_2 = 'This is the first translated segment in a paragraph 2.';
-  $first_paragraph_segment_translation_3 = 'This is the first translated segment in a paragraph 3.';
-  $second_paragraph_segment_translation = 'This is the second translated segment in a paragraph.';
-  $third_paragraph_segment_translation = 'This is the third translated segment in a paragraph.';
+  $first_paragraph_segment_translation_1 = 'This is the first translation for the first segment in paragraph 1.';
+  $first_paragraph_segment_translation_2 = 'This is the second translation for the first segment in paragraph 1. <br />';
+  $first_paragraph_segment_translation_3 = 'This is the third translation for the first segment in paragraph 1. <br />';
+  $second_paragraph_segment_translation = 'This is a translation for the second segment in <b>paragraph 1.</b>';
+  $third_paragraph_segment_translation = 'This is a translation for the segment in paragraph 2.';
 
   // Adding the segments to tmgmt_memory.
   $first_paragraph_source_usage_1 = $memory_manager->addUsage('en', $first_paragraph_segment, null, null, 6);
