@@ -123,7 +123,9 @@
     allowedContent: 'tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality]; tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality] tmgmt-tag[!element,!raw];',
     requires: 'widget',
     onLoad: function () {
-      var cssStd, cssImgLeft, cssImgRight;
+      var cssStd;
+      var cssImgLeft;
+      var cssImgRight;
 
       cssStd = cssImgLeft = cssImgRight = '';
 
@@ -146,18 +148,13 @@
       dtd['tmgmt-segment'] = CKEDITOR.dtd['div'];  // tmgmt-segment should behaves as a div.
       dtd['tmgmt-segment']['tmgmt-tag'] = 1;
       dtd.$editable['tmgmt-segment'] = 1;
-/*      dtd['tmgmt-segment'] = {'#': 1};
-      dtd['tmgmt-tag'] = {'#': 1};*/
 
       dtd['tmgmt-tag'] = {};
       dtd.$object['tmgmt-tag'] = 1;
       dtd.$empty['tmgmt-tag'] = 1;
       dtd.$inline['tmgmt-tag'] = 1;
-      // editor.filter.allow('tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality] tmgmt-tag[!element,!raw]');
 
       editor.widgets.add('tmgmt_tags', {
-        // Minimum HTML which is required by this widget to work.
-        // allowedContent: '',
         inline: true,
         allowedContent: 'tmgmt-tag[element,raw]',
         requiredContent: 'tmgmt-tag[element,raw]',
@@ -324,10 +321,6 @@
     this.activeTag = activeTag;
     this.completedCounter = counter;
   }
-
-/*  function AreaBelow(segmentsDiv) {
-    this.div = segmentsDiv;
-  }*/
 
   /**
    * Get the difference in the number of tags for a selected segment.
