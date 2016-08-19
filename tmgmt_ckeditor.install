@@ -152,7 +152,7 @@ function tmgmt_ckeditor_install() {
   $first_paragraph_segment_translation_1 = 'This is the first translation for the first segment in paragraph 1.';
   $first_paragraph_segment_translation_2 = 'This is the second translation for the first segment in paragraph 1. <br />';
   $first_paragraph_segment_translation_3 = 'This is the third translation for the first segment in paragraph 1. <br />';
-  $second_paragraph_segment_translation = 'This is a translation for the second segment in <b>paragraph 1.</b>';
+  $second_paragraph_segment_translation = 'This is a translation for the second segment in paragraph 1.';
   $third_paragraph_segment_translation = 'This is a translation for the segment in paragraph 2.';
 
   // Adding the segments to tmgmt_memory.
