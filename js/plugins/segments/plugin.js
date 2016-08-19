@@ -423,8 +423,7 @@
    * Refresh the active content after the segment is selected.
    */
   function refreshActiveContent() {
-    // We only display the clicked texts when the plugin is enabled/clicked -
-    // the area below exists (depends on the state).
+    // Reset the active segment if one was already selected before.
     if (editorPairs[activeEditorId].activeSegmentId && editorPairs[activeEditorId].activeEditorName) {
       resetActiveSegment();
     }
