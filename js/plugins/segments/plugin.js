@@ -171,17 +171,22 @@
     },
 
     beforeInit: function (editor) {
-      var dtd = CKEDITOR.dtd;
-      dtd.$block[constants.main.tmgmtSegmentsTag] = 1;  // Make the segments blocks.
-      dtd.body[constants.main.tmgmtSegmentsTag] = 1;  // Body may contain tmgmt-segment.
-      dtd[constants.main.tmgmtSegmentsTag] = CKEDITOR.dtd['div'];  // tmgmt-segment should behave as a div.
-      dtd[constants.main.tmgmtSegmentsTag][constants.main.tmgmtTagInsideSegments] = 1;
-      dtd.$editable[constants.main.tmgmtSegmentsTag] = 1;
+      // Configure CKEditor DTD for custom drupal-url element.
+      // @see https://www.drupal.org/node/2448449#comment-9717735
+      var dtd = CKEDITOR.dtd, tagName;
+      dtd[constants.main.tmgmtSegmentsTag] = {
+        '#': 1,
+        'span': 1,
+        'tmgmt-tag': 1
+      };
 
+      dtd[constants.main.tmgmtSegmentsTag][constants.main.tmgmtTagInsideSegments] = 1;
       dtd[constants.main.tmgmtTagInsideSegments] = {};
-      dtd.$object[constants.main.tmgmtTagInsideSegments] = 1;
-      dtd.$empty[constants.main.tmgmtTagInsideSegments] = 1;
-      dtd.$inline[constants.main.tmgmtTagInsideSegments] = 1;
+      for (tagName in dtd) {
+        if (dtd[tagName].img) {
+          dtd[tagName][constants.main.tmgmtTagInsideSegments] = 1;
+        }
+      }
 
       editor.widgets.add('tmgmt_tags', {
         inline: true,
