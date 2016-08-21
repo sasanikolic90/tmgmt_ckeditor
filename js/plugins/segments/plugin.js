@@ -7,19 +7,46 @@
   'use strict';
 
   var constants = {
-    tmgmtSegmentsTag: 'tmgmt-segment',
-    tmgmtTagInsideSegments: 'tmgmt-tag',
-    attrStatusCompleted: 'data-tmgmt-segment-completed-status',
-    attrStatusActive: 'data-tmgmt-segment-active-status',
-    attrSource: 'data-tmgmt-segment-source',
-    attrQuality: 'data-tmgmt-segment-quality',
-    attrHasMissingTags: 'data-tmgmt-segment-missing-tags'
+    main: {
+      tmgmtSegmentsTag: 'tmgmt-segment',
+      tmgmtTagInsideSegments: 'tmgmt-tag'
+    },
+    attribute: {
+      statusCompleted: 'data-tmgmt-segment-completed-status',
+      statusActive: 'data-tmgmt-segment-active-status',
+      source: 'data-tmgmt-segment-source',
+      quality: 'data-tmgmt-segment-quality',
+      hasMissingTags: 'data-tmgmt-segment-missing-tags',
+      segmentsInfoArea: 'data-tmgmt-segment-info-area'
+    },
+    class: {
+      reviewPage: 'tmgmt-ui-review',
+      validationWrapper: 'tmgmt-segment-validation-div messages messages--error',
+      validationTagsWrapper: 'tmgmt-segment-validation-tags-div',
+      globalCounterWrapper: 'tmgmt-segment-validation-global-counter-div',
+      missingTagsGlobalCounter: 'segment-validation-missing-tags-global-counter',
+      missingTagsCounter: 'segment-validation-missing-tags',
+      segmentsMismatchWrapper: 'tmgmt-segment-validation-segments-mismatch-div',
+      segmentsMismatch: 'segment-validation-segments-mismatch',
+      noSuggestedTranslationsWrapper: 'no-suggested-translations-wrapper',
+      noSuggestedTranslations: 'no-suggested-translations',
+      suggestedTranslations: 'suggested-translations',
+      activeSegmentWrapper: 'tmgmt-active-segment-wrapper',
+      activeSegment: 'tmgmt-active-segment',
+      segmentStatusCounter: 'segment-status-counter',
+      missingTagsWrapper: 'tmgmt-missing-tags-wrapper',
+      translationSuggestions: 'tmgmt-translation-suggestions'
+    },
+    id: {
+      buttonUseSuggestionId: 'btn-use-suggestion-'
+    }
   };
 
   var enableListener = false;
   var editorPairs = [];
   var wrappers = [].slice.call(document.getElementsByClassName('tmgmt-ui-data-item-translation')).splice(1, 3);
   var activeEditorId;
+  var languageFile;
 
   var commandDefinition = {
     readOnly: 1,
@@ -42,6 +69,8 @@
         var matchId = editor.name.match(/\d+/);
         activeEditorId = parseInt(matchId[0], 10);
         var relatedEditor = getRelatedEditor(editor);
+
+        languageFile = editor.lang.tmgmt_segments;
 
         var funcName = showSegments ? 'attachClass' : 'removeClass';
         editor.editable()[funcName]('cke_show_segments');
@@ -67,7 +96,7 @@
 
               // Create a context menu item.
               editor.addMenuItem('setStatusItem', {
-                label: 'Set status completed',
+                label: languageFile.setCompletedStatusTitle,
                 icon: CKEDITOR.plugins.get('tmgmt_segments').path + 'icons/status-completed.png',
                 command: 'setStatusCompleted',
                 group: 'setStatusGroup'
@@ -123,16 +152,18 @@
     allowedContent: 'tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality]; tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality] tmgmt-tag[!element,!raw];',
     requires: 'widget',
     onLoad: function () {
-      var cssStd, cssImgLeft, cssImgRight;
+      var cssStd;
+      var cssImgLeft;
+      var cssImgRight;
 
       cssStd = cssImgLeft = cssImgRight = '';
 
-      cssStd += '.cke_show_segments ' + constants.tmgmtSegmentsTag + '{' +
+      cssStd += '.cke_show_segments ' + constants.main.tmgmtSegmentsTag + '{' +
         '}';
-      cssImgLeft += '.cke_show_segments ' + constants.tmgmtSegmentsTag + '::before{' +
+      cssImgLeft += '.cke_show_segments ' + constants.main.tmgmtSegmentsTag + '::before{' +
         'content:' + '"\u25B6"' + ';' + 'padding-right: 0.5em;' +
         '}';
-      cssImgRight += '.cke_show_segments ' + constants.tmgmtSegmentsTag + '::after{' +
+      cssImgRight += '.cke_show_segments ' + constants.main.tmgmtSegmentsTag + '::after{' +
         'content:' + '"\u25C0"' + ';' + 'padding-left: 0.5em;' +
         '}';
 
@@ -140,36 +171,36 @@
     },
 
     beforeInit: function (editor) {
-      var dtd = CKEDITOR.dtd;
-      dtd.$block['tmgmt-segment'] = 1;  // Make the segments blocks.
-      dtd.body['tmgmt-segment'] = 1;  // Body may contain tmgmt-segment.
-      dtd['tmgmt-segment'] = CKEDITOR.dtd['div'];  // tmgmt-segment should behaves as a div.
-      dtd['tmgmt-segment']['tmgmt-tag'] = 1;
-      dtd.$editable['tmgmt-segment'] = 1;
-/*      dtd['tmgmt-segment'] = {'#': 1};
-      dtd['tmgmt-tag'] = {'#': 1};*/
+      // Configure CKEditor DTD for custom drupal-url element.
+      // @see https://www.drupal.org/node/2448449#comment-9717735
+      var dtd = CKEDITOR.dtd, tagName;
+      dtd[constants.main.tmgmtSegmentsTag] = {
+        '#': 1,
+        'span': 1,
+        'tmgmt-tag': 1
+      };
 
-      dtd['tmgmt-tag'] = {};
-      dtd.$object['tmgmt-tag'] = 1;
-      dtd.$empty['tmgmt-tag'] = 1;
-      dtd.$inline['tmgmt-tag'] = 1;
-      // editor.filter.allow('tmgmt-segment[id,data-tmgmt-segment-completed-status,data-tmgmt-segment-active-status,data-tmgmt-segment-source,data-tmgmt-segment-quality] tmgmt-tag[!element,!raw]');
+      dtd[constants.main.tmgmtSegmentsTag][constants.main.tmgmtTagInsideSegments] = 1;
+      dtd[constants.main.tmgmtTagInsideSegments] = {};
+      for (tagName in dtd) {
+        if (dtd[tagName].img) {
+          dtd[tagName][constants.main.tmgmtTagInsideSegments] = 1;
+        }
+      }
 
       editor.widgets.add('tmgmt_tags', {
-        // Minimum HTML which is required by this widget to work.
-        // allowedContent: '',
         inline: true,
         allowedContent: 'tmgmt-tag[element,raw]',
         requiredContent: 'tmgmt-tag[element,raw]',
 
         editables: {
           content: {
-            selector: 'tmgmt-tag'
+            selector: constants.main.tmgmtTagInsideSegments
           }
         },
 
         upcast: function (element) {
-          return element.name === 'tmgmt-tag';
+          return element.name === constants.main.tmgmtTagInsideSegments;
         }
       });
     },
@@ -181,7 +212,7 @@
 
       // Load the plugin only on translate/review pages.
       // This is a really bad solution! CHANGE THIS!
-      if (document.getElementsByClassName('tmgmt-ui-review').length === 0) {
+      if (document.getElementsByClassName(constants.class.reviewPage).length === 0) {
         return;
       }
 
@@ -201,7 +232,7 @@
 
       if (editor.contextMenu) {
         editor.contextMenu.addListener(function (element) {
-          if (element.getAscendant(constants.tmgmtSegmentsTag, true)) {
+          if (element.getAscendant(constants.main.tmgmtSegmentsTag, true)) {
             return {
               setStatusItem: CKEDITOR.TRISTATE_ON
             };
@@ -213,13 +244,13 @@
       editor.addCommand('setStatusCompleted', {
         exec: function (editor) {
           var element = editor.getSelection().getStartElement();
-          element.setAttribute(constants.attrStatusCompleted, 'completed');
+          element.setAttribute(constants.attribute.statusCompleted, 'completed');
           // If the clicked element is the segment, set the id.
-          if (element.getName() === constants.tmgmtSegmentsTag) {
+          if (element.getName() === constants.main.tmgmtSegmentsTag) {
             editorPairs[activeEditorId].activeSegmentId = element.getId();
           }
           // If the clicked element is the tag, get the id from the parent.
-          else if (element.getName() === constants.tmgmtTagInsideSegments) {
+          else if (element.getName() === constants.main.tmgmtTagInsideSegments) {
             editorPairs[activeEditorId].activeSegmentId = element.getParent().getId();
           }
           markSegment('completed');
@@ -239,12 +270,11 @@
         // the content with the corresponding source content.
         if (translationNameMatch != null) {
           var segmentsDiv = document.createElement('div');
-          // remove the second class with the id
           segmentsDiv.className = 'tmgmt-segments segment-pair-' + editorId;
           wrappers[editorId].appendChild(segmentsDiv);
           if (!editor.getData()) {
             editor.setData(sourceEditor.getData());
-            wrappers[editorId].setAttribute('data-tmgmt-segments-info-area', editorId);
+            wrappers[editorId].setAttribute(constants.attribute.segmentsInfoArea, editorId);
           }
 
           // Create an array of editor pairs.
@@ -325,16 +355,12 @@
     this.completedCounter = counter;
   }
 
-/*  function AreaBelow(segmentsDiv) {
-    this.div = segmentsDiv;
-  }*/
-
   /**
    * Get the difference in the number of tags for a selected segment.
    */
   EditorPair.prototype.tagValidation = function () {
-    var segmentsLeft = editorPairs[activeEditorId].leftEditor.document.$.getElementsByTagName(constants.tmgmtSegmentsTag);
-    var segmentsRight = editorPairs[activeEditorId].rightEditor.document.$.getElementsByTagName(constants.tmgmtSegmentsTag);
+    var segmentsLeft = editorPairs[activeEditorId].leftEditor.document.$.getElementsByTagName(constants.main.tmgmtSegmentsTag);
+    var segmentsRight = editorPairs[activeEditorId].rightEditor.document.$.getElementsByTagName(constants.main.tmgmtSegmentsTag);
     var numberOfTagsPerSegmentLeft;
     var numberOfTagsPerSegmentRight;
     var arrayOfTagsPerSegmentLeft = [];
@@ -343,12 +369,12 @@
     var globalCounter = 0;
     var segmentsWithMissingTags = [];
     var validationWrapper = document.createElement('div');
-    validationWrapper.className = 'tmgmt-segment-validation-div messages messages--error';
+    validationWrapper.className = constants.class.validationWrapper;
 
     if (segmentsLeft.length === segmentsRight.length) {
       for (var i = 0; i < segmentsLeft.length; i++) {
-        numberOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.tmgmtTagInsideSegments).length;
-        numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.tmgmtTagInsideSegments).length;
+        numberOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.main.tmgmtTagInsideSegments).length;
+        numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.main.tmgmtTagInsideSegments).length;
 
         if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
 
@@ -356,30 +382,30 @@
 
           if (!editorPairs[activeEditorId].activeSegmentId || !_.contains(segmentsWithMissingTags, editorPairs[activeEditorId].activeSegmentId)) {
             globalCounter += numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight;
-            if (!document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]) {
-              appendText('tmgmt-segment-validation-global-counter-div', 'Number of all missing tags is', globalCounter, editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags-global-counter');
+            if (!document.getElementsByClassName(constants.class.globalCounterWrapper)[0]) {
+              appendText(constants.class.globalCounterWrapper, languageFile.missingTagsTitle, globalCounter, editorPairs[activeEditorId].areaBelow, constants.class.missingTagsGlobalCounter);
             }
             else {
-              document.getElementsByClassName('segment-validation-missing-tags-global-counter')[0].innerHTML = globalCounter;
+              document.getElementsByClassName(constants.class.missingTagsGlobalCounter)[0].innerHTML = globalCounter;
             }
 
-            validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-global-counter-div')[0]);
+            validationWrapper.appendChild(document.getElementsByClassName(constants.class.globalCounterWrapper)[0]);
           }
           else {
             if (editorPairs[activeEditorId].activeSegmentId === segmentsLeft[i].id) {
               markSegment('has-missing-tags');
-              arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.tmgmtTagInsideSegments);
-              arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.tmgmtTagInsideSegments);
+              arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.main.tmgmtTagInsideSegments);
+              arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.main.tmgmtTagInsideSegments);
 
               differences = getDifferences(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
 
               if (differences.length === 1) {
-                appendText('tmgmt-segment-validation-tags-div', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' missing tag for the selected segment:', differences , editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+                appendText(constants.class.validationTagsWrapper, numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' ' + languageFile.oneMissingTag + ':', differences , editorPairs[activeEditorId].areaBelow, constants.class.missingTagsCounter);
               }
               else {
-                appendText('tmgmt-segment-validation-tags-div', numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' missing tags for the selected segment:', differences , editorPairs[activeEditorId].areaBelow, 'segment-validation-missing-tags');
+                appendText(constants.class.validationTagsWrapper, numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' ' + languageFile.moreMissingTags + ':', differences , editorPairs[activeEditorId].areaBelow, constants.class.missingTagsCounter);
               }
-              validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-tags-div')[0]);
+              validationWrapper.appendChild(document.getElementsByClassName(constants.class.validationTagsWrapper)[0]);
             }
           }
           editorPairs[activeEditorId].areaBelow.appendChild(validationWrapper);
@@ -387,8 +413,8 @@
       }
     }
     else {
-      appendText('tmgmt-segment-validation-segments-mismatch-div', 'The number of segments in both editors does not match.', '', editorPairs[activeEditorId].areaBelow, 'segment-validation-segments-mismatch');
-      validationWrapper.appendChild(document.getElementsByClassName('tmgmt-segment-validation-segments-mismatch-div')[0]);
+      appendText(constants.class.segmentsMismatchWrapper, languageFile.numberOfSegmentsNotMatching, '', editorPairs[activeEditorId].areaBelow, constants.class.segmentsMismatch);
+      validationWrapper.appendChild(document.getElementsByClassName(constants.class.segmentsMismatchWrapper)[0]);
     }
   };
 
@@ -423,8 +449,7 @@
    * Refresh the active content after the segment is selected.
    */
   function refreshActiveContent() {
-    // We only display the clicked texts when the plugin is enabled/clicked -
-    // the area below exists (depends on the state).
+    // Reset the active segment if one was already selected before.
     if (editorPairs[activeEditorId].activeSegmentId && editorPairs[activeEditorId].activeEditorName) {
       resetActiveSegment();
     }
@@ -467,12 +492,12 @@
       }
       else if (xmlhttp.readyState == 4 && xmlhttp.status == 204) {
         var noSuggestionsWrapper = document.createElement('div');
-        noSuggestionsWrapper.className = 'no-suggested-translations-wrapper';
+        noSuggestionsWrapper.className = constants.class.noSuggestedTranslationsWrapper;
         editorPairs[activeEditorId].areaBelow.appendChild(noSuggestionsWrapper);
 
         var text = document.createElement('P');
-        text.className = 'no-suggested-translations';
-        text.appendChild(document.createTextNode('There are no translations for this segment in the translation memory.'));
+        text.className = constants.class.noSuggestedTranslations;
+        text.appendChild(document.createTextNode(languageFile.noTranslationsInMemory));
         noSuggestionsWrapper.appendChild(text);
       }
     };
@@ -485,14 +510,14 @@
   function displayActiveSegmentText() {
     // Make a wrapper for suggested translations.
     var suggestedTranslations = document.createElement('div');
-    suggestedTranslations.className = 'suggested-translations';
+    suggestedTranslations.className = constants.class.suggestedTranslations;
     editorPairs[activeEditorId].areaBelow.appendChild(suggestedTranslations);
 
     var p1 = document.createElement('P');
-    p1.className = 'tmgmt-active-segment-wrapper';
-    p1.appendChild(document.createTextNode(CKEDITOR.currentInstance.lang.tmgmt_segments.suggestedTranslationsTitle));
+    p1.className = constants.class.activeSegmentWrapper;
+    p1.appendChild(document.createTextNode(languageFile.suggestedTranslationsTitle + ' '));
     var span = document.createElement('span');
-    span.className = 'tmgmt-active-segment';
+    span.className = constants.class.activeSegment;
     span.appendChild(document.createTextNode('"' + editorPairs[activeEditorId].activeSegmentStrippedText + '"'));
     p1.appendChild(span);
     suggestedTranslations.appendChild(p1);
@@ -526,13 +551,13 @@
     var clickedSegment = range.startContainer.getParent();
 
     // If we clicked the segment or the tag inside.
-    if (range.startOffset && (clickedSegment.getName() === constants.tmgmtSegmentsTag || clickedSegment.getParent().getName() === constants.tmgmtSegmentsTag)) {
+    if (range.startOffset && (clickedSegment.getName() === constants.main.tmgmtSegmentsTag || clickedSegment.getParent().getName() === constants.main.tmgmtSegmentsTag)) {
 
       var indexes = getClickedIndexes(range, clickedSegment);
 
       // If the clicked element was the tag, we need to get the parent.
       var activeSegmentData = [];
-      if (clickedSegment.getName() === constants.tmgmtTagInsideSegments) {
+      if (clickedSegment.getName() === constants.main.tmgmtTagInsideSegments) {
         activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
         activeSegmentData['segmentStrippedText'] = clickedSegment.getParent().getText();
         // activeSegmentData['segmentHtmlText'] = clickedSegment.getParent().getHtml();
@@ -640,7 +665,7 @@
    */
   function appendAreaBelow() {
     // Remove the previous segment, if it exists.
-    var activeSegment = document.getElementsByClassName('active-segment-text');
+    var activeSegment = document.getElementsByClassName('active-segment');
     if (activeSegment) {
       editorPairs[activeEditorId].areaBelow.innerHTML = '';
     }
@@ -652,16 +677,16 @@
    */
   function setCounterCompletedSegments() {
     var htmldata = CKEDITOR.currentInstance.getData();
-    var regex = new RegExp(constants.attrStatusCompleted, 'g');
+    var regex = new RegExp(constants.attribute.statusCompleted, 'g');
     var count = (htmldata.match(regex) || []).length;
     var countAll = (htmldata.match(/<\/tmgmt-segment>/g) || []).length;
 
-    if (!document.getElementsByClassName('segment-status-counter')[0]) {
+    if (!document.getElementsByClassName(constants.class.segmentStatusCounter)[0]) {
       var segmentStatusCounter = count.toString() + '/' + countAll;
-      appendText('tmgmt-segment-counter-div','Completed segments:', segmentStatusCounter, document.getElementById('sidebar'), 'segment-status-counter');
+      appendText('tmgmt-segment-counter-div', languageFile.completedSegmentsTitle, segmentStatusCounter, document.getElementById('sidebar'), constants.class.segmentStatusCounter);
     }
     else {
-      document.getElementsByClassName('segment-status-counter')[0].innerHTML = count + '/' + countAll;
+      document.getElementsByClassName(constants.class.segmentStatusCounter)[0].innerHTML = count + '/' + countAll;
     }
   }
 
@@ -685,14 +710,14 @@
     var p = document.createElement('P');
     p.appendChild(document.createTextNode(title));
     wrapper.appendChild(p);
-    if (elementClassName === 'segment-validation-missing-tags') {
+    if (elementClassName === constants.class.missingTagsCounter) {
       var missingTagsWrapper = document.createElement('div');
-      missingTagsWrapper.className = 'tmgmt-missing-tags-wrapper';
+      missingTagsWrapper.className = constants.class.missingTagsWrapper;
       for (var j = 0; j < text.length; j++) {
         var a = document.createElement('a');
         a.className = elementClassName;
         a.setAttribute('nohref', '');
-        a.setAttribute('title', 'Click to add this missing tag on cursor position.');
+        a.setAttribute('title', languageFile.addMissingTagButtonTitle);
         var maskedTag = text[j].outerHTML;
 
         // To solve the closure issue inside the loop.
@@ -733,8 +758,8 @@
     var table = document.createElement('table');
     var thead = document.createElement('thead');
     var tbody = document.createElement('tbody');
-    table.className = 'tmgmt-translation-suggestions';
-    var headings = ['Quality', 'Source', 'Translation', ''];
+    table.className = constants.class.translationSuggestions;
+    var headings = [languageFile.tableTitleQuality, languageFile.tableTitleSource, languageFile.tableTitleTranslation, ''];
 
     var tr = document.createElement('tr');
     for (var i = 0; i < headings.length; i++) {
@@ -775,7 +800,7 @@
           btn.appendChild(t);
           btn.className = 'button';
           btn.setAttribute('type', 'button');
-          btn.id = 'btn-use-suggestion-' + index;
+          btn.id = constants.id.buttonUseSuggestionId + index;
 
           btn.addEventListener('click', function (evt) {
             addSuggestion(jsonData[index], editorPairs[activeEditorId].activeSegmentHtmlText);
@@ -806,8 +831,8 @@
 
     var suggestionFallback = function () {
       var sourceSegment = editor.document.getById(jsonData.sourceSegmentId);
-      sourceSegment.setAttribute(constants.attrSource, 'memory');
-      sourceSegment.setAttribute(constants.attrQuality, jsonData.quality);
+      sourceSegment.setAttribute(constants.attribute.source, 'memory');
+      sourceSegment.setAttribute(constants.attribute.quality, jsonData.quality);
     };
     editor.setData(replacedText, suggestionFallback);
   }
@@ -819,12 +844,12 @@
     var translationSegment = CKEDITOR.instances[editorPairs[activeEditorId].activeEditorName].document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
     var relatedEditor = getRelatedEditor(CKEDITOR.instances[editorPairs[activeEditorId].activeEditorName]);
     var relatedSegment = relatedEditor.document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
-    translationSegment.removeAttribute(constants.attrStatusActive);
-    relatedSegment.removeAttribute(constants.attrStatusActive);
+    translationSegment.removeAttribute(constants.attribute.statusActive);
+    relatedSegment.removeAttribute(constants.attribute.statusActive);
 
-    if (translationSegment.hasAttribute(constants.attrHasMissingTags)) {
-      translationSegment.removeAttribute(constants.attrHasMissingTags);
-      relatedSegment.removeAttribute(constants.attrHasMissingTags);
+    if (translationSegment.hasAttribute(constants.attribute.hasMissingTags)) {
+      translationSegment.removeAttribute(constants.attribute.hasMissingTags);
+      relatedSegment.removeAttribute(constants.attribute.hasMissingTags);
     }
   }
 
@@ -839,16 +864,16 @@
     var relatedEditor = getRelatedEditor(CKEDITOR.currentInstance);
     var relatedSegment = relatedEditor.document.$.getElementById(editorPairs[activeEditorId].activeSegmentId);
     if (status === 'active') {
-      translationSegment.setAttribute(constants.attrStatusActive, '');
-      relatedSegment.setAttribute(constants.attrStatusActive, '');
+      translationSegment.setAttribute(constants.attribute.statusActive, '');
+      relatedSegment.setAttribute(constants.attribute.statusActive, '');
     }
     else if (status === 'completed') {
-      translationSegment.setAttribute(constants.attrStatusCompleted, '');
-      relatedSegment.setAttribute(constants.attrStatusCompleted, '');
+      translationSegment.setAttribute(constants.attribute.statusCompleted, '');
+      relatedSegment.setAttribute(constants.attribute.statusCompleted, '');
     }
     else if (status === 'has-missing-tags') {
-      translationSegment.setAttribute(constants.attrHasMissingTags, '');
-      relatedSegment.setAttribute(constants.attrHasMissingTags, '');
+      translationSegment.setAttribute(constants.attribute.hasMissingTags, '');
+      relatedSegment.setAttribute(constants.attribute.hasMissingTags, '');
     }
   }
 
