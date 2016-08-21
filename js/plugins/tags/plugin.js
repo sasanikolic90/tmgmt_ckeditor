@@ -6,7 +6,11 @@
 (function ($, Drupal, CKEDITOR) {
   'use strict';
 
-  var tag = 'tmgmt-tag';
+  var constants = {
+    main: {
+      tmgmtTags: 'tmgmt-tag'
+    }
+  };
 
   var commandDefinition = {
     readOnly: 1,
@@ -61,7 +65,7 @@
                 regex.lastIndex = 0; // Reset the last index of regex (null issue).
                 element = '[' + parts[0] + ']';
                 openingTag = '';
-                openingTag += '.cke_show_tags ' + tag + element + '::before{' +
+                openingTag += '.cke_show_tags ' + constants.main.tmgmtTags + element + '::before{' +
                   'content:' + '"' + parts[1] + '"' +
                   '}';
                 CKEDITOR.addCss(openingTag);
@@ -118,11 +122,6 @@
         if (command.state === CKEDITOR.TRISTATE_ON) {
           command.refresh(editor);
         }
-      });
-
-      // Refresh the command on setData.
-      editor.on('instanceReady', function () {
-        CKEDITOR.dtd.$empty['tmgmt-tag'] = 1;
       });
 
       function onFocusBlur() {

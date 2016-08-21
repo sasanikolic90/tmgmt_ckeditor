@@ -16,7 +16,7 @@ use Drupal\user\RoleInterface;
 function tmgmt_ckeditor_install() {
   $node = Node::create(array(
     'type' => 'translatable_node',
-    'title' => t('Segments test for CKEditor plugins'),
+    'title' => t('Test for CKEditor plugins'),
     'body' => [
       'value' => '<tmgmt-segment id="1">' . t('This is the first segment.') . '</tmgmt-segment>' .
                  '<tmgmt-segment id="2">' . t('This is the second segment with single closing tags. <br /> <hr />') . '</tmgmt-segment>' .
@@ -124,7 +124,7 @@ function tmgmt_ckeditor_install() {
 
   $node2 = Node::create(array(
     'type' => 'paragraphed_content_demo',
-    'title' => 'Paragraphs test for CKEditor plugins',
+    'title' => 'Test for CKEditor plugins with paragraphs',
     'uid' => '0',
     'status' => 1,
     'field_paragraphs_demo' => array(

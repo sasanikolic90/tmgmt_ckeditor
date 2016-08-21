@@ -8,8 +8,8 @@
 
   var constants = {
     main: {
-      tmgmtSegmentsTag: 'tmgmt-segment',
-      tmgmtTagInsideSegments: 'tmgmt-tag'
+      tmgmtSegments: 'tmgmt-segment',
+      tmgmtTags: 'tmgmt-tag'
     },
     attribute: {
       statusCompleted: 'data-tmgmt-segment-completed-status',
@@ -158,12 +158,12 @@
 
       cssStd = cssImgLeft = cssImgRight = '';
 
-      cssStd += '.cke_show_segments ' + constants.main.tmgmtSegmentsTag + '{' +
+      cssStd += '.cke_show_segments ' + constants.main.tmgmtSegments + '{' +
         '}';
-      cssImgLeft += '.cke_show_segments ' + constants.main.tmgmtSegmentsTag + '::before{' +
+      cssImgLeft += '.cke_show_segments ' + constants.main.tmgmtSegments + '::before{' +
         'content:' + '"\u25B6"' + ';' + 'padding-right: 0.5em;' +
         '}';
-      cssImgRight += '.cke_show_segments ' + constants.main.tmgmtSegmentsTag + '::after{' +
+      cssImgRight += '.cke_show_segments ' + constants.main.tmgmtSegments + '::after{' +
         'content:' + '"\u25C0"' + ';' + 'padding-left: 0.5em;' +
         '}';
 
@@ -174,17 +174,17 @@
       // Configure CKEditor DTD for custom drupal-url element.
       // @see https://www.drupal.org/node/2448449#comment-9717735
       var dtd = CKEDITOR.dtd, tagName;
-      dtd[constants.main.tmgmtSegmentsTag] = {
+      dtd[constants.main.tmgmtSegments] = {
         '#': 1,
         'span': 1,
         'tmgmt-tag': 1
       };
 
-      dtd[constants.main.tmgmtSegmentsTag][constants.main.tmgmtTagInsideSegments] = 1;
-      dtd[constants.main.tmgmtTagInsideSegments] = {};
+      dtd[constants.main.tmgmtSegments][constants.main.tmgmtTags] = 1;
+      dtd[constants.main.tmgmtTags] = {};
       for (tagName in dtd) {
         if (dtd[tagName].img) {
-          dtd[tagName][constants.main.tmgmtTagInsideSegments] = 1;
+          dtd[tagName][constants.main.tmgmtTags] = 1;
         }
       }
 
@@ -195,12 +195,12 @@
 
         editables: {
           content: {
-            selector: constants.main.tmgmtTagInsideSegments
+            selector: constants.main.tmgmtTags
           }
         },
 
         upcast: function (element) {
-          return element.name === constants.main.tmgmtTagInsideSegments;
+          return element.name === constants.main.tmgmtTags;
         }
       });
     },
@@ -232,7 +232,7 @@
 
       if (editor.contextMenu) {
         editor.contextMenu.addListener(function (element) {
-          if (element.getAscendant(constants.main.tmgmtSegmentsTag, true)) {
+          if (element.getAscendant(constants.main.tmgmtSegments, true)) {
             return {
               setStatusItem: CKEDITOR.TRISTATE_ON
             };
@@ -246,11 +246,11 @@
           var element = editor.getSelection().getStartElement();
           element.setAttribute(constants.attribute.statusCompleted, 'completed');
           // If the clicked element is the segment, set the id.
-          if (element.getName() === constants.main.tmgmtSegmentsTag) {
+          if (element.getName() === constants.main.tmgmtSegments) {
             editorPairs[activeEditorId].activeSegmentId = element.getId();
           }
           // If the clicked element is the tag, get the id from the parent.
-          else if (element.getName() === constants.main.tmgmtTagInsideSegments) {
+          else if (element.getName() === constants.main.tmgmtTags) {
             editorPairs[activeEditorId].activeSegmentId = element.getParent().getId();
           }
           markSegment('completed');
@@ -359,8 +359,8 @@
    * Get the difference in the number of tags for a selected segment.
    */
   EditorPair.prototype.tagValidation = function () {
-    var segmentsLeft = editorPairs[activeEditorId].leftEditor.document.$.getElementsByTagName(constants.main.tmgmtSegmentsTag);
-    var segmentsRight = editorPairs[activeEditorId].rightEditor.document.$.getElementsByTagName(constants.main.tmgmtSegmentsTag);
+    var segmentsLeft = editorPairs[activeEditorId].leftEditor.document.$.getElementsByTagName(constants.main.tmgmtSegments);
+    var segmentsRight = editorPairs[activeEditorId].rightEditor.document.$.getElementsByTagName(constants.main.tmgmtSegments);
     var numberOfTagsPerSegmentLeft;
     var numberOfTagsPerSegmentRight;
     var arrayOfTagsPerSegmentLeft = [];
@@ -373,8 +373,8 @@
 
     if (segmentsLeft.length === segmentsRight.length) {
       for (var i = 0; i < segmentsLeft.length; i++) {
-        numberOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.main.tmgmtTagInsideSegments).length;
-        numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.main.tmgmtTagInsideSegments).length;
+        numberOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.main.tmgmtTags).length;
+        numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.main.tmgmtTags).length;
 
         if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
 
@@ -394,8 +394,8 @@
           else {
             if (editorPairs[activeEditorId].activeSegmentId === segmentsLeft[i].id) {
               markSegment('has-missing-tags');
-              arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.main.tmgmtTagInsideSegments);
-              arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.main.tmgmtTagInsideSegments);
+              arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.main.tmgmtTags);
+              arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.main.tmgmtTags);
 
               differences = getDifferences(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
 
@@ -551,13 +551,13 @@
     var clickedSegment = range.startContainer.getParent();
 
     // If we clicked the segment or the tag inside.
-    if (range.startOffset && (clickedSegment.getName() === constants.main.tmgmtSegmentsTag || clickedSegment.getParent().getName() === constants.main.tmgmtSegmentsTag)) {
+    if (range.startOffset && (clickedSegment.getName() === constants.main.tmgmtSegments || clickedSegment.getParent().getName() === constants.main.tmgmtSegments)) {
 
       var indexes = getClickedIndexes(range, clickedSegment);
 
       // If the clicked element was the tag, we need to get the parent.
       var activeSegmentData = [];
-      if (clickedSegment.getName() === constants.main.tmgmtTagInsideSegments) {
+      if (clickedSegment.getName() === constants.main.tmgmtTags) {
         activeSegmentData['segmentId'] = clickedSegment.getParent().getAttribute('id');
         activeSegmentData['segmentStrippedText'] = clickedSegment.getParent().getText();
         // activeSegmentData['segmentHtmlText'] = clickedSegment.getParent().getHtml();
