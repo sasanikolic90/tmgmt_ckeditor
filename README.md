@@ -52,6 +52,8 @@ For testing purposes, it currently depends on three other modules. Before instal
 - saving segmented content properly, so that accepting translation does not save segments but initial content
 - responsiveness
 
+I have created some issues on for my sandbox project on drupal.org, which can be seen [here](https://www.drupal.org/project/issues/2737249?categories=All).
+
 ## Future steps:
 
 - marking a specific word
