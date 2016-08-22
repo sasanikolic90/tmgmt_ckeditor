@@ -173,13 +173,15 @@
     beforeInit: function (editor) {
       // Configure CKEditor DTD for custom drupal-url element.
       // @see https://www.drupal.org/node/2448449#comment-9717735
-      var dtd = CKEDITOR.dtd, tagName;
+      var dtd = CKEDITOR.dtd;
+      var tagName;
       dtd[constants.main.tmgmtSegments] = {
         '#': 1,
         'span': 1,
         'tmgmt-tag': 1
       };
 
+      dtd.$block[constants.main.tmgmtSegments] = 1;
       dtd[constants.main.tmgmtSegments][constants.main.tmgmtTags] = 1;
       dtd[constants.main.tmgmtTags] = {};
       for (tagName in dtd) {
