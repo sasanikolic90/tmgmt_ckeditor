@@ -71,3 +71,7 @@ When altogether will be fully functional, this module will be merged into TMGMT.
 ## Code
 
 The project can be found in my [sandbox](https://www.drupal.org/sandbox/sasanikolic/2737249) on drupal.org and in my [GitHub repository](https://github.com/sasanikolic90/tmgmt_ckeditor). Both project will stay updated. The current main branch is 8.x-1.x. 
+
+## Credits
+
+This project has been developed as a part of Google Summer of Code 2016 by me, [Saša Nikolič](https://www.drupal.org/u/sasanikolic), and mentored by [Miro Dietiker](https://www.drupal.org/u/miro_dietiker) and [Sascha Grossenbacher](https://www.drupal.org/u/berdir).
