@@ -74,4 +74,4 @@ The project can be found in my [sandbox](https://www.drupal.org/sandbox/sasaniko
 
 ## Credits
 
-This project has been developed as a part of Google Summer of Code 2016 by me, [Saša Nikolič](https://www.drupal.org/u/sasanikolic), and mentored by [Miro Dietiker](https://www.drupal.org/u/miro_dietiker) and [Sascha Grossenbacher](https://www.drupal.org/u/berdir).
+This project has been developed as a part of Google Summer of Code 2016 by [Saša Nikolič](https://www.drupal.org/u/sasanikolic) and mentored by [Miro Dietiker](https://www.drupal.org/u/miro_dietiker) and [Sascha Grossenbacher](https://www.drupal.org/u/berdir).
