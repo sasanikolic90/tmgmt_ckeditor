@@ -58,7 +58,7 @@ For testing purposes, it currently depends on three other modules. Before instal
 - testing
 - real users feedback
 
-Also note that some of the “not-working” issues listed above are not on my side; either they are out based on tmgmt_memory or TMGMT.
+Also note that some of the "what needs work" and “not-working” issues listed above are not on my side; either they are out of scope for my GSoC project or based on tmgmt_memory/TMGMT.
 
 When altogether will be fully functional, this module will be merged into TMGMT.
 
