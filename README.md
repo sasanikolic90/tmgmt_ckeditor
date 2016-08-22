@@ -13,6 +13,8 @@ NOTE: This project provides a number of puzzle pieces towards providing translat
 
 The development workflow can be seen in my GitHub repository - by clicking [here](https://github.com/sasanikolic90/tmgmt_ckeditor/network). This shows all the branches that got created. Some of them got merged, others were created just for testing purposes.
 
+All the commits for the main branch are listed [here](https://github.com/sasanikolic90/tmgmt_ckeditor/commits/8.x-1.x).
+
 ## Dependencies 
 
 For testing purposes, it currently depends on three other modules. Before installing, make sure you have these modules downloaded:
