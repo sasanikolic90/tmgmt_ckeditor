@@ -73,9 +73,9 @@
 }
 
 .tmgmt-segment-validation-div span {
-  padding-left: 5px;
-  color: #cc0000;
+  cursor: default;
 }
+
 
 .tmgmt-missing-tags-wrapper {
   padding-top: 5px;
@@ -99,7 +99,15 @@
   color: #222;
 }
 
+.segment-validation-missing-tags-global-counter {
+  padding-left: 5px;
+}
+
 .tmgmt-segment-validation-tags-div a:not(:first-child) {
+  margin: 0 5px 0 5px;
+}
+
+.tmgmt-segment-validation-tags-div span:not(:first-child) {
   margin: 0 5px 0 5px;
 }
 

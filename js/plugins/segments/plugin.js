@@ -368,81 +368,120 @@
     var differences = [];
     var globalCounter = 0;
     var segmentsWithMissingTags = [];
-    var validationWrapper = document.createElement('div');
-    validationWrapper.className = constants.class.validationWrapper;
+    var validationWrapper;
+
+    if (!document.getElementsByClassName(constants.class.validationWrapper)[0]) {
+      validationWrapper = document.createElement('div');
+      validationWrapper.className = constants.class.validationWrapper;
+    }
+    else {
+      validationWrapper = document.getElementsByClassName(constants.class.validationWrapper)[0];
+    }
 
     if (segmentsLeft.length === segmentsRight.length) {
       for (var i = 0; i < segmentsLeft.length; i++) {
         numberOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.main.tmgmtTags).length;
         numberOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.main.tmgmtTags).length;
 
-        if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0) {
+        globalCounter += numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight;
 
+        if (numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight !== 0 && (editorPairs[activeEditorId].activeSegmentId || _.contains(segmentsWithMissingTags, editorPairs[activeEditorId].activeSegmentId))) {
           segmentsWithMissingTags.push(segmentsLeft[i].id);
+          if (editorPairs[activeEditorId].activeSegmentId === segmentsLeft[i].id) {
+            markSegment('has-missing-tags');
+            arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.main.tmgmtTags);
+            arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.main.tmgmtTags);
 
-          if (!editorPairs[activeEditorId].activeSegmentId || !_.contains(segmentsWithMissingTags, editorPairs[activeEditorId].activeSegmentId)) {
-            globalCounter += numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight;
-            if (!document.getElementsByClassName(constants.class.globalCounterWrapper)[0]) {
-              appendText(constants.class.globalCounterWrapper, languageFile.missingTagsTitle, globalCounter, editorPairs[activeEditorId].areaBelow, constants.class.missingTagsGlobalCounter);
-            }
-            else {
-              document.getElementsByClassName(constants.class.missingTagsGlobalCounter)[0].innerHTML = globalCounter;
-            }
+            var tagsLeft = convertArrayToStrings(arrayOfTagsPerSegmentLeft);
+            var tagsRight = convertArrayToStrings(arrayOfTagsPerSegmentRight);
 
-            validationWrapper.appendChild(document.getElementsByClassName(constants.class.globalCounterWrapper)[0]);
-          }
-          else {
-            if (editorPairs[activeEditorId].activeSegmentId === segmentsLeft[i].id) {
-              markSegment('has-missing-tags');
-              arrayOfTagsPerSegmentLeft = segmentsLeft[i].getElementsByTagName(constants.main.tmgmtTags);
-              arrayOfTagsPerSegmentRight = segmentsRight[i].getElementsByTagName(constants.main.tmgmtTags);
-
-              differences = getDifferences(arrayOfTagsPerSegmentLeft, arrayOfTagsPerSegmentRight);
-
+            // If the left segment has more tags than the right one...
+            if (numberOfTagsPerSegmentLeft > numberOfTagsPerSegmentRight) {
+              differences = _.difference(tagsLeft, tagsRight);
+              differences = convertArrayToOjbects(differences);
               if (differences.length === 1) {
-                appendText(constants.class.validationTagsWrapper, numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' ' + languageFile.oneMissingTag + ':', differences , editorPairs[activeEditorId].areaBelow, constants.class.missingTagsCounter);
+                appendText(constants.class.validationTagsWrapper, numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' ' + languageFile.oneMissingTag + ':', differences , editorPairs[activeEditorId].areaBelow, constants.class.missingTagsCounter, true);
               }
               else {
-                appendText(constants.class.validationTagsWrapper, numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' ' + languageFile.moreMissingTags + ':', differences , editorPairs[activeEditorId].areaBelow, constants.class.missingTagsCounter);
+                appendText(constants.class.validationTagsWrapper, numberOfTagsPerSegmentLeft - numberOfTagsPerSegmentRight + ' ' + languageFile.moreMissingTags + ':', differences , editorPairs[activeEditorId].areaBelow, constants.class.missingTagsCounter, true);
               }
-              validationWrapper.appendChild(document.getElementsByClassName(constants.class.validationTagsWrapper)[0]);
             }
+            // If the right segment has more tags than the left one.
+            else {
+              differences = _.difference(tagsRight, tagsLeft);
+              differences = convertArrayToOjbects(differences);
+              if (differences.length === 1) {
+                appendText(constants.class.validationTagsWrapper, numberOfTagsPerSegmentRight - numberOfTagsPerSegmentLeft + ' ' + languageFile.oneExtraTag + ':', differences , editorPairs[activeEditorId].areaBelow, constants.class.missingTagsCounter, false);
+              }
+              else {
+                appendText(constants.class.validationTagsWrapper, numberOfTagsPerSegmentRight - numberOfTagsPerSegmentLeft + ' ' + languageFile.moreExtraTags + ':', differences , editorPairs[activeEditorId].areaBelow, constants.class.missingTagsCounter, false);
+              }
+            }
+
+            if (validationWrapper.innerHTML) {
+              validationWrapper.innerHTML = '';
+            }
+            validationWrapper.appendChild(document.getElementsByClassName(constants.class.validationTagsWrapper)[0]);
           }
-          editorPairs[activeEditorId].areaBelow.appendChild(validationWrapper);
+        }
+      }
+
+      // Global validation error message.
+      if (globalCounter !== 0) {
+        if (!editorPairs[activeEditorId].activeSegmentId || !_.contains(segmentsWithMissingTags, editorPairs[activeEditorId].activeSegmentId)) {
+          if (!document.getElementsByClassName(constants.class.globalCounterWrapper)[0]) {
+            appendText(constants.class.globalCounterWrapper, languageFile.missingTagsTitle, globalCounter, editorPairs[activeEditorId].areaBelow, constants.class.missingTagsGlobalCounter, false);
+          }
+          else {
+            document.getElementsByClassName(constants.class.missingTagsGlobalCounter)[0].innerHTML = globalCounter;
+          }
+          validationWrapper.appendChild(document.getElementsByClassName(constants.class.globalCounterWrapper)[0]);
         }
       }
     }
     else {
-      appendText(constants.class.segmentsMismatchWrapper, languageFile.numberOfSegmentsNotMatching, '', editorPairs[activeEditorId].areaBelow, constants.class.segmentsMismatch);
+      appendText(constants.class.segmentsMismatchWrapper, languageFile.numberOfSegmentsNotMatching, '', editorPairs[activeEditorId].areaBelow, constants.class.segmentsMismatch, false);
       validationWrapper.appendChild(document.getElementsByClassName(constants.class.segmentsMismatchWrapper)[0]);
+    }
+
+    // If we appended some warning message, append it to the area below.
+    if (validationWrapper.innerHTML) {
+      editorPairs[activeEditorId].areaBelow.appendChild(validationWrapper);
     }
   };
 
   /**
-   * Get the difference between the active segment in both editors.
+   * Convert an array of HTMLElement objects to strings for comparing.
    *
-   * @param {Array} array1
-   *   Array of tags in the left editor's active segment.
-   * @param {Array} array2
-   *   Array of tags in the left editor's active segment.
+   * @param {Array} array
+   *   Array of HTMLElement objects.
    * @return {Array}
-   *   Array of different tags.
+   *   Array of tags as strings.
    */
-  function getDifferences(array1, array2) {
-    var diff = [];
-    if (array2.length === 0) {
-      diff = array1;
+  function convertArrayToStrings(array) {
+    var arrayOfStrings = [];
+    for (var i = 0; i < array.length; i++) {
+      arrayOfStrings[i] = array[i].outerHTML;
     }
-    else {
-      for (var i = 0; i < array1.length; i++) {
-        for (var j = 0; j < array2.length; j++) {
-          if (!array1[i].isEqualNode(array2[j])) {
-            diff.push(array1[i]);
-          }
-        }
-      }
+    return arrayOfStrings;
+  }
+
+  /**
+   * Convert the array of differences back to HTML objects.
+   *
+   * @param {Array} array
+   *   Array of tags as strings.
+   * @return {Array}
+   *   Array of HTMLElement objects.
+   */
+  function convertArrayToOjbects(array) {
+    var arrayOfHTMLObjects = [];
+    for (var i = 0; i < array.length; i++) {
+      var d = document.createElement('div');
+      d.innerHTML = array[i];
+      arrayOfHTMLObjects[i] = d.firstChild;
     }
-    return diff;
+    return arrayOfHTMLObjects;
   }
 
   /**
@@ -456,7 +495,7 @@
 
     var selectedContent = getActiveContent();
     // If the segment is clicked, display it.
-    if (selectedContent && selectedContent['sameSegment'] !== true) {
+    if (selectedContent && selectedContent['sameSegment'] === false) {
       // Append the area below the current editor.
       appendAreaBelow();
 
@@ -466,8 +505,8 @@
       // Check for tag validation.
       EditorPair.prototype.tagValidation();
     }
-    // If something else is clicked, remove the previous displayed segment.
-    // do this in appendAreaBelow()?
+    // If something else is clicked, remove the previously displayed segment.
+    // @todo Do this in appendAreaBelow()?
     else if (selectedContent === null) {
       editorPairs[activeEditorId].areaBelow.innerHTML = '';
       // Check for tag validation.
@@ -578,9 +617,6 @@
         activeSegmentData['tagsStrippedText'] = null;
       }
 
-      // Set flag if the user clicked the same segment again.
-      setSameSegmentFlag(activeSegmentData);
-
       var editorData = CKEDITOR.currentInstance.getData();
       var clickedSegmentId = activeSegmentData['segmentId'];
       var regexForSegmentHtmlText = new RegExp('<tmgmt-segment.*? id=\"' + clickedSegmentId + '\">(.*?)<\/tmgmt-segment>');
@@ -590,6 +626,9 @@
       activeSegmentData['word'] = clickedSegment.getText().substring(indexes.indexPrevSpace, indexes.indexNextSpace).replace(/[.,:;!?]$/,'');
       activeSegmentData['sourceLanguage'] = drupalSettings.sourceLanguage;
       activeSegmentData['targetLanguage'] = drupalSettings.targetLanguage;
+
+      // Set flag if the user clicked the same segment again.
+      setSameSegmentFlag(activeSegmentData);
 
       setEditorPairData(activeSegmentData);
       markSegment('active');
@@ -651,7 +690,7 @@
   }
 
   function setSameSegmentFlag(activeSegmentData) {
-    if (activeSegmentData['segmentId'] === editorPairs[activeEditorId].activeSegmentId) {
+    if (activeSegmentData['segmentId'] === editorPairs[activeEditorId].activeSegmentId && activeSegmentData['segmentHtmlText'] === editorPairs[activeEditorId].activeSegmentHtmlText) {
       activeSegmentData['sameSegment'] = true;
     }
     else {
@@ -683,7 +722,7 @@
 
     if (!document.getElementsByClassName(constants.class.segmentStatusCounter)[0]) {
       var segmentStatusCounter = count.toString() + '/' + countAll;
-      appendText('tmgmt-segment-counter-div', languageFile.completedSegmentsTitle, segmentStatusCounter, document.getElementById('sidebar'), constants.class.segmentStatusCounter);
+      appendText('tmgmt-segment-counter-div', languageFile.completedSegmentsTitle, segmentStatusCounter, document.getElementById('sidebar'), constants.class.segmentStatusCounter, false);
     }
     else {
       document.getElementsByClassName(constants.class.segmentStatusCounter)[0].innerHTML = count + '/' + countAll;
@@ -697,14 +736,16 @@
    *   The wrapping div's class for the text.
    * @param {string} title
    *   The title.
-   * @param {string} text
+   * @param {string|Array} text
    *   The content.
-   * @param {string} targetDiv
+   * @param {HTMLElement} targetDiv
    *   Where we want to put our content (the area below or the sticky area).
    * @param {string} elementClassName
    *   The class for the content.
+   * @param {boolean} bindEvent
+   *   Flag for the onClick event binding for missing tags.
    */
-  function appendText(parentDiv, title, text, targetDiv, elementClassName) {
+  function appendText(parentDiv, title, text, targetDiv, elementClassName, bindEvent) {
     var wrapper = document.createElement('div');
     wrapper.className = parentDiv;
     var p = document.createElement('P');
@@ -714,17 +755,24 @@
       var missingTagsWrapper = document.createElement('div');
       missingTagsWrapper.className = constants.class.missingTagsWrapper;
       for (var j = 0; j < text.length; j++) {
-        var a = document.createElement('a');
-        a.className = elementClassName;
-        a.setAttribute('nohref', '');
-        a.setAttribute('title', languageFile.addMissingTagButtonTitle);
-        var maskedTag = text[j].outerHTML;
+        var missingTag;
+        if (bindEvent) {
+          missingTag = document.createElement('a');
+          missingTag.className = elementClassName;
+          missingTag.setAttribute('nohref', '');
+          missingTag.setAttribute('title', languageFile.addMissingTagButtonTitle);
+          var maskedTag = text[j].outerHTML;
 
-        // To solve the closure issue inside the loop.
-        bind_event(a, maskedTag);
+          // To solve the closure issue inside the loop.
+          bind_event(missingTag, maskedTag);
+        }
+        else {
+          missingTag = document.createElement('span');
+          missingTag.className = elementClassName;
+        }
 
-        a.appendChild(document.createTextNode(text[j].getAttribute('element')));
-        missingTagsWrapper.appendChild(a);
+        missingTag.appendChild(document.createTextNode(text[j].getAttribute('element')));
+        missingTagsWrapper.appendChild(missingTag);
         wrapper.appendChild(missingTagsWrapper);
       }
     }

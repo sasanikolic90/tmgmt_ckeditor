@@ -10,6 +10,8 @@ CKEDITOR.plugins.setLang('tmgmt_segments', 'en', {
 	missingTagsTitle: 'Number of all missing tags is',
 	oneMissingTag: 'missing tag for the selected segment',
 	moreMissingTags: 'missing tags for the selected segment',
+	oneExtraTag: 'extra tag for the selected segment',
+	moreExtraTags: 'extra tags for the selected segment',
 	numberOfSegmentsNotMatching: 'The number of segments in both editors does not match.',
 	noTranslationsInMemory: 'There are no translations for this segment in the translation memory.',
 	completedSegmentsTitle: 'Completed segments:',
