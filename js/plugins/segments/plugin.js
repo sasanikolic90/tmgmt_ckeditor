@@ -828,7 +828,7 @@
           if (jsonData[index].quality) {
             var qualityDiv = document.createElement('meter');
             var quality = jsonData[index].quality;
-            qualityDiv.setAttribute('max', '5');
+            qualityDiv.setAttribute('max', '10');
             qualityDiv.setAttribute('min', '0');
             qualityDiv.setAttribute('value', quality);
             td.appendChild(qualityDiv);

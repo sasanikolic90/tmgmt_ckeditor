@@ -64,11 +64,11 @@ function tmgmt_ckeditor_install() {
   // Adding the segments to tmgmt_memory.
   $first_source_usage_1 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
   $first_target_usage_1 = $memory_manager->addUsage('de', $first_segment_translation_1, null, null, 1);
-  $memory_manager->addUsageTranslation($first_source_usage_1, $first_target_usage_1, 5);
+  $memory_manager->addUsageTranslation($first_source_usage_1, $first_target_usage_1, 10);
 
   $first_source_usage_2 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
   $first_target_usage_2 = $memory_manager->addUsage('de', $first_segment_translation_2, null, null, 1);
-  $memory_manager->addUsageTranslation($first_source_usage_2, $first_target_usage_2, 3);
+  $memory_manager->addUsageTranslation($first_source_usage_2, $first_target_usage_2, 5);
 
   $first_source_usage_3 = $memory_manager->addUsage('en', $first_segment_text, null, null, 1);
   $first_target_usage_3 = $memory_manager->addUsage('de', $first_segment_translation_3, null, null, 1);
