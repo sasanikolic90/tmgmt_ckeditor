@@ -69,7 +69,11 @@ When altogether will be fully functional, this module will be merged into TMGMT.
 
 ## Code
 
-The project can be found in my [sandbox](https://www.drupal.org/sandbox/sasanikolic/2737249) on drupal.org and in my [GitHub repository](https://github.com/sasanikolic90/tmgmt_ckeditor). Both project will stay updated. The current main branch is 8.x-1.x. 
+The project can be found in my [sandbox](https://www.drupal.org/sandbox/sasanikolic/2737249) on drupal.org and in my [GitHub repository](https://github.com/sasanikolic90/tmgmt_ckeditor). Both project will stay updated. The current main branch is 8.x-1.x.
+
+# Blog
+
+All development process is described in my weekly blog posts on [my personal web page](http://sasanikolic.com/).
 
 ## Credits
 
