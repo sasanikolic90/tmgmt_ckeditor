@@ -852,8 +852,8 @@
           btn.setAttribute('type', 'button');
           btn.id = constants.id.buttonUseSuggestionId + index;
 
-          btn.addEventListener('click', function (evt) {
-            addSuggestion(jsonData[index], editorPairs[activeEditorId].activeSegmentHtmlText);
+          btn.addEventListener('click', function () {
+            addSuggestion(jsonData[index], editorPairs[activeEditorId]);
             tbody.removeChild(tr);
           });
           td.appendChild(btn);
@@ -871,16 +871,15 @@
    *
    * @param {object} jsonData
    *   JSON object that was returned by the query in the memory.
-   * @param {string} selectedSegment
+   * @param {string} selectedEditor
    *   The selected segment.
    */
-  function addSuggestion(jsonData, selectedSegment) {
-    var editor = CKEDITOR.currentInstance;
-    var editorData = editor.getData();
-    var replacedText = editorData.replace(selectedSegment, jsonData.trSegmentHtmlText);
+  function addSuggestion(jsonData, selectedEditor) {
+    var editorData = selectedEditor.getData();
+    var replacedText = editorData.replace(selectedEditor.activeSegmentHtmlText, jsonData.trSegmentHtmlText);
 
     var suggestionFallback = function () {
-      var sourceSegment = editor.document.getById(jsonData.sourceSegmentId);
+      var sourceSegment = selectedEditor.document.getById(jsonData.sourceSegmentId);
       sourceSegment.setAttribute(constants.attribute.source, 'memory');
       sourceSegment.setAttribute(constants.attribute.quality, jsonData.quality);
     };
