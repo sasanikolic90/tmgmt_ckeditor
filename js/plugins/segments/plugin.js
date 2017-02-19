@@ -343,9 +343,11 @@
    *   The active tag.
    * @param counter
    *   The counter of completed segments.
+   * @param editor
+   *   Full editor object.
    * @constructor
    */
-  function EditorPair(id, leftEditor, rightEditor, areaBelow, activeEditorName, activeSegmentId, activeWord, activeTag, counter) {
+  function EditorPair(id, leftEditor, rightEditor, areaBelow, activeEditorName, activeSegmentId, activeWord, activeTag, counter, editor) {
     this.id = id;
     this.leftEditor = leftEditor;
     this.rightEditor = rightEditor;
@@ -355,6 +357,7 @@
     this.activeWord = activeWord;
     this.activeTag = activeTag;
     this.completedCounter = counter;
+    this.editor = editor;
   }
 
   /**
@@ -681,6 +684,7 @@
       editorPairs[activeEditorId].activeSegmentStrippedText = data['segmentStrippedText'];
       editorPairs[activeEditorId].activeSegmentHtmlText = data['segmentHtmlText'];
       editorPairs[activeEditorId].activeTag = data['tagsStrippedText'];
+      editorPairs[activeEditorId].editor = CKEDITOR.currentInstance;
     }
     else {
       editorPairs[activeEditorId].activeSegmentId = null;
@@ -875,15 +879,15 @@
    *   The selected segment.
    */
   function addSuggestion(jsonData, selectedEditor) {
-    var editorData = selectedEditor.getData();
+    var editorData = selectedEditor.editor.getData();
     var replacedText = editorData.replace(selectedEditor.activeSegmentHtmlText, jsonData.trSegmentHtmlText);
 
     var suggestionFallback = function () {
-      var sourceSegment = selectedEditor.document.getById(jsonData.sourceSegmentId);
+      var sourceSegment = selectedEditor.editor.document.getById(jsonData.sourceSegmentId);
       sourceSegment.setAttribute(constants.attribute.source, 'memory');
       sourceSegment.setAttribute(constants.attribute.quality, jsonData.quality);
     };
-    editor.setData(replacedText, suggestionFallback);
+    CKEDITOR.currentInstance.setData(replacedText, suggestionFallback);
   }
 
   /**
